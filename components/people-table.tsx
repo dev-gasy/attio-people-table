@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   functionalUpdate,
@@ -9,6 +9,7 @@ import {
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
+  type ColumnFiltersState,
   type RowSelectionState,
   type SortingState,
 } from "@tanstack/react-table";
@@ -18,7 +19,10 @@ import {
   toPeoplePresentation,
   toPersonPresentation,
 } from "@/features/people/presentation";
-import { createPerson, getPeople } from "@/features/people/service";
+import {
+  createPerson,
+  peopleQueryOptions,
+} from "@/features/people/service";
 import { AddPersonModal } from "@/components/people/add-person-modal";
 import {
   emptyPersonForm,
@@ -39,17 +43,13 @@ export type PeopleTableSearch = {
 };
 
 export function PeopleTable() {
-  const { data: initialPeople } = useQuery({
-    queryKey: ["people"],
-    queryFn: getPeople,
-    initialData: getPeople,
-    staleTime: Infinity,
-  });
+  const { data: peopleData = [] } = useQuery(peopleQueryOptions());
   const seedPeople = useMemo(
-    () => toPeoplePresentation(initialPeople),
-    [initialPeople],
+    () => toPeoplePresentation(peopleData),
+    [peopleData],
   );
-  const [list, setList] = useState<Person[]>(seedPeople);
+  const [localPeople, setLocalPeople] = useState<Person[] | null>(null);
+  const people = localPeople ?? seedPeople;
   const [connectionFilter, setConnectionFilter] = useState<Connection>();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [page, setPage] = useState(1);
@@ -64,6 +64,20 @@ export function PeopleTable() {
   const sortKey =
     (sorting[0]?.id as Exclude<SortKey, null> | undefined) ?? null;
   const direction = sorting[0]?.desc ? "desc" : "asc";
+  const columnFilters = useMemo<ColumnFiltersState>(
+    () =>
+      connectionFilter
+        ? [{ id: "connection", value: connectionFilter }]
+        : [],
+    [connectionFilter],
+  );
+  const tablePagination = useMemo(
+    () => ({
+      pageIndex: 0,
+      pageSize: Math.max(1, people.length),
+    }),
+    [people.length],
+  );
 
   const columns = useMemo<ColumnDef<Person>[]>(
     () => [
@@ -81,25 +95,19 @@ export function PeopleTable() {
   );
 
   const table = useReactTable({
-    data: list,
+    data: people,
     columns,
     state: {
-      columnFilters: connectionFilter
-        ? [{ id: "connection", value: connectionFilter }]
-        : [],
+      columnFilters,
       sorting,
-      pagination: {
-        pageIndex: 0,
-        pageSize: list.length,
-      },
+      pagination: tablePagination,
       rowSelection,
     },
     getRowId: (row) => String(row.id),
     enableRowSelection: true,
     onSortingChange: setSorting,
     onRowSelectionChange: (updater) => {
-      const next = functionalUpdate(updater, rowSelection);
-      setRowSelection(next);
+      setRowSelection((prev) => functionalUpdate(updater, prev));
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -110,14 +118,18 @@ export function PeopleTable() {
   const filteredTotal = tableRows.length;
   const pageCount = Math.max(1, Math.ceil(filteredTotal / PEOPLE_PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
-  const rows = tableRows.slice(
-    (currentPage - 1) * PEOPLE_PAGE_SIZE,
-    currentPage * PEOPLE_PAGE_SIZE,
+  const rows = useMemo(
+    () =>
+      tableRows.slice(
+        (currentPage - 1) * PEOPLE_PAGE_SIZE,
+        currentPage * PEOPLE_PAGE_SIZE,
+      ),
+    [currentPage, tableRows],
   );
 
   const allSelected = rows.length > 0 && rows.every((r) => r.getIsSelected());
 
-  function toggleAll() {
+  const toggleAll = useCallback(function toggleAll() {
     setRowSelection((prev) => {
       const next = { ...prev };
       rows.forEach((row) => {
@@ -129,10 +141,12 @@ export function PeopleTable() {
       });
       return next;
     });
-  }
+  }, [allSelected, rows]);
 
   function deleteSelected() {
-    setList((prev) => prev.filter((p) => !selected.has(String(p.id))));
+    setLocalPeople((prev) =>
+      (prev ?? seedPeople).filter((person) => !selected.has(String(person.id))),
+    );
     setRowSelection({});
     setPage(1);
   }
@@ -154,7 +168,10 @@ export function PeopleTable() {
   function handleAdd(e: FormEvent) {
     e.preventDefault();
     if (!form.name.trim()) return;
-    setList((prev) => [toPersonPresentation(createPerson(form, prev)), ...prev]);
+    setLocalPeople((prev) => [
+      toPersonPresentation(createPerson(form, prev ?? seedPeople)),
+      ...(prev ?? seedPeople),
+    ]);
     setForm(emptyPersonForm);
     setAddOpen(false);
     setPage(1);

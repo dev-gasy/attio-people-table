@@ -7,6 +7,7 @@ import {
   getFilteredRowModel,
   useReactTable,
   type ColumnDef,
+  type ColumnFiltersState,
 } from "@tanstack/react-table";
 import { AddCompanyModal } from "@/components/companies/add-company-modal";
 import {
@@ -27,7 +28,10 @@ import {
   toCompaniesPresentation,
   toCompanyPresentation,
 } from "@/features/companies/presentation";
-import { createCompany, getCompanies } from "@/features/companies/service";
+import {
+  companiesQueryOptions,
+  createCompany,
+} from "@/features/companies/service";
 import { Pagination } from "@/components/ui/pagination";
 
 export type CompaniesPageSearch = {
@@ -37,22 +41,29 @@ export type CompaniesPageSearch = {
 };
 
 export function CompaniesPage() {
-  const { data: initialCompanies } = useQuery({
-    queryKey: ["companies"],
-    queryFn: getCompanies,
-    initialData: getCompanies,
-    staleTime: Infinity,
-  });
+  const { data: companiesData = [] } = useQuery(companiesQueryOptions());
   const seedCompanies = useMemo(
-    () => toCompaniesPresentation(initialCompanies),
-    [initialCompanies],
+    () => toCompaniesPresentation(companiesData),
+    [companiesData],
   );
-  const [list, setList] = useState<Company[]>(seedCompanies);
+  const [localCompanies, setLocalCompanies] = useState<Company[] | null>(null);
+  const companies = localCompanies ?? seedCompanies;
   const [statusFilter, setStatusFilter] = useState<CompanyStatus>();
   const [view, setView] = useState<CompaniesView>("grid");
   const [page, setPage] = useState(1);
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState(emptyCompanyForm);
+  const columnFilters = useMemo<ColumnFiltersState>(
+    () => (statusFilter ? [{ id: "status", value: statusFilter }] : []),
+    [statusFilter],
+  );
+  const tablePagination = useMemo(
+    () => ({
+      pageIndex: 0,
+      pageSize: Math.max(1, companies.length),
+    }),
+    [companies.length],
+  );
 
   const columns = useMemo<ColumnDef<Company>[]>(
     () => [
@@ -71,16 +82,11 @@ export function CompaniesPage() {
   );
 
   const table = useReactTable({
-    data: list,
+    data: companies,
     columns,
     state: {
-      columnFilters: statusFilter
-        ? [{ id: "status", value: statusFilter }]
-        : [],
-      pagination: {
-        pageIndex: 0,
-        pageSize: list.length,
-      },
+      columnFilters,
+      pagination: tablePagination,
     },
     getRowId: (row) => String(row.id),
     getCoreRowModel: getCoreRowModel(),
@@ -91,9 +97,17 @@ export function CompaniesPage() {
   const filteredTotal = filteredRows.length;
   const pageCount = Math.max(1, Math.ceil(filteredTotal / COMPANIES_PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
-  const gridRows = filteredRows.slice(
-    (currentPage - 1) * COMPANIES_PAGE_SIZE,
-    currentPage * COMPANIES_PAGE_SIZE,
+  const gridRows = useMemo(
+    () =>
+      filteredRows.slice(
+        (currentPage - 1) * COMPANIES_PAGE_SIZE,
+        currentPage * COMPANIES_PAGE_SIZE,
+      ),
+    [currentPage, filteredRows],
+  );
+  const filteredCompanies = useMemo(
+    () => filteredRows.map((row) => row.original),
+    [filteredRows],
   );
 
   const grouped = useMemo<CompanyGroup[]>(
@@ -101,20 +115,18 @@ export function CompaniesPage() {
       statusList
         .map((status) => ({
           status,
-          items: filteredRows
-            .map((row) => row.original)
-            .filter((c) => c.status === status),
+          items: filteredCompanies.filter((c) => c.status === status),
         }))
         .filter((g) => g.items.length > 0),
-    [filteredRows],
+    [filteredCompanies],
   );
 
   function handleAdd(e: FormEvent) {
     e.preventDefault();
     if (!form.name.trim()) return;
-    setList((prev) => [
-      toCompanyPresentation(createCompany(form, prev)),
-      ...prev,
+    setLocalCompanies((prev) => [
+      toCompanyPresentation(createCompany(form, prev ?? seedCompanies)),
+      ...(prev ?? seedCompanies),
     ]);
     setForm(emptyCompanyForm);
     setAddOpen(false);

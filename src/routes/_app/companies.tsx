@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CompaniesPage } from "@/components/companies-page";
+import { companiesQueryOptions } from "@/features/companies/service";
 
 export const Route = createFileRoute("/_app/companies")({
+  loader: ({ context }) =>
+    context.queryClient.ensureQueryData(companiesQueryOptions()),
   component: CompaniesRoute,
 });
 

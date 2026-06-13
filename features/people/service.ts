@@ -3,10 +3,18 @@ import {
   type CreatePersonDto,
   type PersonDto,
 } from "@/features/people/dtos";
+import { queryOptions } from "@tanstack/react-query";
+import { createServerFn } from "@tanstack/react-start";
 
-export function getPeople(): PersonDto[] {
-  return peopleSeed;
-}
+export const peopleQueryOptions = () =>
+  queryOptions({
+    queryKey: ["people"],
+    queryFn: () => getPeople(),
+  });
+
+export const getPeople = createServerFn({ method: "GET" }).handler(
+  async () => peopleSeed,
+);
 
 export function createPerson(input: CreatePersonDto, people: PersonDto[]): PersonDto {
   const id = Math.max(0, ...people.map((person) => person.id)) + 1;
