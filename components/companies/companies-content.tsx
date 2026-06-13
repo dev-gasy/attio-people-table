@@ -4,25 +4,14 @@ import type { Row } from "@tanstack/react-table";
 import { CompanyCard } from "@/components/companies/company-card";
 import { CompanyRow } from "@/components/companies/company-row";
 import type { CompaniesView } from "@/components/companies/types";
-import type {
-  Company,
-  CompanyStatus,
-} from "@/features/companies/presentation";
-import { Collapsible } from "@/components/ui/collapsible-section";
-
-export type CompanyGroup = {
-  status: CompanyStatus;
-  items: Company[];
-};
+import type { Company } from "@/features/companies/presentation";
 
 export function CompaniesContent({
   filteredTotal,
-  grouped,
   rows,
   view,
 }: {
   filteredTotal: number;
-  grouped: CompanyGroup[];
   rows: Row<Company>[];
   view: CompaniesView;
 }) {
@@ -39,17 +28,17 @@ export function CompaniesContent({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {grouped.map((group) => (
-            <Collapsible
-              key={group.status}
-              title={group.status}
-              count={group.items.length}
-            >
-              {group.items.map((company) => (
-                <CompanyRow key={company.id} company={company} />
-              ))}
-            </Collapsible>
+        <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
+          <div className="grid grid-cols-[minmax(180px,1.5fr)_minmax(140px,1.2fr)_120px_minmax(96px,0.7fr)_minmax(80px,0.6fr)_minmax(140px,1fr)] items-center gap-4 border-b border-border/60 px-4 py-2 text-xs font-medium text-muted-foreground">
+            <span className="truncate">Company</span>
+            <span className="truncate">Web address</span>
+            <span className="truncate">Status</span>
+            <span className="truncate">Employees</span>
+            <span className="truncate">ARR</span>
+            <span className="truncate">Location</span>
+          </div>
+          {rows.map((row) => (
+            <CompanyRow key={row.id} company={row.original} />
           ))}
         </div>
       )}

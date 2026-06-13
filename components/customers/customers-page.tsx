@@ -7,15 +7,20 @@ import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@/components/avatar";
 import { CustomerStatusBadge } from "@/components/customers/customer-status-badge";
 import { PageHeader } from "@/components/page-header";
+import { Pagination } from "@/components/ui/pagination";
 import { customersQueryOptions } from "@/features/customers/service";
 import {
   type Customer,
   toCustomersPresentation,
 } from "@/features/customers/presentation";
 
+const CUSTOMERS_PAGE_SIZE = 25;
+
 export function CustomersPage() {
   const { data } = useQuery(customersQueryOptions());
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(CUSTOMERS_PAGE_SIZE);
   const customers = useMemo(
     () =>
       data
@@ -27,6 +32,19 @@ export function CustomersPage() {
     () => filterCustomers(customers, query),
     [customers, query],
   );
+  const pageCount = Math.max(
+    1,
+    Math.ceil(filteredCustomers.length / pageSize),
+  );
+  const currentPage = Math.min(page, pageCount);
+  const pageCustomers = useMemo(
+    () =>
+      filteredCustomers.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize,
+      ),
+    [currentPage, filteredCustomers, pageSize],
+  );
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
@@ -37,7 +55,10 @@ export function CustomersPage() {
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setPage(1);
+              }}
               placeholder="Search customers"
               className="h-8 w-full rounded-lg border border-border bg-background pl-8 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-3 focus:ring-ring/20"
             />
@@ -59,7 +80,7 @@ export function CustomersPage() {
               <span className="min-w-[140px] flex-1">Owner</span>
               <span className="w-[120px] shrink-0">Value</span>
             </div>
-            {filteredCustomers.map((customer) => (
+            {pageCustomers.map((customer) => (
               <Link
                 key={customer.id}
                 to="/customers/$customerId"
@@ -93,6 +114,20 @@ export function CustomersPage() {
           </div>
         )}
       </div>
+
+      {filteredCustomers.length > 0 && (
+        <Pagination
+          page={currentPage}
+          pageCount={pageCount}
+          total={filteredCustomers.length}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
+      )}
     </div>
   );
 }

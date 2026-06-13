@@ -163,8 +163,12 @@ export function CustomerDetailPage({
 
       <div className="flex-1 overflow-auto px-6 py-6">
         {activeTab === "details" && <DetailsTab customer={customer} />}
-        {activeTab === "contacts" && <ContactsTab contacts={customer.contacts} />}
-        {activeTab === "products" && <ProductsTab products={customer.products} />}
+        {activeTab === "contacts" && (
+          <ContactsTab contacts={customer.contacts} />
+        )}
+        {activeTab === "products" && (
+          <ProductsTab products={customer.products} />
+        )}
       </div>
     </div>
   );
@@ -199,7 +203,10 @@ function DetailsTab({ customer }: { customer: Customer }) {
     }))
     .filter((section) => section.contact);
   const fields = [
-    { label: "Customer ID", value: `CUS-${String(customer.id).padStart(4, "0")}` },
+    {
+      label: "Customer ID",
+      value: `CUS-${String(customer.id).padStart(4, "0")}`,
+    },
     { label: "Lifecycle", value: customer.status },
     { label: "Segment", value: customer.segment },
     { label: "Owner", value: customer.owner },
@@ -257,27 +264,6 @@ function DetailsTab({ customer }: { customer: Customer }) {
       </div>
 
       <div className="flex flex-col gap-5 xl:flex-row">
-        <section className="flex-1 rounded-xl border border-border bg-muted/10 p-5">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <FileText className="h-4 w-4 text-muted-foreground" />
-            Customer brief
-          </div>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            {customer.summary}
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <CustomerStatusBadge status={customer.status} />
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/20 px-2 py-1 text-xs font-medium text-muted-foreground">
-              <Activity className="h-3.5 w-3.5" />
-              {activeProducts.length} active / {inactiveProducts} inactive
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/20 px-2 py-1 text-xs font-medium text-muted-foreground">
-              <CalendarDays className="h-3.5 w-3.5" />
-              Since {customer.since}
-            </span>
-          </div>
-        </section>
-
         <section className="flex-1 rounded-xl border border-border bg-muted/10 p-5">
           <div className="flex items-center gap-2 text-sm font-medium text-foreground">
             <UserRound className="h-4 w-4 text-muted-foreground" />

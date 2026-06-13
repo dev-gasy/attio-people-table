@@ -10,15 +10,11 @@ import {
   type ColumnFiltersState,
 } from "@tanstack/react-table";
 import { AddCompanyModal } from "@/components/companies/add-company-modal";
-import {
-  CompaniesContent,
-  type CompanyGroup,
-} from "@/components/companies/companies-content";
+import { CompaniesContent } from "@/components/companies/companies-content";
 import { CompaniesToolbar } from "@/components/companies/companies-toolbar";
 import {
   COMPANIES_PAGE_SIZE,
   emptyCompanyForm,
-  statusList,
 } from "@/components/companies/constants";
 import type { CompaniesView } from "@/components/companies/types";
 import { PageHeader } from "@/components/page-header";
@@ -51,6 +47,7 @@ export function CompaniesPage() {
   const [statusFilter, setStatusFilter] = useState<CompanyStatus>();
   const [view, setView] = useState<CompaniesView>("grid");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(COMPANIES_PAGE_SIZE);
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState(emptyCompanyForm);
   const columnFilters = useMemo<ColumnFiltersState>(
@@ -95,32 +92,16 @@ export function CompaniesPage() {
 
   const filteredRows = table.getRowModel().rows;
   const filteredTotal = filteredRows.length;
-  const pageCount = Math.max(1, Math.ceil(filteredTotal / COMPANIES_PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(filteredTotal / pageSize));
   const currentPage = Math.min(page, pageCount);
   const gridRows = useMemo(
     () =>
       filteredRows.slice(
-        (currentPage - 1) * COMPANIES_PAGE_SIZE,
-        currentPage * COMPANIES_PAGE_SIZE,
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize,
       ),
-    [currentPage, filteredRows],
+    [currentPage, filteredRows, pageSize],
   );
-  const filteredCompanies = useMemo(
-    () => filteredRows.map((row) => row.original),
-    [filteredRows],
-  );
-
-  const grouped = useMemo<CompanyGroup[]>(
-    () =>
-      statusList
-        .map((status) => ({
-          status,
-          items: filteredCompanies.filter((c) => c.status === status),
-        }))
-        .filter((g) => g.items.length > 0),
-    [filteredCompanies],
-  );
-
   function handleAdd(e: FormEvent) {
     e.preventDefault();
     if (!form.name.trim()) return;
@@ -153,18 +134,21 @@ export function CompaniesPage() {
 
       <CompaniesContent
         filteredTotal={filteredTotal}
-        grouped={grouped}
         rows={gridRows}
         view={view}
       />
 
-      {view === "grid" && filteredTotal > 0 && (
+      {filteredTotal > 0 && (
         <Pagination
           page={currentPage}
           pageCount={pageCount}
           total={filteredTotal}
-          pageSize={COMPANIES_PAGE_SIZE}
+          pageSize={pageSize}
           onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
         />
       )}
 

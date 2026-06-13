@@ -53,6 +53,7 @@ export function PeopleTable() {
   const [connectionFilter, setConnectionFilter] = useState<Connection>();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PEOPLE_PAGE_SIZE);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState(emptyPersonForm);
@@ -116,15 +117,15 @@ export function PeopleTable() {
 
   const tableRows = table.getRowModel().rows;
   const filteredTotal = tableRows.length;
-  const pageCount = Math.max(1, Math.ceil(filteredTotal / PEOPLE_PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(filteredTotal / pageSize));
   const currentPage = Math.min(page, pageCount);
   const rows = useMemo(
     () =>
       tableRows.slice(
-        (currentPage - 1) * PEOPLE_PAGE_SIZE,
-        currentPage * PEOPLE_PAGE_SIZE,
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize,
       ),
-    [currentPage, tableRows],
+    [currentPage, pageSize, tableRows],
   );
 
   const allSelected = rows.length > 0 && rows.every((r) => r.getIsSelected());
@@ -207,8 +208,12 @@ export function PeopleTable() {
         page={currentPage}
         pageCount={pageCount}
         total={filteredTotal}
-        pageSize={PEOPLE_PAGE_SIZE}
+        pageSize={pageSize}
         onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(1);
+        }}
       />
 
       <AddPersonModal
