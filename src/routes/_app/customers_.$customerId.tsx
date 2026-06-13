@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CustomerDetailPage } from "@/components/customers/customer-detail-page";
-import { customerQueryOptions } from "@/features/customers/service";
-import { toCustomerPresentation } from "@/features/customers/presentation";
+import { customerQueryOptions } from "@/features/customers/customer-service";
+import { mapCustomerDtoToCustomer } from "@/features/customers/customer-mappers";
 
 export const Route = createFileRoute("/_app/customers_/$customerId")({
   loader: ({ context, params }) => {
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_app/customers_/$customerId")({
 function CustomerRoute() {
   const data = Route.useLoaderData();
   const customer = data?.customer
-    ? toCustomerPresentation(data.customer, data.contacts, data.products)
+    ? mapCustomerDtoToCustomer(data.customer, data.contacts, data.products)
     : null;
 
   return <CustomerDetailPage customer={customer} />;

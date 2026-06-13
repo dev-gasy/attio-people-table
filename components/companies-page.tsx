@@ -21,13 +21,13 @@ import { PageHeader } from "@/components/page-header";
 import {
   type Company,
   type CompanyStatus,
-  toCompaniesPresentation,
-  toCompanyPresentation,
-} from "@/features/companies/presentation";
+  mapCompanyDtosToCompanies,
+  mapCompanyDtoToCompany,
+} from "@/features/companies/company-mappers";
 import {
   companiesQueryOptions,
   createCompany,
-} from "@/features/companies/service";
+} from "@/features/companies/company-service";
 import { Pagination } from "@/components/ui/pagination";
 
 export type CompaniesPageSearch = {
@@ -39,7 +39,7 @@ export type CompaniesPageSearch = {
 export function CompaniesPage() {
   const { data: companiesData = [] } = useQuery(companiesQueryOptions());
   const seedCompanies = useMemo(
-    () => toCompaniesPresentation(companiesData),
+    () => mapCompanyDtosToCompanies(companiesData),
     [companiesData],
   );
   const [localCompanies, setLocalCompanies] = useState<Company[] | null>(null);
@@ -106,7 +106,7 @@ export function CompaniesPage() {
     e.preventDefault();
     if (!form.name.trim()) return;
     setLocalCompanies((prev) => [
-      toCompanyPresentation(createCompany(form, prev ?? seedCompanies)),
+      mapCompanyDtoToCompany(createCompany(form, prev ?? seedCompanies)),
       ...(prev ?? seedCompanies),
     ]);
     setForm(emptyCompanyForm);

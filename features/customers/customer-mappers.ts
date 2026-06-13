@@ -7,7 +7,7 @@ import type {
   CustomerProductDto,
   CustomerProductTypeDto,
   CustomerStatusDto,
-} from "@/features/customers/dtos";
+} from "@/features/customers/customer-dtos";
 
 export type CustomerStatus = CustomerStatusDto;
 export type CustomerContactKind = CustomerContactKindDto;
@@ -64,7 +64,7 @@ const customerColors = [
   "bg-sky-500",
 ];
 
-export function toCustomerPresentation(
+export function mapCustomerDtoToCustomer(
   dto: CustomerDto,
   contacts: CustomerContactDto[],
   products: CustomerProductDto[],
@@ -79,12 +79,12 @@ export function toCustomerPresentation(
   };
 }
 
-export function toCustomersPresentation(
+export function mapCustomerDtosToCustomers(
   customers: CustomerDto[],
   contacts: CustomerContactDto[],
   products: CustomerProductDto[],
 ): Customer[] {
   return customers.map((customer) =>
-    toCustomerPresentation(customer, contacts, products),
+    mapCustomerDtoToCustomer(customer, contacts, products),
   );
 }

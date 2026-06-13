@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import type { Connection } from "@/features/people/presentation";
+import type { Connection } from "@/features/people/person-mappers";
 import { Combobox } from "@/components/ui/combobox";
 import { Modal } from "@/components/ui/modal";
 import {

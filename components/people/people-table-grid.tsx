@@ -2,7 +2,7 @@
 
 import type { Row } from "@tanstack/react-table";
 import { AtSign, Plus, Star, User, Zap } from "lucide-react";
-import type { Person } from "@/features/people/presentation";
+import type { Person } from "@/features/people/person-mappers";
 import { PeopleTableRow } from "@/components/people/people-table-row";
 import {
   SortableHeader,

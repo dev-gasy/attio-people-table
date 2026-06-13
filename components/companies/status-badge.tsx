@@ -1,7 +1,7 @@
 import {
   companyStatusStyles,
   type CompanyStatus,
-} from "@/features/companies/presentation";
+} from "@/features/companies/company-mappers";
 
 export function StatusBadge({ status }: { status: CompanyStatus }) {
   const s = companyStatusStyles[status];

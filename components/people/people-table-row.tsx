@@ -1,5 +1,5 @@
 import type { Row } from "@tanstack/react-table";
-import type { Person } from "@/features/people/presentation";
+import type { Person } from "@/features/people/person-mappers";
 import { ConnectionCell } from "@/components/people/connection-cell";
 import { PersonAvatar } from "@/components/people/person-avatar";
 import { Rating } from "@/components/people/rating";

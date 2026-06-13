@@ -30,7 +30,7 @@ import {
   type CustomerProduct,
   type CustomerProductActivity,
   type CustomerProductBusinessDimension,
-} from "@/features/customers/presentation";
+} from "@/features/customers/customer-mappers";
 
 type CustomerTab = "details" | "contacts" | "products";
 

@@ -8,7 +8,7 @@ import {
   Settings,
   Table2,
 } from "lucide-react";
-import type { Connection } from "@/features/people/presentation";
+import type { Connection } from "@/features/people/person-mappers";
 import { connectionOptions } from "@/components/people/constants";
 import type { SortKey } from "@/components/people/sortable-header";
 import { Combobox } from "@/components/ui/combobox";

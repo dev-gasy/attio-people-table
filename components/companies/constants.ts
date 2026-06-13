@@ -1,9 +1,9 @@
-import type { CompanyStatus } from "@/features/companies/presentation";
+import type { CompanyStatus } from "@/features/companies/company-mappers";
 import {
   companyColors,
   statusList,
   statusOptions,
-} from "@/features/companies/presentation";
+} from "@/features/companies/company-mappers";
 
 export const COMPANIES_PAGE_SIZE = 8;
 export { companyColors, statusList, statusOptions };

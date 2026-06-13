@@ -11,12 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPeopleRouteImport } from './routes/api/people'
+import { Route as ApiCustomersRouteImport } from './routes/api/customers'
+import { Route as ApiCompaniesRouteImport } from './routes/api/companies'
 import { Route as AppTasksRouteImport } from './routes/_app/tasks'
 import { Route as AppPeopleRouteImport } from './routes/_app/people'
 import { Route as AppNotesRouteImport } from './routes/_app/notes'
 import { Route as AppCustomersRouteImport } from './routes/_app/customers'
 import { Route as AppCompaniesRouteImport } from './routes/_app/companies'
 import { Route as AppActivityRouteImport } from './routes/_app/activity'
+import { Route as ApiCustomersCustomerIdRouteImport } from './routes/api/customers.$customerId'
 import { Route as AppCustomersCustomerIdRouteImport } from './routes/_app/customers_.$customerId'
 
 const AppRoute = AppRouteImport.update({
@@ -26,6 +30,21 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPeopleRoute = ApiPeopleRouteImport.update({
+  id: '/api/people',
+  path: '/api/people',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCustomersRoute = ApiCustomersRouteImport.update({
+  id: '/api/customers',
+  path: '/api/customers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCompaniesRoute = ApiCompaniesRouteImport.update({
+  id: '/api/companies',
+  path: '/api/companies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppTasksRoute = AppTasksRouteImport.update({
@@ -58,6 +77,11 @@ const AppActivityRoute = AppActivityRouteImport.update({
   path: '/activity',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiCustomersCustomerIdRoute = ApiCustomersCustomerIdRouteImport.update({
+  id: '/$customerId',
+  path: '/$customerId',
+  getParentRoute: () => ApiCustomersRoute,
+} as any)
 const AppCustomersCustomerIdRoute = AppCustomersCustomerIdRouteImport.update({
   id: '/customers_/$customerId',
   path: '/customers/$customerId',
@@ -72,7 +96,11 @@ export interface FileRoutesByFullPath {
   '/notes': typeof AppNotesRoute
   '/people': typeof AppPeopleRoute
   '/tasks': typeof AppTasksRoute
+  '/api/companies': typeof ApiCompaniesRoute
+  '/api/customers': typeof ApiCustomersRouteWithChildren
+  '/api/people': typeof ApiPeopleRoute
   '/customers/$customerId': typeof AppCustomersCustomerIdRoute
+  '/api/customers/$customerId': typeof ApiCustomersCustomerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -82,7 +110,11 @@ export interface FileRoutesByTo {
   '/notes': typeof AppNotesRoute
   '/people': typeof AppPeopleRoute
   '/tasks': typeof AppTasksRoute
+  '/api/companies': typeof ApiCompaniesRoute
+  '/api/customers': typeof ApiCustomersRouteWithChildren
+  '/api/people': typeof ApiPeopleRoute
   '/customers/$customerId': typeof AppCustomersCustomerIdRoute
+  '/api/customers/$customerId': typeof ApiCustomersCustomerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,7 +126,11 @@ export interface FileRoutesById {
   '/_app/notes': typeof AppNotesRoute
   '/_app/people': typeof AppPeopleRoute
   '/_app/tasks': typeof AppTasksRoute
+  '/api/companies': typeof ApiCompaniesRoute
+  '/api/customers': typeof ApiCustomersRouteWithChildren
+  '/api/people': typeof ApiPeopleRoute
   '/_app/customers_/$customerId': typeof AppCustomersCustomerIdRoute
+  '/api/customers/$customerId': typeof ApiCustomersCustomerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -106,7 +142,11 @@ export interface FileRouteTypes {
     | '/notes'
     | '/people'
     | '/tasks'
+    | '/api/companies'
+    | '/api/customers'
+    | '/api/people'
     | '/customers/$customerId'
+    | '/api/customers/$customerId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -116,7 +156,11 @@ export interface FileRouteTypes {
     | '/notes'
     | '/people'
     | '/tasks'
+    | '/api/companies'
+    | '/api/customers'
+    | '/api/people'
     | '/customers/$customerId'
+    | '/api/customers/$customerId'
   id:
     | '__root__'
     | '/'
@@ -127,12 +171,19 @@ export interface FileRouteTypes {
     | '/_app/notes'
     | '/_app/people'
     | '/_app/tasks'
+    | '/api/companies'
+    | '/api/customers'
+    | '/api/people'
     | '/_app/customers_/$customerId'
+    | '/api/customers/$customerId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  ApiCompaniesRoute: typeof ApiCompaniesRoute
+  ApiCustomersRoute: typeof ApiCustomersRouteWithChildren
+  ApiPeopleRoute: typeof ApiPeopleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -149,6 +200,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/people': {
+      id: '/api/people'
+      path: '/api/people'
+      fullPath: '/api/people'
+      preLoaderRoute: typeof ApiPeopleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/customers': {
+      id: '/api/customers'
+      path: '/api/customers'
+      fullPath: '/api/customers'
+      preLoaderRoute: typeof ApiCustomersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/companies': {
+      id: '/api/companies'
+      path: '/api/companies'
+      fullPath: '/api/companies'
+      preLoaderRoute: typeof ApiCompaniesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/tasks': {
@@ -193,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppActivityRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/customers/$customerId': {
+      id: '/api/customers/$customerId'
+      path: '/$customerId'
+      fullPath: '/api/customers/$customerId'
+      preLoaderRoute: typeof ApiCustomersCustomerIdRouteImport
+      parentRoute: typeof ApiCustomersRoute
+    }
     '/_app/customers_/$customerId': {
       id: '/_app/customers_/$customerId'
       path: '/customers/$customerId'
@@ -225,9 +304,24 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface ApiCustomersRouteChildren {
+  ApiCustomersCustomerIdRoute: typeof ApiCustomersCustomerIdRoute
+}
+
+const ApiCustomersRouteChildren: ApiCustomersRouteChildren = {
+  ApiCustomersCustomerIdRoute: ApiCustomersCustomerIdRoute,
+}
+
+const ApiCustomersRouteWithChildren = ApiCustomersRoute._addFileChildren(
+  ApiCustomersRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  ApiCompaniesRoute: ApiCompaniesRoute,
+  ApiCustomersRoute: ApiCustomersRouteWithChildren,
+  ApiPeopleRoute: ApiPeopleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,6 +1,6 @@
 import { DollarSign, Users } from "lucide-react";
 import { Avatar } from "@/components/avatar";
-import type { Company } from "@/features/companies/presentation";
+import type { Company } from "@/features/companies/company-mappers";
 import { StatusBadge } from "@/components/companies/status-badge";
 
 export function CompanyCard({ company }: { company: Company }) {

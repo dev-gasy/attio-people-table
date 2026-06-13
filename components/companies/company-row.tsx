@@ -1,5 +1,5 @@
 import { Avatar } from "@/components/avatar";
-import type { Company } from "@/features/companies/presentation";
+import type { Company } from "@/features/companies/company-mappers";
 import { StatusBadge } from "@/components/companies/status-badge";
 
 export function CompanyRow({ company }: { company: Company }) {

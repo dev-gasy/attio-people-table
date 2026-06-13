@@ -1,10 +1,9 @@
-import {
-  companiesSeed,
-  type CompanyDto,
-  type CreateCompanyDto,
-} from "@/features/companies/dtos";
+import { fetchJson } from "@/features/shared/fetch-json";
+import type {
+  CompanyDto,
+  CreateCompanyDto,
+} from "@/features/companies/company-dtos";
 import { queryOptions } from "@tanstack/react-query";
-import { createServerFn } from "@tanstack/react-start";
 
 export const companiesQueryOptions = () =>
   queryOptions({
@@ -12,9 +11,9 @@ export const companiesQueryOptions = () =>
     queryFn: () => getCompanies(),
   });
 
-export const getCompanies = createServerFn({ method: "GET" }).handler(
-  async () => companiesSeed,
-);
+export function getCompanies() {
+  return fetchJson<CompanyDto[]>("/api/companies");
+}
 
 export function createCompany(
   input: CreateCompanyDto,

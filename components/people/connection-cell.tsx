@@ -2,7 +2,7 @@ import { Zap } from "lucide-react";
 import {
   connectionStyles,
   type Person,
-} from "@/features/people/presentation";
+} from "@/features/people/person-mappers";
 
 export function ConnectionCell({ person }: { person: Person }) {
   const style = connectionStyles[person.connection];

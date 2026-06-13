@@ -1,10 +1,6 @@
-import {
-  peopleSeed,
-  type CreatePersonDto,
-  type PersonDto,
-} from "@/features/people/dtos";
+import { fetchJson } from "@/features/shared/fetch-json";
+import type { CreatePersonDto, PersonDto } from "@/features/people/person-dtos";
 import { queryOptions } from "@tanstack/react-query";
-import { createServerFn } from "@tanstack/react-start";
 
 export const peopleQueryOptions = () =>
   queryOptions({
@@ -12,9 +8,9 @@ export const peopleQueryOptions = () =>
     queryFn: () => getPeople(),
   });
 
-export const getPeople = createServerFn({ method: "GET" }).handler(
-  async () => peopleSeed,
-);
+export function getPeople() {
+  return fetchJson<PersonDto[]>("/api/people");
+}
 
 export function createPerson(input: CreatePersonDto, people: PersonDto[]): PersonDto {
   const id = Math.max(0, ...people.map((person) => person.id)) + 1;

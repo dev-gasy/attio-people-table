@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PeopleTable } from "@/components/people-table";
-import { peopleQueryOptions } from "@/features/people/service";
+import { peopleQueryOptions } from "@/features/people/person-service";
 
 export const Route = createFileRoute("/_app/people")({
   loader: ({ context }) =>

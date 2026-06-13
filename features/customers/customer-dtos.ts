@@ -15,7 +15,10 @@ export type CustomerProductBusinessDimensionDto =
 
 export type CustomerDto = {
   id: number;
+  firstName: string;
+  lastName: string;
   name: string;
+  dateOfBirth: string;
   status: CustomerStatusDto;
   segment: string;
   owner: string;
@@ -39,6 +42,7 @@ export type CustomerProductDto = {
   id: number;
   customerId: number;
   type: CustomerProductTypeDto;
+  referenceNumber: string;
   businessDimension: CustomerProductBusinessDimensionDto;
   activity: CustomerProductActivityDto;
   name: string;
@@ -54,7 +58,11 @@ const customerStatusSeeds = [
   "Inactive",
 ] satisfies CustomerStatusDto[];
 
-const customerRiskSeeds = ["Low", "Medium", "High"] satisfies CustomerDto["risk"][];
+const customerRiskSeeds = [
+  "Low",
+  "Medium",
+  "High",
+] satisfies CustomerDto["risk"][];
 
 const customerSegmentSeeds = [
   "Private client",
@@ -112,6 +120,13 @@ const productStatusSeeds = [
   "Cancelled",
 ];
 
+const productReferencePrefixes: Record<CustomerProductTypeDto, string> = {
+  Policy: "POL",
+  Quote: "QUO",
+  Claim: "CLM",
+  Renewal: "REN",
+};
+
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
@@ -120,25 +135,38 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 
 faker.seed(3001);
 
-export const customersSeed: CustomerDto[] = Array.from({ length: 300 }, (_, index) => {
-  const sinceDate = faker.date.between({
-    from: new Date("2018-01-01"),
-    to: new Date("2026-06-13"),
-  });
+export const customersSeed: CustomerDto[] = Array.from(
+  { length: 300 },
+  (_, index) => {
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+    const dateOfBirth = faker.date.birthdate({
+      min: 18,
+      max: 85,
+      mode: "age",
+    });
+    const sinceDate = faker.date.between({
+      from: new Date("2018-01-01"),
+      to: new Date("2026-06-13"),
+    });
 
-  return {
-    id: index + 1,
-    name: faker.person.fullName(),
-    status: faker.helpers.arrayElement(customerStatusSeeds),
-    segment: faker.helpers.arrayElement(customerSegmentSeeds),
-    owner: faker.helpers.arrayElement(customerOwnerSeeds),
-    location: `${faker.location.city()}, ${faker.location.state({ abbreviated: true })}`,
-    since: `${sinceDate.toLocaleString("en-US", { month: "short" })} ${sinceDate.getFullYear()}`,
-    summary: faker.company.catchPhrase(),
-    lifetimeValue: `$${faker.number.float({ min: 2, max: 95, fractionDigits: 1 }).toFixed(1)}K`,
-    risk: faker.helpers.arrayElement(customerRiskSeeds),
-  };
-});
+    return {
+      id: index + 1,
+      firstName,
+      lastName,
+      name: `${firstName} ${lastName}`,
+      dateOfBirth: dateOfBirth.toISOString().slice(0, 10),
+      status: faker.helpers.arrayElement(customerStatusSeeds),
+      segment: faker.helpers.arrayElement(customerSegmentSeeds),
+      owner: faker.helpers.arrayElement(customerOwnerSeeds),
+      location: `${faker.location.city()}, ${faker.location.state({ abbreviated: true })}`,
+      since: `${sinceDate.toLocaleString("en-US", { month: "short" })} ${sinceDate.getFullYear()}`,
+      summary: faker.company.catchPhrase(),
+      lifetimeValue: `$${faker.number.float({ min: 2, max: 95, fractionDigits: 1 }).toFixed(1)}K`,
+      risk: faker.helpers.arrayElement(customerRiskSeeds),
+    };
+  },
+);
 
 export const customerContactsSeed: CustomerContactDto[] = customersSeed.flatMap(
   (customer) =>
@@ -156,7 +184,12 @@ export const customerContactsSeed: CustomerContactDto[] = customersSeed.flatMap(
         kind === "phone"
           ? faker.phone.number({ style: "national" })
           : kind === "email"
-            ? faker.internet.email({ firstName: customer.name.split(" ")[0], lastName: customer.name.split(" ").at(-1) }).toLowerCase()
+            ? faker.internet
+                .email({
+                  firstName: customer.firstName,
+                  lastName: customer.lastName,
+                })
+                .toLowerCase()
             : `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode()}`,
       preferred: index === 0,
     })),
@@ -181,18 +214,23 @@ export const customerProductsSeed: CustomerProductDto[] = customersSeed.flatMap(
         id: (customer.id - 1) * 5 + index + 1,
         customerId: customer.id,
         type,
+        referenceNumber: `${productReferencePrefixes[type]}-${String(
+          (customer.id - 1) * 5 + index + 1,
+        ).padStart(6, "0")}`,
         businessDimension,
         activity: faker.helpers.arrayElement(customerProductActivities),
-        name: `${faker.commerce.productAdjective()} ${faker.helpers.arrayElement([
-          "Homeowners",
-          "Auto",
-          "Umbrella",
-          "Business Liability",
-          "Cyber Liability",
-          "Term Life",
-          "Commercial Auto",
-          "Property",
-        ])}`,
+        name: `${faker.commerce.productAdjective()} ${faker.helpers.arrayElement(
+          [
+            "Homeowners",
+            "Auto",
+            "Umbrella",
+            "Business Liability",
+            "Cyber Liability",
+            "Term Life",
+            "Commercial Auto",
+            "Property",
+          ],
+        )}`,
         status: faker.helpers.arrayElement(productStatusSeeds),
         amount:
           type === "Claim"

@@ -1,5 +1,5 @@
 import { getAccessibleAvatarColor } from "@/components/avatar";
-import type { Person } from "@/features/people/presentation";
+import type { Person } from "@/features/people/person-mappers";
 
 export function PersonAvatar({ person }: { person: Person }) {
   const colorClass = getAccessibleAvatarColor(person.avatarColor);

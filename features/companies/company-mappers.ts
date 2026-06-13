@@ -1,4 +1,7 @@
-import type { CompanyDto, CompanyStatusDto } from "@/features/companies/dtos";
+import type {
+  CompanyDto,
+  CompanyStatusDto,
+} from "@/features/companies/company-dtos";
 
 export type CompanyStatus = CompanyStatusDto;
 
@@ -63,7 +66,7 @@ const companyColorById: Record<number, string> = {
   12: "bg-rose-600",
 };
 
-export function toCompanyPresentation(dto: CompanyDto): Company {
+export function mapCompanyDtoToCompany(dto: CompanyDto): Company {
   return {
     ...dto,
     initial: dto.name[0]?.toUpperCase() ?? "?",
@@ -72,6 +75,6 @@ export function toCompanyPresentation(dto: CompanyDto): Company {
   };
 }
 
-export function toCompaniesPresentation(dtos: CompanyDto[]): Company[] {
-  return dtos.map(toCompanyPresentation);
+export function mapCompanyDtosToCompanies(dtos: CompanyDto[]): Company[] {
+  return dtos.map(mapCompanyDtoToCompany);
 }

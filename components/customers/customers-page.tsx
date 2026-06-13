@@ -2,35 +2,42 @@
 
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@/components/avatar";
+import {
+  CustomerSearchForm,
+  emptyCustomerSearchValues,
+  type CustomerSearchValues,
+} from "@/components/customers/customer-search-form";
 import { CustomerStatusBadge } from "@/components/customers/customer-status-badge";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/ui/pagination";
-import { customersQueryOptions } from "@/features/customers/service";
+import { customersQueryOptions } from "@/features/customers/customer-service";
 import {
   type Customer,
-  toCustomersPresentation,
-} from "@/features/customers/presentation";
+  mapCustomerDtosToCustomers,
+} from "@/features/customers/customer-mappers";
 
 const CUSTOMERS_PAGE_SIZE = 25;
 
 export function CustomersPage() {
   const { data } = useQuery(customersQueryOptions());
-  const [query, setQuery] = useState("");
+  const [searchValues, setSearchValues] = useState<CustomerSearchValues>(
+    emptyCustomerSearchValues,
+  );
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(CUSTOMERS_PAGE_SIZE);
   const customers = useMemo(
     () =>
       data
-        ? toCustomersPresentation(data.customers, data.contacts, data.products)
+        ? mapCustomerDtosToCustomers(data.customers, data.contacts, data.products)
         : [],
     [data],
   );
   const filteredCustomers = useMemo(
-    () => filterCustomers(customers, query),
-    [customers, query],
+    () => filterCustomers(customers, searchValues),
+    [customers, searchValues],
   );
   const pageCount = Math.max(
     1,
@@ -48,31 +55,26 @@ export function CustomersPage() {
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <PageHeader
-        title="Customers"
-        actions={
-          <div className="relative w-64 max-w-full">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                setPage(1);
-              }}
-              placeholder="Search customers"
-              className="h-8 w-full rounded-lg border border-border bg-background pl-8 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-3 focus:ring-ring/20"
-            />
-          </div>
-        }
-      />
+      <PageHeader title="Customers" />
 
       <div className="flex-1 overflow-auto px-6 pb-8">
+        <CustomerSearchForm
+          onSearch={(values) => {
+            setSearchValues(values);
+            setPage(1);
+          }}
+          onReset={() => {
+            setSearchValues(emptyCustomerSearchValues);
+            setPage(1);
+          }}
+        />
+
         {filteredCustomers.length === 0 ? (
-          <div className="py-10 text-center text-sm text-muted-foreground">
+          <div className="mt-4 py-10 text-center text-sm text-muted-foreground">
             No customers match your search
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
+          <div className="mt-4 overflow-hidden rounded-xl border border-border bg-muted/10">
             <div className="flex items-center gap-4 border-b border-border/60 px-4 py-2 text-xs font-medium text-muted-foreground">
               <span className="w-[240px] shrink-0">Customer</span>
               <span className="w-[130px] shrink-0">Status</span>
@@ -132,20 +134,68 @@ export function CustomersPage() {
   );
 }
 
-function filterCustomers(customers: Customer[], query: string) {
-  const normalized = query.trim().toLowerCase();
-  if (!normalized) return customers;
+function filterCustomers(customers: Customer[], values: CustomerSearchValues) {
+  const normalizedValues = normalizeSearchValues(values);
+  const hasSearch = Object.values(normalizedValues).some(Boolean);
+
+  if (!hasSearch) return customers;
 
   return customers.filter((customer) =>
-    [
-      customer.name,
-      customer.status,
-      customer.segment,
-      customer.owner,
-      customer.location,
-    ]
-      .join(" ")
-      .toLowerCase()
-      .includes(normalized),
+    searchMatches(normalizedValues.firstName, customer.firstName) ||
+    searchMatches(normalizedValues.lastName, customer.lastName) ||
+    dateOfBirthMatches(normalizedValues.dateOfBirth, customer.dateOfBirth) ||
+    policyQuoteMatches(normalizedValues.policyQuoteNumber, customer) ||
+    contactMatches(normalizedValues.email, customer, "email") ||
+    contactMatches(normalizedValues.phone, customer, "phone") ||
+    contactMatches(normalizedValues.address, customer, "address"),
   );
+}
+
+function normalizeSearchValues(values: CustomerSearchValues) {
+  return {
+    firstName: normalize(values.firstName),
+    lastName: normalize(values.lastName),
+    dateOfBirth: values.dateOfBirth.trim(),
+    policyQuoteNumber: normalize(values.policyQuoteNumber),
+    email: normalize(values.email),
+    phone: normalize(values.phone),
+    address: normalize(values.address),
+  };
+}
+
+function searchMatches(searchValue: string, value: string) {
+  return searchValue.length > 0 && normalize(value).includes(searchValue);
+}
+
+function dateOfBirthMatches(searchValue: string, value: string) {
+  return searchValue.length > 0 && value === searchValue;
+}
+
+function contactMatches(
+  searchValue: string,
+  customer: Customer,
+  kind: "email" | "phone" | "address",
+) {
+  return (
+    searchValue.length > 0 &&
+    customer.contacts.some(
+      (contact) =>
+        contact.kind === kind && normalize(contact.value).includes(searchValue),
+    )
+  );
+}
+
+function policyQuoteMatches(searchValue: string, customer: Customer) {
+  return (
+    searchValue.length > 0 &&
+    customer.products.some(
+      (product) =>
+        (product.type === "Policy" || product.type === "Quote") &&
+        normalize(product.referenceNumber).includes(searchValue),
+    )
+  );
+}
+
+function normalize(value: string) {
+  return value.trim().toLowerCase();
 }

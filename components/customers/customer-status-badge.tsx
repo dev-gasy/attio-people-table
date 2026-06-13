@@ -1,7 +1,7 @@
 import {
   customerStatusStyles,
   type CustomerStatus,
-} from "@/features/customers/presentation";
+} from "@/features/customers/customer-mappers";
 
 export function CustomerStatusBadge({ status }: { status: CustomerStatus }) {
   const style = customerStatusStyles[status];

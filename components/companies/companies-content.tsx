@@ -4,7 +4,7 @@ import type { Row } from "@tanstack/react-table";
 import { CompanyCard } from "@/components/companies/company-card";
 import { CompanyRow } from "@/components/companies/company-row";
 import type { CompaniesView } from "@/components/companies/types";
-import type { Company } from "@/features/companies/presentation";
+import type { Company } from "@/features/companies/company-mappers";
 
 export function CompaniesContent({
   filteredTotal,

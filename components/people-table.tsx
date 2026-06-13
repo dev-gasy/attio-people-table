@@ -16,13 +16,13 @@ import {
 import {
   type Person,
   type Connection,
-  toPeoplePresentation,
-  toPersonPresentation,
-} from "@/features/people/presentation";
+  mapPersonDtosToPeople,
+  mapPersonDtoToPerson,
+} from "@/features/people/person-mappers";
 import {
   createPerson,
   peopleQueryOptions,
-} from "@/features/people/service";
+} from "@/features/people/person-service";
 import { AddPersonModal } from "@/components/people/add-person-modal";
 import {
   emptyPersonForm,
@@ -45,7 +45,7 @@ export type PeopleTableSearch = {
 export function PeopleTable() {
   const { data: peopleData = [] } = useQuery(peopleQueryOptions());
   const seedPeople = useMemo(
-    () => toPeoplePresentation(peopleData),
+    () => mapPersonDtosToPeople(peopleData),
     [peopleData],
   );
   const [localPeople, setLocalPeople] = useState<Person[] | null>(null);
@@ -170,7 +170,7 @@ export function PeopleTable() {
     e.preventDefault();
     if (!form.name.trim()) return;
     setLocalPeople((prev) => [
-      toPersonPresentation(createPerson(form, prev ?? seedPeople)),
+      mapPersonDtoToPerson(createPerson(form, prev ?? seedPeople)),
       ...(prev ?? seedPeople),
     ]);
     setForm(emptyPersonForm);

@@ -1,4 +1,4 @@
-import type { ConnectionDto, PersonDto } from "@/features/people/dtos";
+import type { ConnectionDto, PersonDto } from "@/features/people/person-dtos";
 
 export type Connection = ConnectionDto;
 
@@ -60,7 +60,7 @@ const avatarColorById: Record<number, string> = {
   16: "bg-purple-500",
 };
 
-export function toPersonPresentation(dto: PersonDto): Person {
+export function mapPersonDtoToPerson(dto: PersonDto): Person {
   return {
     ...dto,
     initial: dto.name[0]?.toUpperCase() ?? "?",
@@ -69,6 +69,6 @@ export function toPersonPresentation(dto: PersonDto): Person {
   };
 }
 
-export function toPeoplePresentation(dtos: PersonDto[]): Person[] {
-  return dtos.map(toPersonPresentation);
+export function mapPersonDtosToPeople(dtos: PersonDto[]): Person[] {
+  return dtos.map(mapPersonDtoToPerson);
 }

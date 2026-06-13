@@ -1,7 +1,7 @@
 "use client";
 
 import { Filter, LayoutGrid, List, Plus } from "lucide-react";
-import type { CompanyStatus } from "@/features/companies/presentation";
+import type { CompanyStatus } from "@/features/companies/company-mappers";
 import { statusOptions } from "@/components/companies/constants";
 import type { CompaniesView } from "@/components/companies/types";
 import { Combobox } from "@/components/ui/combobox";

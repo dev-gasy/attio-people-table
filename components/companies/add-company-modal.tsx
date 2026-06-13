@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import type { CompanyStatus } from "@/features/companies/presentation";
+import type { CompanyStatus } from "@/features/companies/company-mappers";
 import { Combobox } from "@/components/ui/combobox";
 import { Modal } from "@/components/ui/modal";
 import {
