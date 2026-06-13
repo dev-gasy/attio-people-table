@@ -37,7 +37,9 @@ export type CompaniesPageSearch = {
 };
 
 export function CompaniesPage() {
-  const { data: companiesData = [] } = useQuery(companiesQueryOptions());
+  const { data: companiesData = [], isPending } = useQuery(
+    companiesQueryOptions(),
+  );
   const seedCompanies = useMemo(
     () => mapCompanyDtosToCompanies(companiesData),
     [companiesData],
@@ -134,11 +136,12 @@ export function CompaniesPage() {
 
       <CompaniesContent
         filteredTotal={filteredTotal}
+        isLoading={isPending}
         rows={gridRows}
         view={view}
       />
 
-      {filteredTotal > 0 && (
+      {!isPending && filteredTotal > 0 && (
         <Pagination
           page={currentPage}
           pageCount={pageCount}

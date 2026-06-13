@@ -64,7 +64,7 @@ export function Combobox({
 
       {open && (
         <div
-          className={`absolute z-50 mt-1.5 w-60 overflow-hidden rounded-xl border border-border bg-popover shadow-xl ${
+          className={`absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-border bg-popover shadow-xl ${
             align === "right" ? "right-0" : "left-0"
           }`}
         >

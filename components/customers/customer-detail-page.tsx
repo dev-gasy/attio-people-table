@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ComponentType } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
   AlertTriangle,
@@ -12,7 +13,6 @@ import {
   FileText,
   Home,
   Mail,
-  MapPin,
   Package,
   Phone,
   ShieldCheck,
@@ -23,6 +23,7 @@ import { Avatar } from "@/components/avatar";
 import { CustomerStatusBadge } from "@/components/customers/customer-status-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Collapsible } from "@/components/ui/collapsible-section";
+import { customerQueryOptions } from "@/features/customers/customer-service";
 import {
   type Customer,
   type CustomerContact,
@@ -30,6 +31,7 @@ import {
   type CustomerProduct,
   type CustomerProductActivity,
   type CustomerProductBusinessDimension,
+  mapCustomerDtoToCustomer,
 } from "@/features/customers/customer-mappers";
 
 type CustomerTab = "details" | "contacts" | "products";
@@ -79,37 +81,42 @@ const businessDimensionOrder: CustomerProductBusinessDimension[] = [
 ];
 
 export function CustomerDetailPage({
-  customer,
+  customerId,
 }: {
-  customer: Customer | null;
+  customerId: string;
 }) {
   const [activeTab, setActiveTab] = useState<CustomerTab>("details");
+  const numericCustomerId = Number(customerId);
+  const hasValidCustomerId = Number.isFinite(numericCustomerId);
+  const { data, isPending } = useQuery({
+    ...customerQueryOptions(numericCustomerId),
+    enabled: hasValidCustomerId,
+  });
+  const customer = useMemo(
+    () =>
+      data?.customer
+        ? mapCustomerDtoToCustomer(data.customer, data.contacts, data.products)
+        : null,
+    [data],
+  );
+
+  if (!hasValidCustomerId) {
+    return <CustomerNotFound />;
+  }
+
+  if (isPending) {
+    return <CustomerDetailLoading />;
+  }
 
   if (!customer) {
-    return (
-      <div className="flex h-full flex-1 flex-col overflow-hidden">
-        <div className="px-6 py-5">
-          <BackToCustomers />
-        </div>
-        <div className="flex flex-1 items-center justify-center px-6">
-          <div className="max-w-sm text-center">
-            <h1 className="text-xl font-semibold text-foreground">
-              Customer not found
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              This customer record does not exist or is no longer available.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
+    return <CustomerNotFound />;
   }
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
       <div className="border-b border-border px-6 py-5">
-        <BackToCustomers />
-        <div className="mt-4 flex flex-wrap items-start gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <BackToCustomers />
           <Avatar initial={customer.initial} color={customer.color} size="md" />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
@@ -117,20 +124,6 @@ export function CustomerDetailPage({
                 {customer.name}
               </h1>
               <CustomerStatusBadge status={customer.status} />
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <UserRound className="h-4 w-4" />
-                {customer.owner}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck className="h-4 w-4" />
-                {customer.segment}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <MapPin className="h-4 w-4" />
-                {customer.location}
-              </span>
             </div>
           </div>
         </div>
@@ -174,14 +167,103 @@ export function CustomerDetailPage({
   );
 }
 
+function CustomerDetailLoading() {
+  return (
+    <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <div className="border-b border-border px-6 py-5">
+        <div className="flex flex-wrap items-center gap-4">
+          <BackToCustomers />
+          <div className="h-10 w-10 animate-pulse rounded-full bg-muted" />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="h-7 w-52 animate-pulse rounded bg-muted" />
+              <div className="h-6 w-20 animate-pulse rounded-full bg-muted" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-b border-border px-6">
+        <div className="flex gap-1 overflow-x-auto py-2">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-muted-foreground"
+                disabled
+              >
+                <Icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-auto px-6 py-6">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-wrap gap-3">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={index}
+                className="min-w-[180px] flex-1 rounded-xl border border-border bg-muted/10 p-4"
+              >
+                <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+                <div className="mt-3 h-6 w-32 animate-pulse rounded bg-muted" />
+              </div>
+            ))}
+          </div>
+          <section className="rounded-xl border border-border bg-muted/10 p-5">
+            <div className="h-4 w-36 animate-pulse rounded bg-muted" />
+            <div className="mt-4 flex flex-col divide-y divide-border/60">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="flex min-h-10 items-center gap-4 py-2"
+                >
+                  <div className="h-3 w-28 shrink-0 animate-pulse rounded bg-muted" />
+                  <div className="h-3 w-48 animate-pulse rounded bg-muted" />
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CustomerNotFound() {
+  return (
+    <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <div className="px-6 py-5">
+        <BackToCustomers />
+      </div>
+      <div className="flex flex-1 items-center justify-center px-6">
+        <div className="max-w-sm text-center">
+          <h1 className="text-xl font-semibold text-foreground">
+            Customer not found
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            This customer record does not exist or is no longer available.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BackToCustomers() {
   return (
     <Link
       to="/customers"
-      className={buttonVariants({ variant: "ghost", size: "sm" })}
+      aria-label="Back to customers"
+      className={buttonVariants({ variant: "ghost", size: "icon" })}
     >
       <ArrowLeft className="h-4 w-4" />
-      Customers
     </Link>
   );
 }

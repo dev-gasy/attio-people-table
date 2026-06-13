@@ -43,7 +43,7 @@ export type PeopleTableSearch = {
 };
 
 export function PeopleTable() {
-  const { data: peopleData = [] } = useQuery(peopleQueryOptions());
+  const { data: peopleData = [], isPending } = useQuery(peopleQueryOptions());
   const seedPeople = useMemo(
     () => mapPersonDtosToPeople(peopleData),
     [peopleData],
@@ -199,22 +199,25 @@ export function PeopleTable() {
         allSelected={allSelected}
         activeSort={sortKey}
         direction={direction}
+        isLoading={isPending}
         onAdd={() => setAddOpen(true)}
         onSort={handleSort}
         onToggleAll={toggleAll}
       />
 
-      <Pagination
-        page={currentPage}
-        pageCount={pageCount}
-        total={filteredTotal}
-        pageSize={pageSize}
-        onPageChange={setPage}
-        onPageSizeChange={(size) => {
-          setPageSize(size);
-          setPage(1);
-        }}
-      />
+      {!isPending && (
+        <Pagination
+          page={currentPage}
+          pageCount={pageCount}
+          total={filteredTotal}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
+      )}
 
       <AddPersonModal
         open={addOpen}

@@ -1,24 +1,107 @@
-export type Activity = {
+export type Entrypoint = {
   id: number
-  actor: string
-  initial: string
-  color: string
-  action: string
-  target: string
-  type: "note" | "email" | "task" | "record" | "meeting"
-  time: string
+  name: string
 }
 
-export const activities: Activity[] = [
-  { id: 1, actor: "Julian Herbst", initial: "J", color: "bg-amber-500", action: "added a note to", target: "Nicolas Sharp", type: "note", time: "2m ago" },
-  { id: 2, actor: "Nicole Gold", initial: "N", color: "bg-pink-500", action: "sent an email to", target: "Alex Christie", type: "email", time: "18m ago" },
-  { id: 3, actor: "Lena Cremers", initial: "L", color: "bg-pink-600", action: "completed task", target: "Follow up with Vercel", type: "task", time: "1h ago" },
-  { id: 4, actor: "Tom Holland", initial: "T", color: "bg-zinc-500", action: "created record", target: "Cursor", type: "record", time: "3h ago" },
-  { id: 5, actor: "Ana Gantt", initial: "A", color: "bg-emerald-500", action: "scheduled a meeting with", target: "Stripe", type: "meeting", time: "5h ago" },
-  { id: 6, actor: "Leon Heinrichs", initial: "L", color: "bg-blue-500", action: "added a note to", target: "Figma", type: "note", time: "Yesterday" },
-  { id: 7, actor: "Nikki Meyers", initial: "N", color: "bg-rose-500", action: "sent an email to", target: "Ramp", type: "email", time: "Yesterday" },
-  { id: 8, actor: "Louis Lirou", initial: "L", color: "bg-purple-500", action: "completed task", target: "Send proposal to Notion", type: "task", time: "2 days ago" },
+export type RuleType = "Required" | "Validation" | "Reset" | "Set"
+
+export type Rule = {
+  id: number
+  entrypointId: number
+  name: string
+  code: string
+  message: string
+  type: RuleType
+}
+
+export const entrypoints: Entrypoint[] = [
+  { id: 1, name: "Customer onboarding" },
+  { id: 2, name: "Policy quote" },
+  { id: 3, name: "Claim intake" },
+  { id: 4, name: "Renewal review" },
+  { id: 5, name: "Billing update" },
+  { id: 6, name: "Profile maintenance" },
 ]
+
+export const ruleTypes = [
+  "Required",
+  "Validation",
+  "Reset",
+  "Set",
+] satisfies RuleType[]
+
+const ruleTemplates = [
+  {
+    name: "Primary contact",
+    code: "PRIMARY_CONTACT",
+    message: "Primary contact details must be present before submission.",
+  },
+  {
+    name: "Email format",
+    code: "EMAIL_FORMAT",
+    message: "Email addresses must use a valid mailbox format.",
+  },
+  {
+    name: "Risk score reset",
+    code: "RISK_SCORE_RESET",
+    message: "Risk score is reset when underwriting inputs change.",
+  },
+  {
+    name: "Owner assignment",
+    code: "OWNER_ASSIGNMENT",
+    message: "Assign the record owner from the selected service team.",
+  },
+  {
+    name: "Effective date",
+    code: "EFFECTIVE_DATE",
+    message: "Effective date must be today or a future calendar date.",
+  },
+  {
+    name: "Coverage amount",
+    code: "COVERAGE_AMOUNT",
+    message: "Coverage amount must be within the configured product range.",
+  },
+  {
+    name: "Consent required",
+    code: "CONSENT_REQUIRED",
+    message: "Customer consent must be captured for this workflow.",
+  },
+  {
+    name: "Status transition",
+    code: "STATUS_TRANSITION",
+    message: "Status changes must follow the configured lifecycle order.",
+  },
+]
+
+export const rules: Rule[] = entrypoints.flatMap((entrypoint) =>
+  ruleTemplates.map((template, index) => {
+    const id = (entrypoint.id - 1) * ruleTemplates.length + index + 1
+
+    return {
+      id,
+      entrypointId: entrypoint.id,
+      name: `${entrypoint.name} ${template.name}`,
+      code: formatRuleCode(entrypoint.name, template.name, id),
+      message: template.message,
+      type: ruleTypes[(entrypoint.id + index) % ruleTypes.length],
+    }
+  }),
+)
+
+function formatRuleCode(entrypointName: string, ruleName: string, id: number) {
+  const entrypointCode = entrypointName
+    .replace(/[^A-Za-z]+/g, " ")
+    .trim()
+    .slice(0, 3)
+    .toUpperCase()
+    .padEnd(3, "X")
+  const ruleLetter =
+    ruleName.replace(/[^A-Za-z]+/g, "").charAt(0).toUpperCase() || "X"
+  const ruleNumber = String(id % 10)
+  const sequence = String(id).padStart(4, "0")
+
+  return `${entrypointCode}-${ruleLetter}${ruleNumber}-${sequence}`
+}
 
 export type Task = {
   id: number

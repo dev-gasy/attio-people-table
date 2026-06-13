@@ -14,6 +14,7 @@ export function PeopleTableGrid({
   allSelected,
   activeSort,
   direction,
+  isLoading = false,
   onAdd,
   onSort,
   onToggleAll,
@@ -22,6 +23,7 @@ export function PeopleTableGrid({
   allSelected: boolean;
   activeSort: SortKey;
   direction: "asc" | "desc";
+  isLoading?: boolean;
   onAdd: () => void;
   onSort: (key: Exclude<SortKey, null>) => void;
   onToggleAll: () => void;
@@ -74,11 +76,13 @@ export function PeopleTableGrid({
           </div>
         </div>
 
-        {rows.map((row) => (
-          <PeopleTableRow key={row.id} row={row} />
-        ))}
+        {isLoading ? (
+          <PeopleTableLoadingRows />
+        ) : (
+          rows.map((row) => <PeopleTableRow key={row.id} row={row} />)
+        )}
 
-        {rows.length === 0 && (
+        {!isLoading && rows.length === 0 && (
           <div className="px-4 py-10 text-center text-sm text-muted-foreground">
             No people match your filters
           </div>
@@ -94,6 +98,50 @@ export function PeopleTableGrid({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function PeopleTableLoadingRows() {
+  return (
+    <>
+      {Array.from({ length: 10 }).map((_, index) => (
+        <div
+          key={index}
+          className="grid grid-cols-[40px_1fr_1fr_1.2fr_220px] border-b border-border/60"
+        >
+          <div className="flex items-center justify-center border-r border-border/60 px-2 py-3">
+            <div className="h-4 w-4 animate-pulse rounded bg-muted" />
+          </div>
+          <LoadingCell widths={["h-8 w-8 rounded-full", "h-3 w-32"]} />
+          <LoadingCell widths={["h-3 w-44"]} />
+          <LoadingCell widths={["h-3 w-28"]} />
+          <LoadingCell widths={["h-3 w-24"]} last />
+        </div>
+      ))}
+    </>
+  );
+}
+
+function LoadingCell({
+  widths,
+  last,
+}: {
+  widths: string[];
+  last?: boolean;
+}) {
+  return (
+    <div
+      className={`flex items-center gap-2 px-4 py-3 ${
+        last ? "" : "border-r border-border/60"
+      }`}
+    >
+      {widths.map((width) => (
+        <span
+          key={width}
+          className={`${width} block animate-pulse bg-muted`}
+        />
+      ))}
     </div>
   );
 }

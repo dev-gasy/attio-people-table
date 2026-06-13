@@ -1,6 +1,6 @@
 "use client";
 
-import { Info, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 export function PeoplePageHeader({
   selectedCount,
@@ -12,7 +12,6 @@ export function PeoplePageHeader({
   return (
     <header className="flex items-center gap-2 px-6 pt-5 pb-4">
       <h1 className="text-2xl font-semibold text-foreground">People</h1>
-      <Info className="h-4 w-4 text-muted-foreground" />
       {selectedCount > 0 && (
         <div className="ml-2 flex items-center gap-2">
           <span className="rounded-md bg-primary/15 px-2.5 py-1 text-sm text-primary">

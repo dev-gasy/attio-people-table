@@ -17,9 +17,9 @@ import { Route as ApiCompaniesRouteImport } from './routes/api/companies'
 import { Route as AppTasksRouteImport } from './routes/_app/tasks'
 import { Route as AppPeopleRouteImport } from './routes/_app/people'
 import { Route as AppNotesRouteImport } from './routes/_app/notes'
+import { Route as AppKrakenRouteImport } from './routes/_app/kraken'
 import { Route as AppCustomersRouteImport } from './routes/_app/customers'
 import { Route as AppCompaniesRouteImport } from './routes/_app/companies'
-import { Route as AppActivityRouteImport } from './routes/_app/activity'
 import { Route as ApiCustomersCustomerIdRouteImport } from './routes/api/customers.$customerId'
 import { Route as AppCustomersCustomerIdRouteImport } from './routes/_app/customers_.$customerId'
 
@@ -62,6 +62,11 @@ const AppNotesRoute = AppNotesRouteImport.update({
   path: '/notes',
   getParentRoute: () => AppRoute,
 } as any)
+const AppKrakenRoute = AppKrakenRouteImport.update({
+  id: '/kraken',
+  path: '/kraken',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCustomersRoute = AppCustomersRouteImport.update({
   id: '/customers',
   path: '/customers',
@@ -70,11 +75,6 @@ const AppCustomersRoute = AppCustomersRouteImport.update({
 const AppCompaniesRoute = AppCompaniesRouteImport.update({
   id: '/companies',
   path: '/companies',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppActivityRoute = AppActivityRouteImport.update({
-  id: '/activity',
-  path: '/activity',
   getParentRoute: () => AppRoute,
 } as any)
 const ApiCustomersCustomerIdRoute = ApiCustomersCustomerIdRouteImport.update({
@@ -90,9 +90,9 @@ const AppCustomersCustomerIdRoute = AppCustomersCustomerIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/activity': typeof AppActivityRoute
   '/companies': typeof AppCompaniesRoute
   '/customers': typeof AppCustomersRoute
+  '/kraken': typeof AppKrakenRoute
   '/notes': typeof AppNotesRoute
   '/people': typeof AppPeopleRoute
   '/tasks': typeof AppTasksRoute
@@ -104,9 +104,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/activity': typeof AppActivityRoute
   '/companies': typeof AppCompaniesRoute
   '/customers': typeof AppCustomersRoute
+  '/kraken': typeof AppKrakenRoute
   '/notes': typeof AppNotesRoute
   '/people': typeof AppPeopleRoute
   '/tasks': typeof AppTasksRoute
@@ -120,9 +120,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
-  '/_app/activity': typeof AppActivityRoute
   '/_app/companies': typeof AppCompaniesRoute
   '/_app/customers': typeof AppCustomersRoute
+  '/_app/kraken': typeof AppKrakenRoute
   '/_app/notes': typeof AppNotesRoute
   '/_app/people': typeof AppPeopleRoute
   '/_app/tasks': typeof AppTasksRoute
@@ -136,9 +136,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/activity'
     | '/companies'
     | '/customers'
+    | '/kraken'
     | '/notes'
     | '/people'
     | '/tasks'
@@ -150,9 +150,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/activity'
     | '/companies'
     | '/customers'
+    | '/kraken'
     | '/notes'
     | '/people'
     | '/tasks'
@@ -165,9 +165,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_app'
-    | '/_app/activity'
     | '/_app/companies'
     | '/_app/customers'
+    | '/_app/kraken'
     | '/_app/notes'
     | '/_app/people'
     | '/_app/tasks'
@@ -244,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNotesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/kraken': {
+      id: '/_app/kraken'
+      path: '/kraken'
+      fullPath: '/kraken'
+      preLoaderRoute: typeof AppKrakenRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/customers': {
       id: '/_app/customers'
       path: '/customers'
@@ -256,13 +263,6 @@ declare module '@tanstack/react-router' {
       path: '/companies'
       fullPath: '/companies'
       preLoaderRoute: typeof AppCompaniesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/activity': {
-      id: '/_app/activity'
-      path: '/activity'
-      fullPath: '/activity'
-      preLoaderRoute: typeof AppActivityRouteImport
       parentRoute: typeof AppRoute
     }
     '/api/customers/$customerId': {
@@ -283,9 +283,9 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
-  AppActivityRoute: typeof AppActivityRoute
   AppCompaniesRoute: typeof AppCompaniesRoute
   AppCustomersRoute: typeof AppCustomersRoute
+  AppKrakenRoute: typeof AppKrakenRoute
   AppNotesRoute: typeof AppNotesRoute
   AppPeopleRoute: typeof AppPeopleRoute
   AppTasksRoute: typeof AppTasksRoute
@@ -293,9 +293,9 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppActivityRoute: AppActivityRoute,
   AppCompaniesRoute: AppCompaniesRoute,
   AppCustomersRoute: AppCustomersRoute,
+  AppKrakenRoute: AppKrakenRoute,
   AppNotesRoute: AppNotesRoute,
   AppPeopleRoute: AppPeopleRoute,
   AppTasksRoute: AppTasksRoute,

@@ -71,7 +71,7 @@ export function mapCustomerDtoToCustomer(
 ): Customer {
   return {
     ...dto,
-    initial: dto.name[0]?.toUpperCase() ?? "?",
+    initial: getCustomerInitials(dto),
     color:
       customerColorById[dto.id] ?? customerColors[dto.id % customerColors.length],
     contacts: contacts.filter((contact) => contact.customerId === dto.id),
@@ -87,4 +87,14 @@ export function mapCustomerDtosToCustomers(
   return customers.map((customer) =>
     mapCustomerDtoToCustomer(customer, contacts, products),
   );
+}
+
+function getCustomerInitials(customer: CustomerDto) {
+  const initials = `${customer.firstName[0] ?? ""}${customer.lastName[0] ?? ""}`;
+
+  if (initials.length > 0) {
+    return initials.toUpperCase();
+  }
+
+  return customer.name.replace(/\s+/g, "").slice(0, 2).toUpperCase() || "?";
 }

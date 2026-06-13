@@ -82,12 +82,6 @@ const customerOwnerSeeds = [
   "Tom Holland",
 ];
 
-const customerContactKinds = [
-  "phone",
-  "email",
-  "address",
-] satisfies CustomerContactKindDto[];
-
 const customerProductTypes = [
   "Policy",
   "Quote",
@@ -168,32 +162,61 @@ export const customersSeed: CustomerDto[] = Array.from(
   },
 );
 
+const customerContactTemplates: Array<{
+  kind: CustomerContactKindDto;
+  labels: string[];
+}> = [
+  { kind: "phone", labels: ["Mobile", "Work"] },
+  { kind: "email", labels: ["Personal", "Work"] },
+  { kind: "address", labels: ["Home", "Mailing"] },
+];
+
+const contactsPerCustomer = customerContactTemplates.reduce(
+  (total, template) => total + template.labels.length,
+  0,
+);
+
 export const customerContactsSeed: CustomerContactDto[] = customersSeed.flatMap(
   (customer) =>
-    customerContactKinds.map((kind, index) => ({
-      id: (customer.id - 1) * customerContactKinds.length + index + 1,
-      customerId: customer.id,
-      kind,
-      label:
-        kind === "phone"
-          ? faker.helpers.arrayElement(["Mobile", "Work", "Business"])
-          : kind === "email"
-            ? faker.helpers.arrayElement(["Personal", "Work", "Documents"])
-            : faker.helpers.arrayElement(["Home", "Office", "Mailing"]),
-      value:
-        kind === "phone"
-          ? faker.phone.number({ style: "national" })
-          : kind === "email"
-            ? faker.internet
-                .email({
-                  firstName: customer.firstName,
-                  lastName: customer.lastName,
-                })
-                .toLowerCase()
-            : `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode()}`,
-      preferred: index === 0,
-    })),
+    customerContactTemplates.flatMap(({ kind, labels }, kindIndex) =>
+      labels.map((label, contactIndex) => ({
+        id: (customer.id - 1) * contactsPerCustomer +
+          kindIndex * labels.length +
+          contactIndex +
+          1,
+        customerId: customer.id,
+        kind,
+        label,
+        value: createCustomerContactValue(customer, kind, contactIndex),
+        preferred: contactIndex === 0,
+      })),
+    ),
 );
+
+function createCustomerContactValue(
+  customer: CustomerDto,
+  kind: CustomerContactKindDto,
+  contactIndex: number,
+) {
+  if (kind === "phone") {
+    return faker.phone.number({ style: "national" });
+  }
+
+  if (kind === "email") {
+    const suffix = contactIndex === 0 ? undefined : String(contactIndex + 1);
+
+    return faker.internet
+      .email({
+        firstName: suffix
+          ? `${customer.firstName}${suffix}`
+          : customer.firstName,
+        lastName: customer.lastName,
+      })
+      .toLowerCase();
+  }
+
+  return `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode()}`;
+}
 
 export const customerProductsSeed: CustomerProductDto[] = customersSeed.flatMap(
   (customer) =>

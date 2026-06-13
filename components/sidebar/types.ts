@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 
 export type PageId =
-  | "activity"
+  | "kraken"
   | "tasks"
   | "notes"
   | "people"

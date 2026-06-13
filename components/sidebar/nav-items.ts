@@ -9,7 +9,7 @@ import {
 import type { SidebarNavItem } from "@/components/sidebar/types";
 
 export const navItems: SidebarNavItem[] = [
-  { id: "activity", to: "/activity", icon: Zap, label: "Activity" },
+  { id: "kraken", to: "/kraken", icon: Zap, label: "Kraken" },
   { id: "tasks", to: "/tasks", icon: CheckSquare, label: "Tasks" },
   { id: "notes", to: "/notes", icon: FileText, label: "Notes" },
   { id: "people", to: "/people", icon: Users, label: "People" },
