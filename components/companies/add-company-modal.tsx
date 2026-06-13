@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import type { Company } from "@/lib/companies-data";
+import type { CompanyStatus } from "@/features/companies/presentation";
 import { Combobox } from "@/components/ui/combobox";
 import { Modal } from "@/components/ui/modal";
 import {
@@ -61,7 +61,7 @@ export function AddCompanyModal({
             onChange={(v) =>
               onFormChange({
                 ...form,
-                status: (v as Company["status"]) ?? "Prospect",
+                status: (v as CompanyStatus) ?? "Prospect",
               })
             }
             placeholder="Select status"
@@ -124,4 +124,3 @@ export function AddCompanyModal({
     </Modal>
   );
 }
-

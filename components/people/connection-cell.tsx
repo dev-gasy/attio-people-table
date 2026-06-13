@@ -1,5 +1,8 @@
 import { Zap } from "lucide-react";
-import { connectionStyles, type Person } from "@/lib/people-data";
+import {
+  connectionStyles,
+  type Person,
+} from "@/features/people/presentation";
 
 export function ConnectionCell({ person }: { person: Person }) {
   const style = connectionStyles[person.connection];
@@ -17,4 +20,3 @@ export function ConnectionCell({ person }: { person: Person }) {
     </div>
   );
 }
-

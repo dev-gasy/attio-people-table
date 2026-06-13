@@ -1,9 +1,9 @@
 import {
   companyStatusStyles,
-  type Company,
-} from "@/lib/companies-data";
+  type CompanyStatus,
+} from "@/features/companies/presentation";
 
-export function StatusBadge({ status }: { status: Company["status"] }) {
+export function StatusBadge({ status }: { status: CompanyStatus }) {
   const s = companyStatusStyles[status];
 
   return (
@@ -13,4 +13,3 @@ export function StatusBadge({ status }: { status: Company["status"] }) {
     </span>
   );
 }
-

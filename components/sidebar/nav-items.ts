@@ -1,0 +1,10 @@
+import { Building2, CheckSquare, FileText, Users, Zap } from "lucide-react";
+import type { SidebarNavItem } from "@/components/sidebar/types";
+
+export const navItems: SidebarNavItem[] = [
+  { id: "activity", to: "/activity", icon: Zap, label: "Activity" },
+  { id: "tasks", to: "/tasks", icon: CheckSquare, label: "Tasks" },
+  { id: "notes", to: "/notes", icon: FileText, label: "Notes" },
+  { id: "people", to: "/people", icon: Users, label: "People" },
+  { id: "companies", to: "/companies", icon: Building2, label: "Companies" },
+];

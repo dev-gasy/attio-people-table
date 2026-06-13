@@ -1,5 +1,5 @@
 import { Avatar } from "@/components/avatar";
-import type { Company } from "@/lib/companies-data";
+import type { Company } from "@/features/companies/presentation";
 import { StatusBadge } from "@/components/companies/status-badge";
 
 export function CompanyRow({ company }: { company: Company }) {
@@ -23,4 +23,3 @@ export function CompanyRow({ company }: { company: Company }) {
     </button>
   );
 }
-
