@@ -27,21 +27,21 @@ export function Collapsible({
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center gap-2.5 bg-muted/30 px-4 py-3 text-left hover:bg-muted/50"
       >
-        <ChevronRight
-          className={`h-4 w-4 text-muted-foreground transition-transform ${
-            open ? "rotate-90" : ""
-          }`}
-        />
         {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
         <span className="text-sm font-medium text-foreground">{title}</span>
-        {subtitle && (
-          <span className="text-xs text-muted-foreground">{subtitle}</span>
-        )}
         {typeof count === "number" && (
-          <span className="ml-auto rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+          <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
             {count}
           </span>
         )}
+        {subtitle && (
+          <span className="text-xs text-muted-foreground">{subtitle}</span>
+        )}
+        <ChevronRight
+          className={`ml-auto h-4 w-4 text-muted-foreground transition-transform ${
+            open ? "rotate-90" : ""
+          }`}
+        />
       </button>
       <div
         className={`grid transition-all duration-200 ${

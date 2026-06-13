@@ -1,4 +1,11 @@
-import { Building2, CheckSquare, FileText, Users, Zap } from "lucide-react";
+import {
+  Building2,
+  CheckSquare,
+  ContactRound,
+  FileText,
+  Users,
+  Zap,
+} from "lucide-react";
 import type { SidebarNavItem } from "@/components/sidebar/types";
 
 export const navItems: SidebarNavItem[] = [
@@ -7,4 +14,5 @@ export const navItems: SidebarNavItem[] = [
   { id: "notes", to: "/notes", icon: FileText, label: "Notes" },
   { id: "people", to: "/people", icon: Users, label: "People" },
   { id: "companies", to: "/companies", icon: Building2, label: "Companies" },
+  { id: "customers", to: "/customers", icon: ContactRound, label: "Customers" },
 ];

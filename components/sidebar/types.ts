@@ -1,6 +1,12 @@
 import type { ComponentType } from "react";
 
-export type PageId = "activity" | "tasks" | "notes" | "people" | "companies";
+export type PageId =
+  | "activity"
+  | "tasks"
+  | "notes"
+  | "people"
+  | "companies"
+  | "customers";
 export type PagePath = `/${PageId}`;
 
 export type SidebarNavItem = {

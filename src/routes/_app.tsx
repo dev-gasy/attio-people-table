@@ -12,6 +12,7 @@ const routePageMap: Record<string, PageId> = {
   '/notes': 'notes',
   '/people': 'people',
   '/companies': 'companies',
+  '/customers': 'customers',
 }
 
 export const Route = createFileRoute('/_app')({
@@ -22,7 +23,10 @@ function AppLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const location = useLocation()
   const activePage = useMemo(
-    () => routePageMap[location.pathname] ?? 'people',
+    () =>
+      location.pathname.startsWith('/customers/')
+        ? 'customers'
+        : routePageMap[location.pathname] ?? 'people',
     [location.pathname],
   )
 
