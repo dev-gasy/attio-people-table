@@ -1,10 +1,16 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import {
+  getCoreRowModel,
+  getFilteredRowModel,
+  useReactTable,
+  type ColumnDef,
+} from "@tanstack/react-table"
 import {
   LayoutGrid,
   List,
-  Search,
   Users,
   Globe,
   DollarSign,
@@ -111,29 +117,68 @@ const emptyForm = {
   location: "",
 }
 
-export function CompaniesPage() {
-  const [list, setList] = useState<Company[]>(seedCompanies)
-  const [view, setView] = useState<"grid" | "list">("grid")
-  const [query, setQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
+export type CompaniesPageSearch = {
+  status?: Company["status"]
+  view: "grid" | "list"
+  page: number
+}
+
+export function CompaniesPage({
+  search,
+  onSearchChange,
+}: {
+  search: CompaniesPageSearch
+  onSearchChange: (next: Partial<CompaniesPageSearch>) => void
+}) {
+  const { data: initialCompanies = seedCompanies } = useQuery({
+    queryKey: ["companies"],
+    queryFn: async () => seedCompanies,
+    initialData: seedCompanies,
+    staleTime: Infinity,
+  })
+  const [list, setList] = useState<Company[]>(initialCompanies)
+  const view = search.view
+  const statusFilter = search.status ?? null
+  const page = search.page
   const [addOpen, setAddOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
 
-  const filtered = useMemo(
-    () =>
-      list.filter(
-        (c) =>
-          (c.name.toLowerCase().includes(query.toLowerCase()) ||
-            c.domain.toLowerCase().includes(query.toLowerCase())) &&
-          (!statusFilter || c.status === statusFilter),
-      ),
-    [list, query, statusFilter],
+  const columns = useMemo<ColumnDef<Company>[]>(
+    () => [
+      { accessorKey: "name", id: "name" },
+      { accessorKey: "domain", id: "domain" },
+      {
+        accessorKey: "status",
+        id: "status",
+        filterFn: (row, columnId, value) => row.getValue(columnId) === value,
+      },
+      { accessorKey: "employees", id: "employees" },
+      { accessorKey: "arr", id: "arr" },
+      { accessorKey: "location", id: "location" },
+    ],
+    [],
   )
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const table = useReactTable({
+    data: list,
+    columns,
+    state: {
+      columnFilters: statusFilter ? [{ id: "status", value: statusFilter }] : [],
+      pagination: {
+        pageIndex: 0,
+        pageSize: list.length,
+      },
+    },
+    getRowId: (row) => String(row.id),
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+  })
+
+  const filteredRows = table.getRowModel().rows
+  const filteredTotal = filteredRows.length
+  const pageCount = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE))
   const currentPage = Math.min(page, pageCount)
-  const gridRows = filtered.slice(
+  const gridRows = filteredRows.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   )
@@ -143,10 +188,12 @@ export function CompaniesPage() {
       statusList
         .map((status) => ({
           status,
-          items: filtered.filter((c) => c.status === status),
+          items: filteredRows
+            .map((row) => row.original)
+            .filter((c) => c.status === status),
         }))
         .filter((g) => g.items.length > 0),
-    [filtered],
+    [filteredRows],
   )
 
   function handleAdd(e: React.FormEvent) {
@@ -169,7 +216,7 @@ export function CompaniesPage() {
     ])
     setForm(emptyForm)
     setAddOpen(false)
-    setPage(1)
+    onSearchChange({ page: 1 })
   }
 
   return (
@@ -183,28 +230,18 @@ export function CompaniesPage() {
               options={statusOptions}
               value={statusFilter}
               onChange={(v) => {
-                setStatusFilter(v)
-                setPage(1)
+                onSearchChange({
+                  status: (v as Company["status"] | null) ?? undefined,
+                  page: 1,
+                })
               }}
               placeholder="All statuses"
               searchPlaceholder="Filter status..."
               className="w-44"
             />
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value)
-                  setPage(1)
-                }}
-                placeholder="Search companies..."
-                className="w-44 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-              />
-            </div>
             <div className="flex items-center rounded-lg border border-border bg-muted/40 p-0.5">
               <button
-                onClick={() => setView("grid")}
+                onClick={() => onSearchChange({ view: "grid" })}
                 className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm ${
                   view === "grid"
                     ? "bg-muted text-foreground"
@@ -215,7 +252,7 @@ export function CompaniesPage() {
                 <LayoutGrid className="h-4 w-4" />
               </button>
               <button
-                onClick={() => setView("list")}
+                onClick={() => onSearchChange({ view: "list" })}
                 className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm ${
                   view === "list"
                     ? "bg-muted text-foreground"
@@ -238,14 +275,14 @@ export function CompaniesPage() {
       />
 
       <div className="flex-1 overflow-auto px-6 pb-8">
-        {filtered.length === 0 ? (
+        {filteredTotal === 0 ? (
           <div className="py-10 text-center text-sm text-muted-foreground">
             No companies match your filters
           </div>
         ) : view === "grid" ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {gridRows.map((c) => (
-              <CompanyCard key={c.id} company={c} />
+            {gridRows.map((row) => (
+              <CompanyCard key={row.id} company={row.original} />
             ))}
           </div>
         ) : (
@@ -265,13 +302,13 @@ export function CompaniesPage() {
         )}
       </div>
 
-      {view === "grid" && filtered.length > 0 && (
+      {view === "grid" && filteredTotal > 0 && (
         <Pagination
           page={currentPage}
           pageCount={pageCount}
-          total={filtered.length}
+          total={filteredTotal}
           pageSize={PAGE_SIZE}
-          onPageChange={setPage}
+          onPageChange={(nextPage) => onSearchChange({ page: nextPage })}
         />
       )}
 

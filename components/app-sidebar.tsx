@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   Search,
   Zap,
@@ -19,17 +20,19 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export type PageId = "activity" | "tasks" | "notes" | "people" | "companies";
+export type PagePath = `/${PageId}`;
 
 const navItems: {
   id: PageId;
+  to: PagePath;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
 }[] = [
-  { id: "activity", icon: Zap, label: "Activity" },
-  { id: "tasks", icon: CheckSquare, label: "Tasks" },
-  { id: "notes", icon: FileText, label: "Notes" },
-  { id: "people", icon: Users, label: "People" },
-  { id: "companies", icon: Building2, label: "Companies" },
+  { id: "activity", to: "/activity", icon: Zap, label: "Activity" },
+  { id: "tasks", to: "/tasks", icon: CheckSquare, label: "Tasks" },
+  { id: "notes", to: "/notes", icon: FileText, label: "Notes" },
+  { id: "people", to: "/people", icon: Users, label: "People" },
+  { id: "companies", to: "/companies", icon: Building2, label: "Companies" },
 ];
 
 function NavItem({
@@ -37,44 +40,59 @@ function NavItem({
   label,
   active,
   collapsed,
+  to,
   onClick,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   active?: boolean;
   collapsed?: boolean;
+  to?: PagePath;
   onClick?: () => void;
 }) {
-  return (
-    <button
-      onClick={onClick}
-      title={collapsed ? label : undefined}
-      className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
-        collapsed ? "justify-center" : ""
-      } ${
-        active
-          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-          : "text-sidebar-foreground hover:bg-sidebar-accent/60"
-      }`}
-    >
+  const className = `flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+    collapsed ? "justify-center" : ""
+  } ${
+    active
+      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+      : "text-sidebar-foreground hover:bg-sidebar-accent/60"
+  }`
+  const content = (
+    <>
       <Icon
         className={`h-[18px] w-[18px] shrink-0 ${
           active ? "text-foreground" : "text-muted-foreground"
         }`}
       />
       {!collapsed && <span className="truncate">{label}</span>}
+    </>
+  )
+
+  if (to) {
+    return (
+      <Link to={to} title={collapsed ? label : undefined} className={className}>
+        {content}
+      </Link>
+    )
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      title={collapsed ? label : undefined}
+      className={className}
+    >
+      {content}
     </button>
   );
 }
 
 export function AppSidebar({
   activePage,
-  onNavigate,
   collapsed,
   onToggleCollapse,
 }: {
   activePage: PageId;
-  onNavigate: (page: PageId) => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
 }) {
@@ -150,7 +168,7 @@ export function AppSidebar({
                 label={item.label}
                 active={activePage === item.id}
                 collapsed={collapsed}
-                onClick={() => onNavigate(item.id)}
+                to={item.to}
               />
               {!collapsed && (
                 <NavItem
@@ -167,7 +185,7 @@ export function AppSidebar({
               label={item.label}
               active={activePage === item.id}
               collapsed={collapsed}
-              onClick={() => onNavigate(item.id)}
+              to={item.to}
             />
           ),
         )}

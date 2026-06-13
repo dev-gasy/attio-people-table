@@ -1,8 +1,6 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { useTheme } from "next-themes"
 import { Moon, Sun } from "lucide-react"
+import { useTheme } from "@/components/theme-provider"
 
 export function ThemeToggle({ collapsed }: { collapsed?: boolean }) {
   const { resolvedTheme, setTheme } = useTheme()

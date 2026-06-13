@@ -1,6 +1,17 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import {
+  functionalUpdate,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+  type RowSelectionState,
+  type SortingState,
+} from "@tanstack/react-table"
 import {
   Info,
   Table2,
@@ -15,7 +26,6 @@ import {
   Star,
   Sparkles,
   Plus,
-  Search,
   Trash2,
 } from "lucide-react"
 import {
@@ -153,81 +163,132 @@ const emptyForm = {
   rating: 3,
 }
 
-export function PeopleTable() {
-  const [list, setList] = useState<Person[]>(seedPeople)
-  const [query, setQuery] = useState("")
-  const [showSearch, setShowSearch] = useState(false)
-  const [sortKey, setSortKey] = useState<SortKey>(null)
-  const [direction, setDirection] = useState<"asc" | "desc">("asc")
-  const [selected, setSelected] = useState<Set<number>>(new Set())
-  const [connectionFilter, setConnectionFilter] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
+export type PeopleTableSearch = {
+  connection?: Connection
+  sort?: "name" | "email" | "rating"
+  dir: "asc" | "desc"
+  page: number
+  selected?: string | number
+}
+
+export function PeopleTable({
+  search,
+  onSearchChange,
+}: {
+  search: PeopleTableSearch
+  onSearchChange: (
+    next: Partial<PeopleTableSearch & { selected?: string | undefined }>,
+  ) => void
+}) {
+  const { data: initialPeople = seedPeople } = useQuery({
+    queryKey: ["people"],
+    queryFn: async () => seedPeople,
+    initialData: seedPeople,
+    staleTime: Infinity,
+  })
+  const [list, setList] = useState<Person[]>(initialPeople)
+  const sortKey = search.sort ?? null
+  const direction = search.dir
+  const connectionFilter = search.connection ?? null
+  const page = search.page
+  const selected = useMemo(
+    () =>
+      new Set(
+        (search.selected ?? "")
+          .toString()
+          .split(",")
+          .map((id) => id.trim())
+          .filter(Boolean),
+      ),
+    [search.selected],
+  )
   const [addOpen, setAddOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
 
+  function updateSelected(next: string[]) {
+    onSearchChange({
+      selected: next.length > 0 ? next.join(",") : undefined,
+    })
+  }
+
   function handleSort(key: Exclude<SortKey, null>) {
     if (sortKey === key) {
-      setDirection((d) => (d === "asc" ? "desc" : "asc"))
+      onSearchChange({ sort: key, dir: direction === "asc" ? "desc" : "asc" })
     } else {
-      setSortKey(key)
-      setDirection("asc")
+      onSearchChange({ sort: key, dir: "asc", page: 1 })
     }
   }
 
-  const filtered = useMemo(() => {
-    let result = list.filter(
-      (p) =>
-        (p.name.toLowerCase().includes(query.toLowerCase()) ||
-          p.email.toLowerCase().includes(query.toLowerCase())) &&
-        (!connectionFilter || p.connection === connectionFilter),
-    )
-    if (sortKey) {
-      result = [...result].sort((a, b) => {
-        let cmp = 0
-        if (sortKey === "rating") cmp = a.rating - b.rating
-        else cmp = String(a[sortKey]).localeCompare(String(b[sortKey]))
-        return direction === "asc" ? cmp : -cmp
-      })
-    }
-    return result
-  }, [list, query, sortKey, direction, connectionFilter])
+  const columns = useMemo<ColumnDef<Person>[]>(
+    () => [
+      { id: "select" },
+      { accessorKey: "name", id: "name" },
+      { accessorKey: "email", id: "email" },
+      {
+        accessorKey: "connection",
+        id: "connection",
+        filterFn: (row, columnId, value) => row.getValue(columnId) === value,
+      },
+      { accessorKey: "rating", id: "rating" },
+    ],
+    [],
+  )
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const sorting = useMemo<SortingState>(
+    () => (sortKey ? [{ id: sortKey, desc: direction === "desc" }] : []),
+    [sortKey, direction],
+  )
+  const rowSelection = useMemo<RowSelectionState>(
+    () =>
+      Array.from(selected).reduce<RowSelectionState>((acc, id) => {
+        acc[id] = true
+        return acc
+      }, {}),
+    [selected],
+  )
+
+  const table = useReactTable({
+    data: list,
+    columns,
+    state: {
+      columnFilters: connectionFilter
+        ? [{ id: "connection", value: connectionFilter }]
+        : [],
+      sorting,
+      pagination: {
+        pageIndex: 0,
+        pageSize: list.length,
+      },
+      rowSelection,
+    },
+    getRowId: (row) => String(row.id),
+    enableRowSelection: true,
+    onRowSelectionChange: (updater) => {
+      const next = functionalUpdate(updater, rowSelection)
+      updateSelected(Object.keys(next).filter((id) => next[id]))
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  })
+
+  const tableRows = table.getRowModel().rows
+  const filteredTotal = tableRows.length
+  const pageCount = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE))
   const currentPage = Math.min(page, pageCount)
-  const rows = filtered.slice(
+  const rows = tableRows.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   )
 
-  function toggleRow(id: number) {
-    setSelected((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
-  const allSelected = rows.length > 0 && rows.every((r) => selected.has(r.id))
+  const allSelected = rows.length > 0 && rows.every((r) => r.getIsSelected())
   function toggleAll() {
-    if (allSelected) {
-      setSelected((prev) => {
-        const next = new Set(prev)
-        rows.forEach((r) => next.delete(r.id))
-        return next
-      })
-    } else {
-      setSelected((prev) => {
-        const next = new Set(prev)
-        rows.forEach((r) => next.add(r.id))
-        return next
-      })
-    }
+    table.toggleAllPageRowsSelected(!allSelected)
   }
 
   function deleteSelected() {
-    setList((prev) => prev.filter((p) => !selected.has(p.id)))
-    setSelected(new Set())
+    setList((prev) => prev.filter((p) => !selected.has(String(p.id))))
+    updateSelected([])
   }
 
   function handleAdd(e: React.FormEvent) {
@@ -249,7 +310,7 @@ export function PeopleTable() {
     ])
     setForm(emptyForm)
     setAddOpen(false)
-    setPage(1)
+    onSearchChange({ page: 1 })
   }
 
   return (
@@ -286,8 +347,7 @@ export function PeopleTable() {
           options={connectionOptions}
           value={connectionFilter}
           onChange={(v) => {
-            setConnectionFilter(v)
-            setPage(1)
+            onSearchChange({ connection: (v as Connection | null) ?? undefined, page: 1 })
           }}
           placeholder="Filter connection"
           searchPlaceholder="Filter by strength..."
@@ -304,30 +364,6 @@ export function PeopleTable() {
         </button>
 
         <div className="ml-auto flex items-center gap-2">
-          {showSearch ? (
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input
-                autoFocus
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value)
-                  setPage(1)
-                }}
-                onBlur={() => !query && setShowSearch(false)}
-                placeholder="Search people..."
-                className="w-44 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-              />
-            </div>
-          ) : (
-            <button
-              onClick={() => setShowSearch(true)}
-              className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
-            >
-              <Search className="h-4 w-4 text-muted-foreground" />
-              Search
-            </button>
-          )}
           <button className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground hover:bg-muted">
             <Settings className="h-4 w-4 text-muted-foreground" />
             View
@@ -392,11 +428,12 @@ export function PeopleTable() {
           </div>
 
           {/* Rows */}
-          {rows.map((person) => {
-            const isSelected = selected.has(person.id)
+          {rows.map((row) => {
+            const person = row.original
+            const isSelected = row.getIsSelected()
             return (
               <div
-                key={person.id}
+                key={row.id}
                 className={`group grid grid-cols-[40px_1fr_1fr_1.2fr_220px] border-b border-border/60 ${
                   isSelected ? "bg-primary/10" : "hover:bg-muted/30"
                 }`}
@@ -405,7 +442,7 @@ export function PeopleTable() {
                   <input
                     type="checkbox"
                     checked={isSelected}
-                    onChange={() => toggleRow(person.id)}
+                    onChange={row.getToggleSelectedHandler()}
                     className={`h-4 w-4 cursor-pointer accent-blue-500 ${
                       isSelected ? "" : "opacity-0 group-hover:opacity-100"
                     }`}
@@ -454,9 +491,9 @@ export function PeopleTable() {
       <Pagination
         page={currentPage}
         pageCount={pageCount}
-        total={filtered.length}
+        total={filteredTotal}
         pageSize={PAGE_SIZE}
-        onPageChange={setPage}
+        onPageChange={(nextPage) => onSearchChange({ page: nextPage })}
       />
 
       {/* Add person modal */}
