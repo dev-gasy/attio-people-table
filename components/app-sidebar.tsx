@@ -25,7 +25,7 @@ export function AppSidebar({
     <>
       <aside
         className={`flex h-full shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 ${
-          collapsed ? "w-[68px]" : "w-72"
+          collapsed ? "w-17" : "w-72"
         }`}
       >
         <WorkspaceHeader

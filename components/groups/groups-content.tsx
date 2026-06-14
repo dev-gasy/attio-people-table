@@ -37,7 +37,7 @@ export function GroupsContent({
   view: GroupsView;
 }) {
   return (
-    <div className="flex-1 overflow-auto px-6 pb-8">
+    <div>
       {isLoading ? (
         <GroupsLoadingContent view={view} />
       ) : filteredTotal === 0 ? (
@@ -51,9 +51,9 @@ export function GroupsContent({
           ))}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
+        <div className="overflow-auto rounded-xl border border-border bg-muted/10">
           <div
-            className={`grid ${GROUP_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 px-4 py-2`}
+            className={`sticky top-0 z-10 grid ${GROUP_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 bg-background px-4 py-2`}
           >
             <SortableTableHeader
               icon={Building2}
@@ -152,7 +152,7 @@ function GroupsLoadingContent({ view }: { view: GroupsView }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
       <div
-        className={`grid ${GROUP_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 px-4 py-2 text-xs font-medium text-muted-foreground`}
+        className={`sticky top-0 z-10 grid ${GROUP_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 bg-background px-4 py-2 text-xs font-medium text-muted-foreground`}
       >
         <span className="truncate">Group</span>
         <span className="truncate">Web address</span>

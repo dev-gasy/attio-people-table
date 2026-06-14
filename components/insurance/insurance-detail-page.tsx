@@ -11,6 +11,12 @@ import {
   UserRound,
 } from "lucide-react";
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
+import {
+  PageFrame,
+  PageFrameBody,
+  PageFrameControls,
+  PageFrameHeader,
+} from "@/components/page-frame";
 import { buttonVariants } from "@/components/ui/button";
 import {
   getCoverageFields,
@@ -96,10 +102,10 @@ export function InsuranceDetailPage({
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <PageFrame>
       <InsuranceHeader kind={kind} record={record} />
       <InsuranceTabs activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="flex-1 overflow-auto px-6 py-6">
+      <PageFrameBody>
         {activeTab === "details" && <SummarySection record={record} />}
         {activeTab === "parties" && <PartiesSection parties={record.parties} />}
         {activeTab === "vehicles" && (
@@ -108,8 +114,8 @@ export function InsuranceDetailPage({
         {activeTab === "coverage" && (
           <CoveragesSection coverages={record.coverages} />
         )}
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }
 
@@ -125,19 +131,19 @@ function InsuranceDetailError({
   onRetry: () => void;
 }) {
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <div className="px-6 py-5">
+    <PageFrame>
+      <PageFrameHeader>
         <BackToLoad />
-      </div>
-      <div className="flex flex-1 items-center justify-center px-6">
+      </PageFrameHeader>
+      <PageFrameBody className="flex items-center justify-center">
         <DataErrorView
           title={title}
           message={message}
           onRetry={onRetry}
           isRetrying={isRetrying}
         />
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }
 
@@ -151,7 +157,7 @@ function InsuranceHeader({
   const label = routeLabels[kind];
 
   return (
-    <div className="border-b border-border px-6 py-5">
+    <PageFrameHeader>
       <div className="flex flex-wrap items-center gap-4">
         <BackToLoad />
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
@@ -168,14 +174,14 @@ function InsuranceHeader({
           </div>
         </div>
       </div>
-    </div>
+    </PageFrameHeader>
   );
 }
 
 function InsuranceDetailLoading() {
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <div className="border-b border-border px-6 py-5">
+    <PageFrame>
+      <PageFrameHeader>
         <div className="flex flex-wrap items-center gap-4">
           <BackToLoad />
           <div className="h-10 w-10 animate-pulse rounded-lg bg-muted" />
@@ -183,9 +189,9 @@ function InsuranceDetailLoading() {
             <div className="h-7 w-64 animate-pulse rounded bg-muted" />
           </div>
         </div>
-      </div>
+      </PageFrameHeader>
       <InsuranceTabs activeTab="details" disabled onTabChange={() => {}} />
-      <div className="flex-1 overflow-auto px-6 py-6">
+      <PageFrameBody>
         <div className="overflow-hidden rounded-xl border border-border">
           <div className="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-4 sm:grid-cols-2">
             {Array.from({ length: 6 }).map((_, index) => (
@@ -196,26 +202,26 @@ function InsuranceDetailLoading() {
             ))}
           </div>
         </div>
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }
 
 function InsuranceNotFound({ title }: { title: string }) {
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <div className="px-6 py-5">
+    <PageFrame>
+      <PageFrameHeader>
         <BackToLoad />
-      </div>
-      <div className="flex flex-1 items-center justify-center px-6">
+      </PageFrameHeader>
+      <PageFrameBody className="flex items-center justify-center">
         <div className="max-w-sm text-center">
           <h1 className="text-xl font-semibold text-foreground">{title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             This record does not exist or is no longer available.
           </p>
         </div>
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }
 
@@ -229,7 +235,7 @@ function InsuranceTabs({
   onTabChange: (tab: InsuranceTab) => void;
 }) {
   return (
-    <div className="border-b border-border px-6">
+    <PageFrameControls>
       <div className="flex gap-1 overflow-x-auto py-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -253,7 +259,7 @@ function InsuranceTabs({
           );
         })}
       </div>
-    </div>
+    </PageFrameControls>
   );
 }
 

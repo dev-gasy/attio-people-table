@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { FileText, Search } from "lucide-react";
+import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 
@@ -43,10 +44,10 @@ export function InsuranceLookupPage() {
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <PageFrame>
       <PageHeader title="Policy/Quote" />
 
-      <div className="flex-1 overflow-auto px-6 pb-8">
+      <PageFrameBody className="pb-8">
         <div className="flex flex-col gap-4">
           <form
             onSubmit={handlePolicySubmit}
@@ -108,8 +109,8 @@ export function InsuranceLookupPage() {
             <LoadFormActions disabled={!canLoadQuote} />
           </form>
         </div>
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }
 

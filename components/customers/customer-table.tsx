@@ -217,6 +217,9 @@ export function CustomerTable({
               setPageSize(size);
               setPage(1);
             }}
+            bordered={false}
+            padded={false}
+            className="sticky bottom-0 z-20 mt-0 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
           />
         )}
     </>

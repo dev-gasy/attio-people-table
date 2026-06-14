@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Check, Plus } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import { PageHeader } from "@/components/page-header";
+import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { tasksSeed, type Task } from "@/lib/workspace-data";
 
 const priorityStyles: Record<Task["priority"], string> = {
@@ -31,7 +32,7 @@ export function TasksPage() {
   const openCount = tasks.filter((t) => !t.done).length;
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <PageFrame>
       <PageHeader
         title="Tasks"
         badge={
@@ -63,7 +64,7 @@ export function TasksPage() {
           </>
         }
       />
-      <div className="flex-1 overflow-auto px-6 pb-8">
+      <PageFrameBody className="pb-8">
         <div className="w-full divide-y divide-border/60 overflow-hidden rounded-xl border border-border">
           {visible.map((t) => (
             <div
@@ -107,7 +108,7 @@ export function TasksPage() {
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }

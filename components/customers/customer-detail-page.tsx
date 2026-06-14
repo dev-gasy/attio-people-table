@@ -18,6 +18,12 @@ import { Avatar } from "@/components/avatar";
 import { CustomerFavoriteButton } from "@/components/customers/customer-favorite-button";
 import { CustomerStatusBadge } from "@/components/customers/customer-status-badge";
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
+import {
+  PageFrame,
+  PageFrameBody,
+  PageFrameControls,
+  PageFrameHeader,
+} from "@/components/page-frame";
 import { buttonVariants } from "@/components/ui/button";
 import { Collapsible } from "@/components/ui/collapsible-section";
 import {
@@ -117,8 +123,8 @@ export function CustomerDetailPage({ customerId }: { customerId: string }) {
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <div className="border-b border-border px-6 py-5">
+    <PageFrame>
+      <PageFrameHeader>
         <div className="flex flex-wrap items-center gap-4">
           <BackToCustomers />
           <Avatar initial={customer.initial} color={customer.color} size="md" />
@@ -135,9 +141,9 @@ export function CustomerDetailPage({ customerId }: { customerId: string }) {
             </div>
           </div>
         </div>
-      </div>
+      </PageFrameHeader>
 
-      <div className="border-b border-border px-6">
+      <PageFrameControls>
         <div className="flex gap-1 overflow-x-auto py-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -160,9 +166,9 @@ export function CustomerDetailPage({ customerId }: { customerId: string }) {
             );
           })}
         </div>
-      </div>
+      </PageFrameControls>
 
-      <div className="flex-1 overflow-auto px-6 py-6">
+      <PageFrameBody>
         {activeTab === "details" && <DetailsTab customer={customer} />}
         {activeTab === "contacts" && (
           <ContactsTab contacts={customer.contacts} />
@@ -170,8 +176,8 @@ export function CustomerDetailPage({ customerId }: { customerId: string }) {
         {activeTab === "products" && (
           <ProductsTab products={customer.products} />
         )}
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }
 
@@ -185,26 +191,26 @@ function CustomerDetailError({
   onRetry: () => void;
 }) {
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <div className="px-6 py-5">
+    <PageFrame>
+      <PageFrameHeader>
         <BackToCustomers />
-      </div>
-      <div className="flex flex-1 items-center justify-center px-6">
+      </PageFrameHeader>
+      <PageFrameBody className="flex items-center justify-center">
         <DataErrorView
           title="Could not load customer"
           message={message}
           onRetry={onRetry}
           isRetrying={isRetrying}
         />
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }
 
 function CustomerDetailLoading() {
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <div className="border-b border-border px-6 py-5">
+    <PageFrame>
+      <PageFrameHeader>
         <div className="flex flex-wrap items-center gap-4">
           <BackToCustomers />
           <div className="h-10 w-10 animate-pulse rounded-full bg-muted" />
@@ -215,9 +221,9 @@ function CustomerDetailLoading() {
             </div>
           </div>
         </div>
-      </div>
+      </PageFrameHeader>
 
-      <div className="border-b border-border px-6">
+      <PageFrameControls>
         <div className="flex gap-1 overflow-x-auto py-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -235,9 +241,9 @@ function CustomerDetailLoading() {
             );
           })}
         </div>
-      </div>
+      </PageFrameControls>
 
-      <div className="flex-1 overflow-auto px-6 py-6">
+      <PageFrameBody>
         <div className="flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, index) => (
             <section
@@ -263,18 +269,18 @@ function CustomerDetailLoading() {
             </section>
           ))}
         </div>
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }
 
 function CustomerNotFound() {
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <div className="px-6 py-5">
+    <PageFrame>
+      <PageFrameHeader>
         <BackToCustomers />
-      </div>
-      <div className="flex flex-1 items-center justify-center px-6">
+      </PageFrameHeader>
+      <PageFrameBody className="flex items-center justify-center">
         <div className="max-w-sm text-center">
           <h1 className="text-xl font-semibold text-foreground">
             Customer not found
@@ -283,8 +289,8 @@ function CustomerNotFound() {
             This customer record does not exist or is no longer available.
           </p>
         </div>
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }
 

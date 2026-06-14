@@ -7,6 +7,12 @@ import { CalendarDays, Hash, Languages, ListTree, Search } from "lucide-react";
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { PageHeader } from "@/components/page-header";
 import {
+  PageFrame,
+  PageFrameBody,
+  PageFrameControls,
+  PageFrameFooter,
+} from "@/components/page-frame";
+import {
   ColumnVisibilityControl,
   type ColumnVisibilityOption,
 } from "@/components/ui/column-visibility-control";
@@ -209,7 +215,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <PageFrame>
       <PageHeader
         title="Lookups"
         badge={
@@ -234,8 +240,8 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
         }
       />
 
-      <div className="flex-1 overflow-auto px-6 pt-1 pb-8">
-        <div className="mb-3 flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
+      <PageFrameControls>
+        <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
           <label
             className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:min-w-[280px] ${
               !lookupName || isLoadingLookups
@@ -264,7 +270,9 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             }}
           />
         </div>
+      </PageFrameControls>
 
+      <PageFrameBody className="pb-8">
         <div className="overflow-auto rounded-xl border border-border bg-muted/10">
           <div style={{ minWidth: tableMinWidth }}>
             <div
@@ -329,22 +337,25 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
               )}
           </div>
         </div>
-      </div>
+      </PageFrameBody>
 
       {!isLoadingLookups && !isLookupsError && filteredLookups.length > 0 && (
-        <Pagination
-          page={currentPage}
-          pageCount={pageCount}
-          total={sortedLookups.length}
-          pageSize={pageSize}
-          onPageChange={setPage}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setPage(1);
-          }}
-        />
+        <PageFrameFooter>
+          <Pagination
+            page={currentPage}
+            pageCount={pageCount}
+            total={sortedLookups.length}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+            bordered={false}
+          />
+        </PageFrameFooter>
       )}
-    </div>
+    </PageFrame>
   );
 }
 

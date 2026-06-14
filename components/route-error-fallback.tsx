@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
+import { PageFrame, PageFrameBody } from "@/components/page-frame";
 
 export function RouteErrorFallback({
   error,
@@ -23,9 +24,9 @@ export function RouteErrorFallback({
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <PageFrame>
       <PageHeader title={title} />
-      <div className="flex flex-1 items-center justify-center px-6 py-10">
+      <PageFrameBody className="flex items-center justify-center">
         <div className="w-full max-w-md rounded-xl border border-destructive/25 bg-destructive/10 px-5 py-5 text-center">
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
             <AlertTriangle className="h-5 w-5" />
@@ -44,7 +45,7 @@ export function RouteErrorFallback({
             Retry
           </Button>
         </div>
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }

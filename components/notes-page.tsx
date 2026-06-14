@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Search, Plus, FileText } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import { PageHeader } from "@/components/page-header";
+import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { notes } from "@/lib/workspace-data";
 
 export function NotesPage() {
@@ -20,7 +21,7 @@ export function NotesPage() {
   );
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <PageFrame>
       <PageHeader
         title="Notes"
         actions={
@@ -41,7 +42,7 @@ export function NotesPage() {
           </>
         }
       />
-      <div className="flex-1 overflow-auto px-6 pb-8">
+      <PageFrameBody className="pb-8">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map((n) => (
             <button
@@ -72,7 +73,7 @@ export function NotesPage() {
             No notes match &ldquo;{query}&rdquo;
           </div>
         )}
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }

@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CustomerSearchForm } from "@/components/customers/customer-search-form";
 import { CustomerTable } from "@/components/customers/customer-table";
 import { PageHeader } from "@/components/page-header";
+import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import {
   filterCustomers,
   trimCustomerSearchValues,
@@ -147,7 +148,7 @@ export function CustomersPage({
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <PageFrame>
       <PageHeader
         title={mode === "favorites" ? "Favorite Customers" : "Customers"}
         actions={
@@ -203,7 +204,7 @@ export function CustomersPage({
         }
       />
 
-      <div className="flex-1 overflow-auto px-6 pb-8">
+      <PageFrameBody className="pb-8">
         {mode === "search" && (
           <CustomerSearchForm
             values={searchValues}
@@ -233,7 +234,7 @@ export function CustomersPage({
             void refetch();
           }}
         />
-      </div>
-    </div>
+      </PageFrameBody>
+    </PageFrame>
   );
 }

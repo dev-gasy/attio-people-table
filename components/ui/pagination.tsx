@@ -5,6 +5,8 @@ import {
   ChevronLast,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  Rows3,
 } from "lucide-react";
 
 export function Pagination({
@@ -17,6 +19,7 @@ export function Pagination({
   pageSizeOptions = [8, 16, 25, 50],
   className = "",
   bordered = true,
+  padded = true,
 }: {
   page: number;
   pageCount: number;
@@ -27,13 +30,15 @@ export function Pagination({
   pageSizeOptions?: number[];
   className?: string;
   bordered?: boolean;
+  padded?: boolean;
 }) {
   const showPageSize = Boolean(onPageSizeChange);
+  const paddingClass = padded ? "px-6 py-3" : "px-0 py-3";
 
   if (pageCount <= 1 && total <= pageSize && !showPageSize) {
     return (
       <div
-        className={`flex items-center px-6 py-3 text-sm text-muted-foreground ${className}`}
+        className={`flex items-center ${paddingClass} text-sm text-muted-foreground ${className}`}
       >
         {total} {total === 1 ? "record" : "records"}
       </div>
@@ -58,30 +63,32 @@ export function Pagination({
 
   return (
     <div
-      className={`flex flex-wrap items-center justify-between gap-3 px-6 py-3 ${
+      className={`flex flex-wrap items-center justify-between gap-3 ${paddingClass} ${
         bordered ? "border-t border-border" : ""
       } ${className}`}
     >
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className="text-sm text-muted-foreground">
           {start}&ndash;{end} of {total}
         </span>
         {showPageSize && (
-          <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>Rows per page</span>
-            <select
-              value={pageSize}
-              onChange={(event) =>
-                onPageSizeChange?.(Number(event.target.value))
-              }
-              className="h-7 rounded-md border border-border bg-background px-2 text-sm text-foreground outline-none transition-colors focus:border-ring focus:ring-3 focus:ring-ring/20"
-            >
-              {pageSizeChoices.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
+          <label className="inline-flex h-8 items-center overflow-hidden rounded-lg border border-border bg-background/80 text-sm shadow-sm transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/20">
+            <span className="relative h-full">
+              <select
+                value={pageSize}
+                onChange={(event) =>
+                  onPageSizeChange?.(Number(event.target.value))
+                }
+                className="h-full appearance-none bg-transparent pr-7 pl-2 text-sm font-medium text-foreground outline-none"
+              >
+                {pageSizeChoices.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute top-1/2 right-2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            </span>
           </label>
         )}
       </div>

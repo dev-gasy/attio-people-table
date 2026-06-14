@@ -22,6 +22,11 @@ import type { GroupsView } from "@/components/groups/types";
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { PageHeader } from "@/components/page-header";
 import {
+  PageFrame,
+  PageFrameBody,
+  PageFrameFooter,
+} from "@/components/page-frame";
+import {
   type Group,
   type GroupStatus,
   mapGroupDtosToGroups,
@@ -142,7 +147,7 @@ export function GroupsPage() {
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <PageFrame>
       <PageHeader
         title="Groups"
         actions={
@@ -160,7 +165,7 @@ export function GroupsPage() {
       />
 
       {isError ? (
-        <div className="flex-1 overflow-auto px-6 pb-8">
+        <PageFrameBody className="pb-8">
           <DataErrorView
             title="Could not load groups"
             message={getErrorMessage(error)}
@@ -169,31 +174,36 @@ export function GroupsPage() {
             }}
             isRetrying={isFetching}
           />
-        </div>
+        </PageFrameBody>
       ) : (
-        <GroupsContent
-          filteredTotal={filteredTotal}
-          activeSort={sortKey}
-          direction={direction}
-          isLoading={isPending}
-          onSort={handleSort}
-          rows={gridRows}
-          view={view}
-        />
+        <PageFrameBody className="pb-8">
+          <GroupsContent
+            filteredTotal={filteredTotal}
+            activeSort={sortKey}
+            direction={direction}
+            isLoading={isPending}
+            onSort={handleSort}
+            rows={gridRows}
+            view={view}
+          />
+        </PageFrameBody>
       )}
 
       {!isPending && !isError && filteredTotal > 0 && (
-        <Pagination
-          page={currentPage}
-          pageCount={pageCount}
-          total={filteredTotal}
-          pageSize={pageSize}
-          onPageChange={setPage}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setPage(1);
-          }}
-        />
+        <PageFrameFooter>
+          <Pagination
+            page={currentPage}
+            pageCount={pageCount}
+            total={filteredTotal}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+            bordered={false}
+          />
+        </PageFrameFooter>
       )}
 
       <AddGroupModal
@@ -203,7 +213,7 @@ export function GroupsPage() {
         onSubmit={handleAdd}
         onFormChange={setForm}
       />
-    </div>
+    </PageFrame>
   );
 }
 
