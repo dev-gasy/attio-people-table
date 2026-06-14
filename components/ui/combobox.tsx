@@ -18,6 +18,8 @@ export function Combobox({
   icon: Icon,
   className = "",
   align = "left",
+  clearable = true,
+  disabled = false,
 }: {
   options: ComboOption[];
   value: string | null;
@@ -27,6 +29,8 @@ export function Combobox({
   icon?: React.ComponentType<{ className?: string }>;
   className?: string;
   align?: "left" | "right";
+  clearable?: boolean;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -52,8 +56,12 @@ export function Combobox({
     <div ref={ref} className={`relative ${className}`}>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+        disabled={disabled}
+        onClick={() => {
+          if (disabled) return;
+          setOpen((o) => !o);
+        }}
+        className="flex w-full items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-muted/40"
       >
         {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
         <span
@@ -74,14 +82,15 @@ export function Combobox({
             <Search className="h-4 w-4 text-muted-foreground" />
             <input
               autoFocus
+              disabled={disabled}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={searchPlaceholder}
-              className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
             />
           </div>
           <div className="max-h-60 overflow-auto p-1">
-            {value && (
+            {clearable && value && (
               <button
                 type="button"
                 onClick={() => {

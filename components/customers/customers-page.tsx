@@ -195,6 +195,7 @@ export function CustomersPage() {
 
       <div className="flex-1 overflow-auto px-6 pb-8">
         <CustomerSearchForm
+          disabled={isPending}
           onSearch={(values) => {
             setSearchValues(values);
             setPage(1);

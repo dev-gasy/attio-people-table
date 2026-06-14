@@ -1,6 +1,6 @@
 export type LookupDto = {
   id: number;
-  group: string;
+  lookupName: string;
   code: string;
   displayValueEn: string;
   displayValueFr: string;
@@ -10,7 +10,7 @@ export type LookupDto = {
 export const lookupSeed: LookupDto[] = [
   {
     id: 1,
-    group: "Customer status",
+    lookupName: "Customer status",
     code: "CUSTOMER_STATUS_ACTIVE",
     displayValueEn: "Active",
     displayValueFr: "Actif",
@@ -18,7 +18,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 2,
-    group: "Customer status",
+    lookupName: "Customer status",
     code: "CUSTOMER_STATUS_PENDING",
     displayValueEn: "Pending review",
     displayValueFr: "En attente de revision",
@@ -26,7 +26,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 3,
-    group: "Customer status",
+    lookupName: "Customer status",
     code: "CUSTOMER_STATUS_INACTIVE",
     displayValueEn: "Inactive",
     displayValueFr: "Inactif",
@@ -34,7 +34,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 4,
-    group: "Region",
+    lookupName: "Region",
     code: "REGION_NORTH_AMERICA",
     displayValueEn: "North America",
     displayValueFr: "Amerique du Nord",
@@ -42,7 +42,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 5,
-    group: "Region",
+    lookupName: "Region",
     code: "REGION_EUROPE",
     displayValueEn: "Europe",
     displayValueFr: "Europe",
@@ -50,7 +50,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 6,
-    group: "Region",
+    lookupName: "Region",
     code: "REGION_APAC",
     displayValueEn: "Asia Pacific",
     displayValueFr: "Asie-Pacifique",
@@ -58,7 +58,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 7,
-    group: "Priority",
+    lookupName: "Priority",
     code: "PRIORITY_HIGH",
     displayValueEn: "High",
     displayValueFr: "Elevee",
@@ -66,7 +66,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 8,
-    group: "Priority",
+    lookupName: "Priority",
     code: "PRIORITY_MEDIUM",
     displayValueEn: "Medium",
     displayValueFr: "Moyenne",
@@ -74,7 +74,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 9,
-    group: "Priority",
+    lookupName: "Priority",
     code: "PRIORITY_LOW",
     displayValueEn: "Low",
     displayValueFr: "Faible",
@@ -82,7 +82,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 10,
-    group: "Language",
+    lookupName: "Language",
     code: "LANGUAGE_EN",
     displayValueEn: "English",
     displayValueFr: "Anglais",
@@ -90,7 +90,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 11,
-    group: "Language",
+    lookupName: "Language",
     code: "LANGUAGE_FR",
     displayValueEn: "French",
     displayValueFr: "Francais",
@@ -98,7 +98,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 12,
-    group: "Contact method",
+    lookupName: "Contact method",
     code: "CONTACT_METHOD_EMAIL",
     displayValueEn: "Email",
     displayValueFr: "Courriel",
@@ -106,7 +106,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 13,
-    group: "Contact method",
+    lookupName: "Contact method",
     code: "CONTACT_METHOD_PHONE",
     displayValueEn: "Phone",
     displayValueFr: "Telephone",
@@ -114,7 +114,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 14,
-    group: "Contact method",
+    lookupName: "Contact method",
     code: "CONTACT_METHOD_SMS",
     displayValueEn: "Text message",
     displayValueFr: "Message texte",
@@ -122,7 +122,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 15,
-    group: "Billing cycle",
+    lookupName: "Billing cycle",
     code: "BILLING_CYCLE_MONTHLY",
     displayValueEn: "Monthly",
     displayValueFr: "Mensuel",
@@ -130,7 +130,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 16,
-    group: "Billing cycle",
+    lookupName: "Billing cycle",
     code: "BILLING_CYCLE_ANNUAL",
     displayValueEn: "Annual",
     displayValueFr: "Annuel",
@@ -138,7 +138,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 17,
-    group: "Account tier",
+    lookupName: "Account tier",
     code: "ACCOUNT_TIER_STANDARD",
     displayValueEn: "Standard",
     displayValueFr: "Standard",
@@ -146,7 +146,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 18,
-    group: "Account tier",
+    lookupName: "Account tier",
     code: "ACCOUNT_TIER_ENTERPRISE",
     displayValueEn: "Enterprise",
     displayValueFr: "Entreprise",
@@ -154,7 +154,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 19,
-    group: "Age",
+    lookupName: "Age",
     code: "AGE_18_24",
     displayValueEn: "18 to 24",
     displayValueFr: "18 a 24",
@@ -162,7 +162,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 20,
-    group: "Age",
+    lookupName: "Age",
     code: "AGE_25_34",
     displayValueEn: "25 to 34",
     displayValueFr: "25 a 34",
@@ -170,7 +170,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 21,
-    group: "Age",
+    lookupName: "Age",
     code: "AGE_35_44",
     displayValueEn: "35 to 44",
     displayValueFr: "35 a 44",
@@ -178,7 +178,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 22,
-    group: "Age",
+    lookupName: "Age",
     code: "AGE_45_54",
     displayValueEn: "45 to 54",
     displayValueFr: "45 a 54",
@@ -186,7 +186,7 @@ export const lookupSeed: LookupDto[] = [
   },
   {
     id: 23,
-    group: "Age",
+    lookupName: "Age",
     code: "AGE_55_PLUS",
     displayValueEn: "55 plus",
     displayValueFr: "55 et plus",

@@ -22,8 +22,14 @@ import { Route as AppLookupsRouteImport } from './routes/_app/lookups'
 import { Route as AppKrakenRouteImport } from './routes/_app/kraken'
 import { Route as AppCustomersRouteImport } from './routes/_app/customers'
 import { Route as AppCompaniesRouteImport } from './routes/_app/companies'
+import { Route as ApiLookupsNamesRouteImport } from './routes/api/lookups.names'
+import { Route as ApiKrakenEntrypointsRouteImport } from './routes/api/kraken.entrypoints'
 import { Route as ApiCustomersCustomerIdRouteImport } from './routes/api/customers.$customerId'
+import { Route as AppLookupsLookupNameRouteImport } from './routes/_app/lookups_.$lookupName'
+import { Route as AppKrakenEntrypointNameRouteImport } from './routes/_app/kraken_.$entrypointName'
 import { Route as AppCustomersCustomerIdRouteImport } from './routes/_app/customers_.$customerId'
+import { Route as ApiLookupsNamesLookupNameRouteImport } from './routes/api/lookups.names.$lookupName'
+import { Route as ApiKrakenEntrypointsEntrypointNameRulesRouteImport } from './routes/api/kraken.entrypoints.$entrypointName.rules'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -89,16 +95,48 @@ const AppCompaniesRoute = AppCompaniesRouteImport.update({
   path: '/companies',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiLookupsNamesRoute = ApiLookupsNamesRouteImport.update({
+  id: '/names',
+  path: '/names',
+  getParentRoute: () => ApiLookupsRoute,
+} as any)
+const ApiKrakenEntrypointsRoute = ApiKrakenEntrypointsRouteImport.update({
+  id: '/api/kraken/entrypoints',
+  path: '/api/kraken/entrypoints',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCustomersCustomerIdRoute = ApiCustomersCustomerIdRouteImport.update({
   id: '/$customerId',
   path: '/$customerId',
   getParentRoute: () => ApiCustomersRoute,
+} as any)
+const AppLookupsLookupNameRoute = AppLookupsLookupNameRouteImport.update({
+  id: '/lookups_/$lookupName',
+  path: '/lookups/$lookupName',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppKrakenEntrypointNameRoute = AppKrakenEntrypointNameRouteImport.update({
+  id: '/kraken_/$entrypointName',
+  path: '/kraken/$entrypointName',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppCustomersCustomerIdRoute = AppCustomersCustomerIdRouteImport.update({
   id: '/customers_/$customerId',
   path: '/customers/$customerId',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiLookupsNamesLookupNameRoute =
+  ApiLookupsNamesLookupNameRouteImport.update({
+    id: '/$lookupName',
+    path: '/$lookupName',
+    getParentRoute: () => ApiLookupsNamesRoute,
+  } as any)
+const ApiKrakenEntrypointsEntrypointNameRulesRoute =
+  ApiKrakenEntrypointsEntrypointNameRulesRouteImport.update({
+    id: '/$entrypointName/rules',
+    path: '/$entrypointName/rules',
+    getParentRoute: () => ApiKrakenEntrypointsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -111,10 +149,16 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof AppTasksRoute
   '/api/companies': typeof ApiCompaniesRoute
   '/api/customers': typeof ApiCustomersRouteWithChildren
-  '/api/lookups': typeof ApiLookupsRoute
+  '/api/lookups': typeof ApiLookupsRouteWithChildren
   '/api/people': typeof ApiPeopleRoute
   '/customers/$customerId': typeof AppCustomersCustomerIdRoute
+  '/kraken/$entrypointName': typeof AppKrakenEntrypointNameRoute
+  '/lookups/$lookupName': typeof AppLookupsLookupNameRoute
   '/api/customers/$customerId': typeof ApiCustomersCustomerIdRoute
+  '/api/kraken/entrypoints': typeof ApiKrakenEntrypointsRouteWithChildren
+  '/api/lookups/names': typeof ApiLookupsNamesRouteWithChildren
+  '/api/lookups/names/$lookupName': typeof ApiLookupsNamesLookupNameRoute
+  '/api/kraken/entrypoints/$entrypointName/rules': typeof ApiKrakenEntrypointsEntrypointNameRulesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -127,10 +171,16 @@ export interface FileRoutesByTo {
   '/tasks': typeof AppTasksRoute
   '/api/companies': typeof ApiCompaniesRoute
   '/api/customers': typeof ApiCustomersRouteWithChildren
-  '/api/lookups': typeof ApiLookupsRoute
+  '/api/lookups': typeof ApiLookupsRouteWithChildren
   '/api/people': typeof ApiPeopleRoute
   '/customers/$customerId': typeof AppCustomersCustomerIdRoute
+  '/kraken/$entrypointName': typeof AppKrakenEntrypointNameRoute
+  '/lookups/$lookupName': typeof AppLookupsLookupNameRoute
   '/api/customers/$customerId': typeof ApiCustomersCustomerIdRoute
+  '/api/kraken/entrypoints': typeof ApiKrakenEntrypointsRouteWithChildren
+  '/api/lookups/names': typeof ApiLookupsNamesRouteWithChildren
+  '/api/lookups/names/$lookupName': typeof ApiLookupsNamesLookupNameRoute
+  '/api/kraken/entrypoints/$entrypointName/rules': typeof ApiKrakenEntrypointsEntrypointNameRulesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -145,10 +195,16 @@ export interface FileRoutesById {
   '/_app/tasks': typeof AppTasksRoute
   '/api/companies': typeof ApiCompaniesRoute
   '/api/customers': typeof ApiCustomersRouteWithChildren
-  '/api/lookups': typeof ApiLookupsRoute
+  '/api/lookups': typeof ApiLookupsRouteWithChildren
   '/api/people': typeof ApiPeopleRoute
   '/_app/customers_/$customerId': typeof AppCustomersCustomerIdRoute
+  '/_app/kraken_/$entrypointName': typeof AppKrakenEntrypointNameRoute
+  '/_app/lookups_/$lookupName': typeof AppLookupsLookupNameRoute
   '/api/customers/$customerId': typeof ApiCustomersCustomerIdRoute
+  '/api/kraken/entrypoints': typeof ApiKrakenEntrypointsRouteWithChildren
+  '/api/lookups/names': typeof ApiLookupsNamesRouteWithChildren
+  '/api/lookups/names/$lookupName': typeof ApiLookupsNamesLookupNameRoute
+  '/api/kraken/entrypoints/$entrypointName/rules': typeof ApiKrakenEntrypointsEntrypointNameRulesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -166,7 +222,13 @@ export interface FileRouteTypes {
     | '/api/lookups'
     | '/api/people'
     | '/customers/$customerId'
+    | '/kraken/$entrypointName'
+    | '/lookups/$lookupName'
     | '/api/customers/$customerId'
+    | '/api/kraken/entrypoints'
+    | '/api/lookups/names'
+    | '/api/lookups/names/$lookupName'
+    | '/api/kraken/entrypoints/$entrypointName/rules'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -182,7 +244,13 @@ export interface FileRouteTypes {
     | '/api/lookups'
     | '/api/people'
     | '/customers/$customerId'
+    | '/kraken/$entrypointName'
+    | '/lookups/$lookupName'
     | '/api/customers/$customerId'
+    | '/api/kraken/entrypoints'
+    | '/api/lookups/names'
+    | '/api/lookups/names/$lookupName'
+    | '/api/kraken/entrypoints/$entrypointName/rules'
   id:
     | '__root__'
     | '/'
@@ -199,7 +267,13 @@ export interface FileRouteTypes {
     | '/api/lookups'
     | '/api/people'
     | '/_app/customers_/$customerId'
+    | '/_app/kraken_/$entrypointName'
+    | '/_app/lookups_/$lookupName'
     | '/api/customers/$customerId'
+    | '/api/kraken/entrypoints'
+    | '/api/lookups/names'
+    | '/api/lookups/names/$lookupName'
+    | '/api/kraken/entrypoints/$entrypointName/rules'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -207,8 +281,9 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   ApiCompaniesRoute: typeof ApiCompaniesRoute
   ApiCustomersRoute: typeof ApiCustomersRouteWithChildren
-  ApiLookupsRoute: typeof ApiLookupsRoute
+  ApiLookupsRoute: typeof ApiLookupsRouteWithChildren
   ApiPeopleRoute: typeof ApiPeopleRoute
+  ApiKrakenEntrypointsRoute: typeof ApiKrakenEntrypointsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -304,6 +379,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompaniesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/lookups/names': {
+      id: '/api/lookups/names'
+      path: '/names'
+      fullPath: '/api/lookups/names'
+      preLoaderRoute: typeof ApiLookupsNamesRouteImport
+      parentRoute: typeof ApiLookupsRoute
+    }
+    '/api/kraken/entrypoints': {
+      id: '/api/kraken/entrypoints'
+      path: '/api/kraken/entrypoints'
+      fullPath: '/api/kraken/entrypoints'
+      preLoaderRoute: typeof ApiKrakenEntrypointsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/customers/$customerId': {
       id: '/api/customers/$customerId'
       path: '/$customerId'
@@ -311,12 +400,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCustomersCustomerIdRouteImport
       parentRoute: typeof ApiCustomersRoute
     }
+    '/_app/lookups_/$lookupName': {
+      id: '/_app/lookups_/$lookupName'
+      path: '/lookups/$lookupName'
+      fullPath: '/lookups/$lookupName'
+      preLoaderRoute: typeof AppLookupsLookupNameRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/kraken_/$entrypointName': {
+      id: '/_app/kraken_/$entrypointName'
+      path: '/kraken/$entrypointName'
+      fullPath: '/kraken/$entrypointName'
+      preLoaderRoute: typeof AppKrakenEntrypointNameRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/customers_/$customerId': {
       id: '/_app/customers_/$customerId'
       path: '/customers/$customerId'
       fullPath: '/customers/$customerId'
       preLoaderRoute: typeof AppCustomersCustomerIdRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/api/lookups/names/$lookupName': {
+      id: '/api/lookups/names/$lookupName'
+      path: '/$lookupName'
+      fullPath: '/api/lookups/names/$lookupName'
+      preLoaderRoute: typeof ApiLookupsNamesLookupNameRouteImport
+      parentRoute: typeof ApiLookupsNamesRoute
+    }
+    '/api/kraken/entrypoints/$entrypointName/rules': {
+      id: '/api/kraken/entrypoints/$entrypointName/rules'
+      path: '/$entrypointName/rules'
+      fullPath: '/api/kraken/entrypoints/$entrypointName/rules'
+      preLoaderRoute: typeof ApiKrakenEntrypointsEntrypointNameRulesRouteImport
+      parentRoute: typeof ApiKrakenEntrypointsRoute
     }
   }
 }
@@ -330,6 +447,8 @@ interface AppRouteChildren {
   AppPeopleRoute: typeof AppPeopleRoute
   AppTasksRoute: typeof AppTasksRoute
   AppCustomersCustomerIdRoute: typeof AppCustomersCustomerIdRoute
+  AppKrakenEntrypointNameRoute: typeof AppKrakenEntrypointNameRoute
+  AppLookupsLookupNameRoute: typeof AppLookupsLookupNameRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -341,6 +460,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppPeopleRoute: AppPeopleRoute,
   AppTasksRoute: AppTasksRoute,
   AppCustomersCustomerIdRoute: AppCustomersCustomerIdRoute,
+  AppKrakenEntrypointNameRoute: AppKrakenEntrypointNameRoute,
+  AppLookupsLookupNameRoute: AppLookupsLookupNameRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -357,13 +478,50 @@ const ApiCustomersRouteWithChildren = ApiCustomersRoute._addFileChildren(
   ApiCustomersRouteChildren,
 )
 
+interface ApiLookupsNamesRouteChildren {
+  ApiLookupsNamesLookupNameRoute: typeof ApiLookupsNamesLookupNameRoute
+}
+
+const ApiLookupsNamesRouteChildren: ApiLookupsNamesRouteChildren = {
+  ApiLookupsNamesLookupNameRoute: ApiLookupsNamesLookupNameRoute,
+}
+
+const ApiLookupsNamesRouteWithChildren = ApiLookupsNamesRoute._addFileChildren(
+  ApiLookupsNamesRouteChildren,
+)
+
+interface ApiLookupsRouteChildren {
+  ApiLookupsNamesRoute: typeof ApiLookupsNamesRouteWithChildren
+}
+
+const ApiLookupsRouteChildren: ApiLookupsRouteChildren = {
+  ApiLookupsNamesRoute: ApiLookupsNamesRouteWithChildren,
+}
+
+const ApiLookupsRouteWithChildren = ApiLookupsRoute._addFileChildren(
+  ApiLookupsRouteChildren,
+)
+
+interface ApiKrakenEntrypointsRouteChildren {
+  ApiKrakenEntrypointsEntrypointNameRulesRoute: typeof ApiKrakenEntrypointsEntrypointNameRulesRoute
+}
+
+const ApiKrakenEntrypointsRouteChildren: ApiKrakenEntrypointsRouteChildren = {
+  ApiKrakenEntrypointsEntrypointNameRulesRoute:
+    ApiKrakenEntrypointsEntrypointNameRulesRoute,
+}
+
+const ApiKrakenEntrypointsRouteWithChildren =
+  ApiKrakenEntrypointsRoute._addFileChildren(ApiKrakenEntrypointsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   ApiCompaniesRoute: ApiCompaniesRoute,
   ApiCustomersRoute: ApiCustomersRouteWithChildren,
-  ApiLookupsRoute: ApiLookupsRoute,
+  ApiLookupsRoute: ApiLookupsRouteWithChildren,
   ApiPeopleRoute: ApiPeopleRoute,
+  ApiKrakenEntrypointsRoute: ApiKrakenEntrypointsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { CalendarDays, Hash, Languages, ListTree, Search } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Combobox, type ComboOption } from "@/components/ui/combobox";
@@ -14,7 +15,10 @@ import {
   type Lookup,
   mapLookupDtosToLookups,
 } from "@/features/lookups/lookup-mappers";
-import { lookupsQueryOptions } from "@/features/lookups/lookup-service";
+import {
+  lookupNameQueryOptions,
+  lookupNamesQueryOptions,
+} from "@/features/lookups/lookup-service";
 
 const LOOKUPS_PAGE_SIZE = 16;
 const LOOKUP_TABLE_COLUMNS =
@@ -26,7 +30,7 @@ type LookupSortKey =
   | "displayValueFr"
   | "effectiveDate";
 
-const lookupGroupCodeStyles: Record<string, string> = {
+const lookupNameCodeStyles: Record<string, string> = {
   "Account tier": "bg-violet-500/10 text-violet-700 dark:text-violet-300",
   Age: "bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-300",
   "Billing cycle": "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
@@ -38,48 +42,44 @@ const lookupGroupCodeStyles: Record<string, string> = {
   Region: "bg-teal-500/10 text-teal-700 dark:text-teal-300",
 };
 
-export function LookupsPage() {
-  const { data: lookupsData = [], isPending } = useQuery(lookupsQueryOptions());
+export function LookupsPage({ lookupName }: { lookupName?: string }) {
+  const navigate = useNavigate();
+  const { data: lookupNames } = useSuspenseQuery(lookupNamesQueryOptions());
+  const { data, isPending } = useQuery({
+    ...lookupNameQueryOptions(lookupName ?? ""),
+    enabled: Boolean(lookupName),
+  });
+  const lookupsData = data?.lookups ?? [];
+  const selectedLookupName = data?.lookupName ?? null;
   const lookups = useMemo(
     () => mapLookupDtosToLookups(lookupsData),
     [lookupsData],
   );
-  const groupOptions = useMemo<ComboOption[]>(() => {
-    const groups = Array.from(new Set(lookups.map((lookup) => lookup.group)));
-
-    return groups.map((group) => ({
-      value: group,
-      label: group,
-      hint: `${lookups.filter((lookup) => lookup.group === group).length} lookups`,
-    }));
-  }, [lookups]);
-  const defaultGroup = groupOptions[0]?.value ?? null;
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const lookupNameOptions = useMemo<ComboOption[]>(
+    () =>
+      lookupNames.map((lookupName) => ({
+        value: lookupName.slug,
+        label: lookupName.name,
+        hint: `${lookupName.lookupsCount} lookups`,
+      })),
+    [lookupNames],
+  );
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<LookupSortKey | null>(null);
   const [sortDirection, setSortDirection] =
     useState<TableSortDirection>("asc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(LOOKUPS_PAGE_SIZE);
-  const activeGroup = groupOptions.some(
-    (option) => option.value === selectedGroup,
-  )
-    ? selectedGroup
-    : defaultGroup;
   const normalizedQuery = query.trim().toLowerCase();
   const filteredLookups = useMemo(() => {
-    const groupLookups = activeGroup
-      ? lookups.filter((lookup) => lookup.group === activeGroup)
-      : lookups;
+    if (!normalizedQuery) return lookups;
 
-    if (!normalizedQuery) return groupLookups;
-
-    return groupLookups.filter((lookup) =>
+    return lookups.filter((lookup) =>
       [lookup.code, lookup.displayValueEn, lookup.displayValueFr].some(
         (value) => value.toLowerCase().includes(normalizedQuery),
       ),
     );
-  }, [activeGroup, lookups, normalizedQuery]);
+  }, [lookups, normalizedQuery]);
   const sortedLookups = useMemo(
     () => sortLookups(filteredLookups, sortKey, sortDirection),
     [filteredLookups, sortDirection, sortKey],
@@ -105,25 +105,42 @@ export function LookupsPage() {
     setPage(1);
   }
 
+  function handleLookupNameChange(value: string | null) {
+    if (!value || value === lookupName) return;
+
+    setPage(1);
+    void navigate({
+      to: "/lookups/$lookupName",
+      params: { lookupName: value },
+    });
+  }
+
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <PageHeader title="Lookups" />
+      <PageHeader
+        title="Lookups"
+        badge={
+          selectedLookupName ? (
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+              {selectedLookupName.name}
+            </span>
+          ) : null
+        }
+      />
 
       <div className="flex flex-wrap items-end gap-3 border-y border-border px-6 py-3 text-sm text-muted-foreground">
         <div className="flex min-w-[260px] flex-1 flex-col gap-1.5">
-          <span className="text-xs font-medium">Lookup group</span>
+          <span className="text-xs font-medium">Lookup name</span>
           <Combobox
-            options={groupOptions}
-            value={activeGroup}
-            onChange={(value) => {
-              setSelectedGroup(value);
-              setPage(1);
-            }}
-            placeholder="Lookup group"
-            searchPlaceholder="Search lookup groups..."
+            options={lookupNameOptions}
+            value={lookupName}
+            onChange={handleLookupNameChange}
+            placeholder="Lookup name"
+            searchPlaceholder="Search lookup names..."
             icon={ListTree}
             className="min-w-0 flex-1"
             align="left"
+            clearable={false}
           />
         </div>
         <label className="flex min-w-[320px] flex-1 flex-col gap-1.5">
@@ -196,20 +213,24 @@ export function LookupsPage() {
             </div>
 
             <div className="divide-y divide-border/60">
-              {pageLookups.map((lookup) => (
-                <LookupRow key={lookup.id} lookup={lookup} />
-              ))}
+              {!lookupName ? null : isPending ? (
+                <LookupTablePending />
+              ) : (
+                pageLookups.map((lookup) => (
+                  <LookupRow key={lookup.id} lookup={lookup} />
+                ))
+              )}
             </div>
 
-            {!isPending && filteredLookups.length === 0 && (
+            {!lookupName && (
               <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-                No lookups found
+                Select a lookup name
               </div>
             )}
 
-            {isPending && (
+            {lookupName && !isPending && filteredLookups.length === 0 && (
               <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-                Loading lookups...
+                No lookups found
               </div>
             )}
           </div>
@@ -229,6 +250,14 @@ export function LookupsPage() {
           }}
         />
       )}
+    </div>
+  );
+}
+
+function LookupTablePending() {
+  return (
+    <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+      Loading lookups...
     </div>
   );
 }
@@ -257,7 +286,7 @@ function LookupRow({ lookup }: { lookup: Lookup }) {
       <LookupCell>
         <code
           className={`min-w-0 truncate rounded-md px-2 py-0.5 text-xs ${
-            lookupGroupCodeStyles[lookup.group] ??
+            lookupNameCodeStyles[lookup.lookupName] ??
             "bg-muted text-muted-foreground"
           }`}
         >
@@ -324,4 +353,19 @@ function getLookupSortValue(lookup: Lookup, sortKey: LookupSortKey) {
   if (sortKey === "effectiveDate") return lookup.effectiveDateValue;
 
   return lookup[sortKey];
+}
+
+export function LookupsPageLoading() {
+  return (
+    <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <PageHeader title="Lookups" />
+      <div className="flex-1 overflow-auto px-6 pt-4 pb-8">
+        <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
+          <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+            Loading lookups...
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

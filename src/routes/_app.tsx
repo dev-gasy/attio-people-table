@@ -1,16 +1,11 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { AppSidebar, type PageId } from "@/components/app-sidebar";
+import { navItems } from "@/components/sidebar/nav-items";
 
-const routePageMap: Record<string, PageId> = {
-  "/kraken": "kraken",
-  "/lookups": "lookups",
-  "/tasks": "tasks",
-  "/notes": "notes",
-  "/people": "people",
-  "/companies": "companies",
-  "/customers": "customers",
-};
+const routePageMap = Object.fromEntries(
+  navItems.map((item) => [item.to, item.id]),
+) as Record<string, PageId>;
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -23,7 +18,11 @@ function AppLayout() {
     () =>
       location.pathname.startsWith("/customers/")
         ? "customers"
-        : (routePageMap[location.pathname] ?? "people"),
+        : location.pathname.startsWith("/kraken/")
+          ? "kraken"
+          : location.pathname.startsWith("/lookups/")
+            ? "lookups"
+            : (routePageMap[location.pathname] ?? "people"),
     [location.pathname],
   );
 

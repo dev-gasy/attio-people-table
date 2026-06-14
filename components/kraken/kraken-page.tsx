@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import {
   FileText,
   Hash,
@@ -17,8 +19,10 @@ import {
   type TableSortDirection,
 } from "@/components/ui/sortable-table-header";
 import {
-  entrypoints,
-  rules,
+  krakenEntrypointRulesQueryOptions,
+  krakenEntrypointsQueryOptions,
+} from "@/features/kraken/kraken-service";
+import {
   ruleTypes,
   type Rule,
   type RuleType,
@@ -37,20 +41,17 @@ const ruleTypeStyles: Record<RuleType, string> = {
   Set: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
 };
 
-const entrypointOptions: ComboOption[] = entrypoints.map((entrypoint) => ({
-  value: String(entrypoint.id),
-  label: entrypoint.name,
-  hint: `${rules.filter((rule) => rule.entrypointId === entrypoint.id).length} rules`,
-}));
-
-const ruleTypeOptions: ComboOption[] = ruleTypes.map((type) => ({
-  value: type,
-  label: type,
-  hint: `${rules.filter((rule) => rule.type === type).length} rules`,
-}));
-
-export function KrakenPage() {
-  const [entrypointId, setEntrypointId] = useState<string | null>(null);
+export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
+  const navigate = useNavigate();
+  const { data: entrypoints } = useSuspenseQuery(
+    krakenEntrypointsQueryOptions(),
+  );
+  const { data, isPending } = useQuery({
+    ...krakenEntrypointRulesQueryOptions(entrypointName ?? ""),
+    enabled: Boolean(entrypointName),
+  });
+  const rules = data?.rules ?? [];
+  const entrypoint = data?.entrypoint ?? null;
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<RuleSortKey | null>(null);
@@ -59,11 +60,19 @@ export function KrakenPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(RULES_PAGE_SIZE);
   const normalizedQuery = query.trim().toLowerCase();
+  const entrypointOptions: ComboOption[] = entrypoints.map((entrypoint) => ({
+    value: entrypoint.slug,
+    label: entrypoint.name,
+    hint: `${entrypoint.rulesCount} rules`,
+  }));
+  const ruleTypeOptions: ComboOption[] = ruleTypes.map((type) => ({
+    value: type,
+    label: type,
+    hint: `${rules.filter((rule) => rule.type === type).length} rules`,
+  }));
 
   const filteredRules = useMemo(() => {
     return rules.filter((rule) => {
-      const matchesEntrypoint =
-        !entrypointId || rule.entrypointId === Number(entrypointId);
       const matchesType = !typeFilter || rule.type === typeFilter;
       const matchesQuery =
         !normalizedQuery ||
@@ -71,9 +80,9 @@ export function KrakenPage() {
           value.toLowerCase().includes(normalizedQuery),
         );
 
-      return matchesEntrypoint && matchesType && matchesQuery;
+      return matchesType && matchesQuery;
     });
-  }, [entrypointId, normalizedQuery, typeFilter]);
+  }, [normalizedQuery, rules, typeFilter]);
 
   const sortedRules = useMemo(
     () => sortRules(filteredRules, sortKey, sortDirection),
@@ -89,8 +98,13 @@ export function KrakenPage() {
   );
 
   function handleEntrypointChange(value: string | null) {
-    setEntrypointId(value);
+    if (!value || value === entrypointName) return;
+
     setPage(1);
+    void navigate({
+      to: "/kraken/$entrypointName",
+      params: { entrypointName: value },
+    });
   }
 
   function handleTypeChange(value: string | null) {
@@ -112,6 +126,13 @@ export function KrakenPage() {
     <div className="flex h-full flex-1 flex-col overflow-hidden">
       <PageHeader
         title="Kraken"
+        badge={
+          entrypoint ? (
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+              {entrypoint.name}
+            </span>
+          ) : null
+        }
         actions={
           <>
             <label className="flex min-w-[260px] flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:max-w-80">
@@ -128,13 +149,14 @@ export function KrakenPage() {
             </label>
             <Combobox
               options={entrypointOptions}
-              value={entrypointId}
+              value={entrypointName ?? null}
               onChange={handleEntrypointChange}
               placeholder="Entrypoint name"
               searchPlaceholder="Search entrypoint names..."
               icon={ListFilter}
               className="min-w-[220px] flex-1 sm:max-w-72"
               align="right"
+              clearable={false}
             />
             <Combobox
               options={ruleTypeOptions}
@@ -203,12 +225,20 @@ export function KrakenPage() {
             </div>
 
             <div className="divide-y divide-border/60">
-              {pageRules.map((rule) => (
-                <RuleRow key={rule.id} rule={rule} />
-              ))}
+              {!entrypointName ? null : isPending ? (
+                <RuleTablePending />
+              ) : (
+                pageRules.map((rule) => <RuleRow key={rule.id} rule={rule} />)
+              )}
             </div>
 
-            {filteredRules.length === 0 && (
+            {!entrypointName && (
+              <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+                Select an entrypoint name
+              </div>
+            )}
+
+            {entrypointName && !isPending && filteredRules.length === 0 && (
               <div className="px-4 py-10 text-center text-sm text-muted-foreground">
                 No rules found
               </div>
@@ -217,7 +247,7 @@ export function KrakenPage() {
         </div>
       </div>
 
-      {filteredRules.length > 0 && (
+      {!isPending && filteredRules.length > 0 && (
         <Pagination
           page={currentPage}
           pageCount={pageCount}
@@ -230,6 +260,29 @@ export function KrakenPage() {
           }}
         />
       )}
+    </div>
+  );
+}
+
+function RuleTablePending() {
+  return (
+    <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+      Loading rules...
+    </div>
+  );
+}
+
+export function KrakenPageLoading() {
+  return (
+    <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <PageHeader title="Kraken" />
+      <div className="flex-1 overflow-auto px-6 pt-4 pb-8">
+        <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
+          <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+            Loading rules...
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

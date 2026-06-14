@@ -2,7 +2,7 @@ import type { LookupDto } from "@/features/lookups/lookup-dtos";
 
 export type Lookup = {
   id: number;
-  group: string;
+  lookupName: string;
   code: string;
   displayValueEn: string;
   displayValueFr: string;

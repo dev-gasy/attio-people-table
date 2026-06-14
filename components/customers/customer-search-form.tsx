@@ -40,6 +40,7 @@ const fieldGroups: Array<
 function SearchField({
   form,
   searchField,
+  disabled,
 }: {
   form: ReturnType<typeof useForm<CustomerSearchValues>>;
   searchField: {
@@ -48,6 +49,7 @@ function SearchField({
     placeholder?: string;
     type?: string;
   };
+  disabled?: boolean;
 }) {
   return (
     <form.Field
@@ -64,7 +66,8 @@ function SearchField({
             onChange={(event) => field.handleChange(event.target.value)}
             type={searchField.type ?? "text"}
             placeholder={searchField.placeholder}
-            className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-3 focus:ring-ring/20"
+            disabled={disabled}
+            className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-3 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
       )}
@@ -75,9 +78,11 @@ function SearchField({
 export function CustomerSearchForm({
   onSearch,
   onReset,
+  disabled = false,
 }: {
   onSearch: (values: CustomerSearchValues) => void;
   onReset: () => void;
+  disabled?: boolean;
 }) {
   const form = useForm({
     defaultValues: emptyCustomerSearchValues,
@@ -90,6 +95,7 @@ export function CustomerSearchForm({
     <form
       onSubmit={(event) => {
         event.preventDefault();
+        if (disabled) return;
         form.handleSubmit();
       }}
     >
@@ -103,6 +109,7 @@ export function CustomerSearchForm({
                     key={searchField.name}
                     form={form}
                     searchField={searchField}
+                    disabled={disabled}
                   />
                 ))}
               </div>
@@ -113,6 +120,7 @@ export function CustomerSearchForm({
         <div className="flex items-center gap-2 border-t border-border bg-background/40 px-4 py-3">
           <Button
             type="button"
+            disabled={disabled}
             variant="outline"
             onClick={() => {
               form.reset();
@@ -122,7 +130,7 @@ export function CustomerSearchForm({
             <RotateCcw className="h-4 w-4" />
             Clear
           </Button>
-          <Button type="submit">
+          <Button type="submit" disabled={disabled}>
             <Search className="h-4 w-4" />
             Search
           </Button>
