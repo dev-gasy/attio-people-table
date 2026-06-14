@@ -42,6 +42,7 @@ import {
   type CustomerContactKind,
   mapCustomerDtosToCustomers,
 } from "@/features/customers/customer-mappers";
+import { waitForServiceLatency } from "@/features/shared/service-latency";
 
 const CUSTOMERS_PAGE_SIZE = 25;
 const CUSTOMER_TABLE_COLUMNS =
@@ -66,9 +67,10 @@ export function CustomersPage({
   const [favoritesImportError, setFavoritesImportError] = useState<
     string | null
   >(null);
-  const [searchValues, setSearchValues] = useState<CustomerSearchValues>(
-    initialSearchValues,
-  );
+  const searchInFlightRef = useRef(false);
+  const [searchValues, setSearchValues] =
+    useState<CustomerSearchValues>(initialSearchValues);
+  const [isSearching, setIsSearching] = useState(false);
   const [sortKey, setSortKey] = useState<CustomerSortKey | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
@@ -140,6 +142,42 @@ export function CustomersPage({
     setPage(1);
   }
 
+  async function runSyntheticCustomerSearch(applySearch: () => void) {
+    if (isPending || searchInFlightRef.current) return;
+
+    searchInFlightRef.current = true;
+    setIsSearching(true);
+
+    try {
+      await waitForServiceLatency();
+      applySearch();
+    } finally {
+      searchInFlightRef.current = false;
+      setIsSearching(false);
+    }
+  }
+
+  async function handleSearch(values: CustomerSearchValues) {
+    await runSyntheticCustomerSearch(() => {
+      const trimmedValues = trimCustomerSearchValues(values);
+
+      setSearchValues(trimmedValues);
+      setPage(1);
+      navigate({
+        to: "/customers",
+        search: compactCustomerSearchValues(trimmedValues),
+      });
+    });
+  }
+
+  async function handleResetSearch() {
+    await runSyntheticCustomerSearch(() => {
+      setSearchValues({ ...emptyCustomerSearchValues });
+      setPage(1);
+      navigate({ to: "/customers", search: {} });
+    });
+  }
+
   async function handleLoadFavorites(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -203,22 +241,9 @@ export function CustomersPage({
       <div className="flex-1 overflow-auto px-6 pb-8">
         <CustomerSearchForm
           values={searchValues}
-          disabled={isPending}
-          onSearch={(values) => {
-            const trimmedValues = trimCustomerSearchValues(values);
-
-            setSearchValues(trimmedValues);
-            setPage(1);
-            navigate({
-              to: "/customers",
-              search: compactCustomerSearchValues(trimmedValues),
-            });
-          }}
-          onReset={() => {
-            setSearchValues(emptyCustomerSearchValues);
-            setPage(1);
-            navigate({ to: "/customers", search: {} });
-          }}
+          disabled={isPending || isSearching}
+          onSearch={handleSearch}
+          onReset={handleResetSearch}
         />
 
         <div className="mt-4 overflow-auto rounded-xl border border-border bg-muted/10">

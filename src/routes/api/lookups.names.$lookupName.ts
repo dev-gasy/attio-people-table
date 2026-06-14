@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { lookupSeed } from "@/features/lookups/lookup-dtos";
 import { createSlug } from "@/features/shared/slugs";
-import { waitForServiceLatency } from "@/features/shared/service-latency";
+import { simulateServiceResponse } from "@/features/shared/service-latency";
 
 export const Route = createFileRoute("/api/lookups/names/$lookupName")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        await waitForServiceLatency();
+        const simulatedResponse =
+          await simulateServiceResponse("lookupNameDetail");
+
+        if (simulatedResponse) return simulatedResponse;
 
         const lookupName = Array.from(
           new Set(lookupSeed.map((lookup) => lookup.lookupName)),

@@ -162,7 +162,8 @@ export function CommandSearch({
         id: "workflow-customer-search",
         label: "Search customers",
         group: "Workflows",
-        keywords: "customer search crm find group policy quote email phone address",
+        keywords:
+          "customer search crm find group policy quote email phone address",
         icon: ContactRound,
         run: () => {
           setStep({ id: "customer-field" });
@@ -248,18 +249,20 @@ export function CommandSearch({
   const filteredResults = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (step.id === "customer-field") {
-      const fieldResults: CommandResult[] = customerSearchFields.map((field) => ({
-        id: `customer-field-${field.id}`,
-        label: field.label,
-        group: "Customer field",
-        keywords: `${field.label} ${field.id}`,
-        icon: ContactRound,
-        run: () => {
-          setStep({ id: "customer-value", field });
-          setQuery("");
-          setActiveIndex(0);
-        },
-      }));
+      const fieldResults: CommandResult[] = customerSearchFields.map(
+        (field) => ({
+          id: `customer-field-${field.id}`,
+          label: field.label,
+          group: "Customer field",
+          keywords: `${field.label} ${field.id}`,
+          icon: ContactRound,
+          run: () => {
+            setStep({ id: "customer-value", field });
+            setQuery("");
+            setActiveIndex(0);
+          },
+        }),
+      );
 
       if (!normalizedQuery) return fieldResults;
 
@@ -362,22 +365,20 @@ export function CommandSearch({
     }
 
     if (step.id === "lookups") {
-      const lookupResults: CommandResult[] = lookupNames.map(
-        (lookupName) => ({
-          id: `lookup-name-${lookupName.slug}`,
-          label: lookupName.name,
-          group: `${lookupName.lookupsCount} lookups`,
-          keywords: `${lookupName.name} ${lookupName.slug}`,
-          icon: ListTree,
-          run: () => {
-            navigate({
-              to: "/lookups/$lookupName",
-              params: { lookupName: lookupName.slug },
-            });
-            onClose();
-          },
-        }),
-      );
+      const lookupResults: CommandResult[] = lookupNames.map((lookupName) => ({
+        id: `lookup-name-${lookupName.slug}`,
+        label: lookupName.name,
+        group: `${lookupName.lookupsCount} lookups`,
+        keywords: `${lookupName.name} ${lookupName.slug}`,
+        icon: ListTree,
+        run: () => {
+          navigate({
+            to: "/lookups/$lookupName",
+            params: { lookupName: lookupName.slug },
+          });
+          onClose();
+        },
+      }));
 
       if (!normalizedQuery) return lookupResults;
 
@@ -395,7 +396,15 @@ export function CommandSearch({
         .toLowerCase()
         .includes(normalizedQuery),
     );
-  }, [krakenEntrypoints, lookupNames, navigate, onClose, query, rootResults, step]);
+  }, [
+    krakenEntrypoints,
+    lookupNames,
+    navigate,
+    onClose,
+    query,
+    rootResults,
+    step,
+  ]);
 
   const resultGroups = useMemo(
     () => groupCommandResults(filteredResults),
@@ -623,7 +632,7 @@ export function CommandSearch({
                   ? `Enter a ${step.kind} business key`
                   : step.id === "quote-revision"
                     ? "Enter a quote revision number"
-                : "No results found"}
+                    : "No results found"}
             </div>
           )}
         </div>
@@ -669,7 +678,8 @@ function getStepTitle(step: CommandStep) {
 function getStepPlaceholder(step: CommandStep) {
   if (step.id === "customer-field") return "Choose a customer field...";
   if (step.id === "customer-value") return step.field.placeholder;
-  if (step.id === "insurance-record") return `${step.kind.toUpperCase()}-000000`;
+  if (step.id === "insurance-record")
+    return `${step.kind.toUpperCase()}-000000`;
   if (step.id === "quote-revision") return "Revision number";
   if (step.id === "kraken") return "Search entrypoint names...";
   if (step.id === "lookups") return "Search lookup names...";
@@ -698,7 +708,8 @@ function getStaticLookupNames(): LookupNameDto[] {
   return names.map((lookupName) => ({
     name: lookupName,
     slug: createSlug(lookupName),
-    lookupsCount: lookupSeed.filter((lookup) => lookup.lookupName === lookupName)
-      .length,
+    lookupsCount: lookupSeed.filter(
+      (lookup) => lookup.lookupName === lookupName,
+    ).length,
   }));
 }

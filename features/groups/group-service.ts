@@ -1,8 +1,5 @@
 import { fetchJson } from "@/features/shared/fetch-json";
-import type {
-  GroupDto,
-  CreateGroupDto,
-} from "@/features/groups/group-dtos";
+import type { GroupDto, CreateGroupDto } from "@/features/groups/group-dtos";
 import { queryOptions } from "@tanstack/react-query";
 
 export const groupsQueryOptions = () =>

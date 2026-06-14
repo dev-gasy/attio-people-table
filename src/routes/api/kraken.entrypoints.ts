@@ -1,16 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  entrypoints,
-  rules,
-} from "@/lib/workspace-data";
+import { entrypoints, rules } from "@/lib/workspace-data";
 import { createSlug } from "@/features/shared/slugs";
-import { waitForServiceLatency } from "@/features/shared/service-latency";
+import { simulateServiceResponse } from "@/features/shared/service-latency";
 
 export const Route = createFileRoute("/api/kraken/entrypoints")({
   server: {
     handlers: {
       GET: async () => {
-        await waitForServiceLatency();
+        const simulatedResponse = await simulateServiceResponse(
+          "krakenEntrypointsList",
+        );
+
+        if (simulatedResponse) return simulatedResponse;
 
         return Response.json(
           entrypoints.map((entrypoint) => ({

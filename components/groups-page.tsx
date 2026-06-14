@@ -39,9 +39,7 @@ export type GroupsPageSearch = {
 };
 
 export function GroupsPage() {
-  const { data: groupsData = [], isPending } = useQuery(
-    groupsQueryOptions(),
-  );
+  const { data: groupsData = [], isPending } = useQuery(groupsQueryOptions());
   const seedGroups = useMemo(
     () => mapGroupDtosToGroups(groupsData),
     [groupsData],

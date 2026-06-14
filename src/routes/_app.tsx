@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { AppSidebar, type PageId } from "@/components/app-sidebar";
+import { GlobalErrorBanner } from "@/components/global-error-banner";
 import { navItems } from "@/components/sidebar/nav-items";
 
 const routePageMap = Object.fromEntries(
@@ -31,15 +32,18 @@ function AppLayout() {
   );
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background">
-      <AppSidebar
-        activePage={activePage}
-        collapsed={collapsed}
-        onToggleCollapse={() => setCollapsed((c) => !c)}
-      />
-      <main className="flex flex-1 overflow-hidden">
-        <Outlet />
-      </main>
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
+      <GlobalErrorBanner />
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <AppSidebar
+          activePage={activePage}
+          collapsed={collapsed}
+          onToggleCollapse={() => setCollapsed((c) => !c)}
+        />
+        <main className="flex min-w-0 flex-1 overflow-hidden">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

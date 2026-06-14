@@ -3,14 +3,17 @@ import {
   customerProductsSeed,
   customersSeed,
 } from "@/features/customers/customer-dtos";
-import { waitForServiceLatency } from "@/features/shared/service-latency";
+import { simulateServiceResponse } from "@/features/shared/service-latency";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/api/customers")({
   server: {
     handlers: {
       GET: async () => {
-        await waitForServiceLatency();
+        const simulatedResponse =
+          await simulateServiceResponse("customersList");
+
+        if (simulatedResponse) return simulatedResponse;
 
         return Response.json({
           customers: customersSeed,

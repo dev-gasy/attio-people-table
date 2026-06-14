@@ -16,7 +16,8 @@ export function InsuranceLookupPage() {
   const normalizedQuoteRevisionNumber = quoteRevisionNumber.trim();
   const canLoadPolicy = Boolean(normalizedPolicyBusinessKey);
   const canLoadQuote =
-    Boolean(normalizedQuoteBusinessKey) && Boolean(normalizedQuoteRevisionNumber);
+    Boolean(normalizedQuoteBusinessKey) &&
+    Boolean(normalizedQuoteRevisionNumber);
 
   function handlePolicySubmit(event: FormEvent) {
     event.preventDefault();

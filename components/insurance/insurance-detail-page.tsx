@@ -87,9 +87,7 @@ export function InsuranceDetailPage({
       <InsuranceTabs activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="flex-1 overflow-auto px-6 py-6">
         {activeTab === "details" && <SummarySection record={record} />}
-        {activeTab === "parties" && (
-          <PartiesSection parties={record.parties} />
-        )}
+        {activeTab === "parties" && <PartiesSection parties={record.parties} />}
         {activeTab === "vehicles" && (
           <VehiclesSection vehicles={record.vehicles} />
         )}

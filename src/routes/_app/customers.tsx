@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CustomersPage } from "@/components/customers/customers-page";
+import { RouteErrorFallback } from "@/components/route-error-fallback";
 import {
   emptyCustomerSearchValues,
   trimCustomerSearchValues,
@@ -9,6 +10,9 @@ import {
 export const Route = createFileRoute("/_app/customers")({
   validateSearch: (search): Partial<CustomerSearchValues> =>
     parseCustomerSearchParams(search),
+  errorComponent: (props) => (
+    <RouteErrorFallback title="Customers" {...props} />
+  ),
   component: CustomersRoute,
 });
 

@@ -1,12 +1,8 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import {
-  krakenEntrypointsQueryOptions,
-} from "@/features/kraken/kraken-service";
-import {
-  KrakenPage,
-  KrakenPageLoading,
-} from "@/components/kraken/kraken-page";
+import { krakenEntrypointsQueryOptions } from "@/features/kraken/kraken-service";
+import { KrakenPage, KrakenPageLoading } from "@/components/kraken/kraken-page";
 import { PageHeader } from "@/components/page-header";
+import { RouteErrorFallback } from "@/components/route-error-fallback";
 
 export const Route = createFileRoute("/_app/kraken_/$entrypointName")({
   loader: async ({ context, params }) => {
@@ -24,6 +20,7 @@ export const Route = createFileRoute("/_app/kraken_/$entrypointName")({
   },
   pendingComponent: KrakenPageLoading,
   notFoundComponent: KrakenEntrypointNotFound,
+  errorComponent: (props) => <RouteErrorFallback title="Kraken" {...props} />,
   component: KrakenRoute,
 });
 

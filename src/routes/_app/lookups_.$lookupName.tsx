@@ -1,12 +1,11 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import {
-  lookupNamesQueryOptions,
-} from "@/features/lookups/lookup-service";
+import { lookupNamesQueryOptions } from "@/features/lookups/lookup-service";
 import {
   LookupsPage,
   LookupsPageLoading,
 } from "@/components/lookups/lookups-page";
 import { PageHeader } from "@/components/page-header";
+import { RouteErrorFallback } from "@/components/route-error-fallback";
 
 export const Route = createFileRoute("/_app/lookups_/$lookupName")({
   loader: async ({ context, params }) => {
@@ -22,6 +21,7 @@ export const Route = createFileRoute("/_app/lookups_/$lookupName")({
   },
   pendingComponent: LookupsPageLoading,
   notFoundComponent: LookupNameNotFound,
+  errorComponent: (props) => <RouteErrorFallback title="Lookups" {...props} />,
   component: LookupsRoute,
 });
 

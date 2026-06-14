@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
   FileText,
@@ -26,11 +26,7 @@ import {
   krakenEntrypointRulesQueryOptions,
   krakenEntrypointsQueryOptions,
 } from "@/features/kraken/kraken-service";
-import {
-  ruleTypes,
-  type Rule,
-  type RuleType,
-} from "@/lib/workspace-data";
+import { ruleTypes, type Rule, type RuleType } from "@/lib/workspace-data";
 
 const RULES_PAGE_SIZE = 16;
 
@@ -91,10 +87,10 @@ const defaultRuleColumnVisibility: Record<RuleColumnKey, boolean> = {
 
 export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
   const navigate = useNavigate();
-  const { data: entrypoints } = useSuspenseQuery(
+  const { data: entrypoints = [], isPending: isLoadingEntrypoints } = useQuery(
     krakenEntrypointsQueryOptions(),
   );
-  const { data, isPending } = useQuery({
+  const { data, isPending: isLoadingRules } = useQuery({
     ...krakenEntrypointRulesQueryOptions(entrypointName ?? ""),
     enabled: Boolean(entrypointName),
   });
@@ -103,8 +99,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<RuleSortKey | null>(null);
-  const [sortDirection, setSortDirection] =
-    useState<TableSortDirection>("asc");
+  const [sortDirection, setSortDirection] = useState<TableSortDirection>("asc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(RULES_PAGE_SIZE);
   const [columnVisibility, setColumnVisibility] = useState(
@@ -228,12 +223,17 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
             options={entrypointOptions}
             value={entrypointName ?? null}
             onChange={handleEntrypointChange}
-            placeholder="Entrypoint name"
+            placeholder={
+              isLoadingEntrypoints
+                ? "Loading entrypoints..."
+                : "Entrypoint name"
+            }
             searchPlaceholder="Search entrypoint names..."
             icon={ListFilter}
             className="min-w-0 flex-1 sm:min-w-[320px] sm:max-w-[420px]"
             align="right"
             clearable={false}
+            disabled={isLoadingEntrypoints}
           />
         }
       />
@@ -242,7 +242,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
         <div className="mb-3 flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
           <label
             className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:min-w-[260px] ${
-              !entrypointName || isPending
+              !entrypointName || isLoadingRules
                 ? "cursor-not-allowed opacity-60 hover:bg-muted/40"
                 : ""
             }`}
@@ -250,7 +250,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
             <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
             <input
               value={query}
-              disabled={!entrypointName || isPending}
+              disabled={!entrypointName || isLoadingRules}
               onChange={(event) => {
                 setQuery(event.target.value);
                 setPage(1);
@@ -268,7 +268,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
             icon={ListFilter}
             className="min-w-0 flex-1 sm:w-44 sm:flex-none"
             align="right"
-            disabled={!entrypointName || isPending}
+            disabled={!entrypointName || isLoadingRules}
           />
           <ColumnVisibilityControl
             columns={ruleColumns}
@@ -305,7 +305,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
             </div>
 
             <div className="divide-y divide-border/60">
-              {!entrypointName ? null : isPending ? (
+              {!entrypointName ? null : isLoadingRules ? (
                 <RuleTablePending />
               ) : (
                 pageRules.map((rule) => (
@@ -325,17 +325,19 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
               </div>
             )}
 
-            {entrypointName && !isPending && filteredRules.length === 0 && (
-              <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-                No rules found
-              </div>
-            )}
+            {entrypointName &&
+              !isLoadingRules &&
+              filteredRules.length === 0 && (
+                <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+                  No rules found
+                </div>
+              )}
           </div>
         </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-border px-6 py-3">
-        {!isPending && filteredRules.length > 0 && (
+        {!isLoadingRules && filteredRules.length > 0 && (
           <Pagination
             page={currentPage}
             pageCount={pageCount}

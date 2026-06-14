@@ -1,7 +1,4 @@
-import type {
-  GroupDto,
-  GroupStatusDto,
-} from "@/features/groups/group-dtos";
+import type { GroupDto, GroupStatusDto } from "@/features/groups/group-dtos";
 
 export type GroupStatus = GroupStatusDto;
 
@@ -70,8 +67,7 @@ export function mapGroupDtoToGroup(dto: GroupDto): Group {
   return {
     ...dto,
     initial: dto.name[0]?.toUpperCase() ?? "?",
-    color:
-      groupColorById[dto.id] ?? groupColors[dto.id % groupColors.length],
+    color: groupColorById[dto.id] ?? groupColors[dto.id % groupColors.length],
   };
 }
 

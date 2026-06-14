@@ -63,8 +63,7 @@ export function getInsuranceRecordByBusinessKey(
 ): InsuranceRecordDto | undefined {
   const product = customerProductsSeed.find(
     (item) =>
-      item.referenceNumber === businessKey &&
-      item.type.toLowerCase() === kind,
+      item.referenceNumber === businessKey && item.type.toLowerCase() === kind,
   );
 
   if (!product) {

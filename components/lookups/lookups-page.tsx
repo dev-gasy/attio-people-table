@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { CalendarDays, Hash, Languages, ListTree, Search } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -38,8 +38,7 @@ const lookupNameCodeStyles: Record<string, string> = {
   Age: "bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-300",
   "Billing cycle": "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
   "Contact method": "bg-blue-500/10 text-blue-700 dark:text-blue-300",
-  "Customer status":
-    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  "Customer status": "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
   Language: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300",
   Priority: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
   Region: "bg-teal-500/10 text-teal-700 dark:text-teal-300",
@@ -92,8 +91,10 @@ const defaultLookupColumnVisibility: Record<LookupColumnKey, boolean> = {
 
 export function LookupsPage({ lookupName }: { lookupName?: string }) {
   const navigate = useNavigate();
-  const { data: lookupNames } = useSuspenseQuery(lookupNamesQueryOptions());
-  const { data, isPending } = useQuery({
+  const { data: lookupNames = [], isPending: isLoadingLookupNames } = useQuery(
+    lookupNamesQueryOptions(),
+  );
+  const { data, isPending: isLoadingLookups } = useQuery({
     ...lookupNameQueryOptions(lookupName ?? ""),
     enabled: Boolean(lookupName),
   });
@@ -114,8 +115,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
   );
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<LookupSortKey | null>(null);
-  const [sortDirection, setSortDirection] =
-    useState<TableSortDirection>("asc");
+  const [sortDirection, setSortDirection] = useState<TableSortDirection>("asc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(LOOKUPS_PAGE_SIZE);
   const [columnVisibility, setColumnVisibility] = useState(
@@ -162,10 +162,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
   const currentPage = Math.min(page, pageCount);
   const pageLookups = useMemo(
     () =>
-      sortedLookups.slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize,
-      ),
+      sortedLookups.slice((currentPage - 1) * pageSize, currentPage * pageSize),
     [currentPage, pageSize, sortedLookups],
   );
 
@@ -219,14 +216,17 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
         actions={
           <Combobox
             options={lookupNameOptions}
-            value={lookupName}
+            value={lookupName ?? null}
             onChange={handleLookupNameChange}
-            placeholder="Lookup name"
+            placeholder={
+              isLoadingLookupNames ? "Loading lookup names..." : "Lookup name"
+            }
             searchPlaceholder="Search lookup names..."
             icon={ListTree}
             className="min-w-0 flex-1 sm:min-w-[320px] sm:max-w-[420px]"
             align="right"
             clearable={false}
+            disabled={isLoadingLookupNames}
           />
         }
       />
@@ -235,7 +235,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
         <div className="mb-3 flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
           <label
             className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:min-w-[280px] ${
-              !lookupName || isPending
+              !lookupName || isLoadingLookups
                 ? "cursor-not-allowed opacity-60 hover:bg-muted/40"
                 : ""
             }`}
@@ -243,7 +243,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
             <input
               value={query}
-              disabled={!lookupName || isPending}
+              disabled={!lookupName || isLoadingLookups}
               onChange={(event) => {
                 setQuery(event.target.value);
                 setPage(1);
@@ -287,7 +287,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             </div>
 
             <div className="divide-y divide-border/60">
-              {!lookupName ? null : isPending ? (
+              {!lookupName ? null : isLoadingLookups ? (
                 <LookupTablePending />
               ) : (
                 pageLookups.map((lookup) => (
@@ -307,16 +307,18 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
               </div>
             )}
 
-            {lookupName && !isPending && filteredLookups.length === 0 && (
-              <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-                No lookups found
-              </div>
-            )}
+            {lookupName &&
+              !isLoadingLookups &&
+              filteredLookups.length === 0 && (
+                <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+                  No lookups found
+                </div>
+              )}
           </div>
         </div>
       </div>
 
-      {!isPending && filteredLookups.length > 0 && (
+      {!isLoadingLookups && filteredLookups.length > 0 && (
         <Pagination
           page={currentPage}
           pageCount={pageCount}
