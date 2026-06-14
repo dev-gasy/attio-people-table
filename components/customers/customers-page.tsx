@@ -8,11 +8,11 @@ import { CustomerSearchForm } from "@/components/customers/customer-search-form"
 import { CustomerTable } from "@/components/customers/customer-table";
 import { PageHeader } from "@/components/page-header";
 import {
-  emptyCustomerSearchValues,
   filterCustomers,
   trimCustomerSearchValues,
   type CustomerSearchValues,
 } from "@/features/customers/customer-domain/customers-list";
+import { useCustomerSearchStore } from "@/features/customers/customer-domain/customer-search-store";
 import {
   formatCustomerFavoriteIdsJson,
   parseCustomerFavoriteIdsJson,
@@ -26,15 +26,17 @@ type CustomersPageMode = "search" | "favorites";
 
 export function CustomersPage({
   mode = "search",
-  initialSearchValues = emptyCustomerSearchValues,
 }: {
   mode?: CustomersPageMode;
-  initialSearchValues?: CustomerSearchValues;
 }) {
   const navigate = useNavigate();
-  const initialHasSearch = hasCustomerSearchValue(initialSearchValues);
-  const [hasTriggeredSearch, setHasTriggeredSearch] = useState(
-    () => mode === "favorites" || initialHasSearch,
+  const searchValues = useCustomerSearchStore((state) => state.values);
+  const hasTriggeredSearch = useCustomerSearchStore(
+    (state) => state.hasTriggeredSearch,
+  );
+  const setCustomerSearch = useCustomerSearchStore((state) => state.setSearch);
+  const resetCustomerSearch = useCustomerSearchStore(
+    (state) => state.resetSearch,
   );
   const shouldLoadCustomers = mode === "favorites" || hasTriggeredSearch;
   const { data, error, isError, isFetching, isLoading, refetch } = useQuery({
@@ -53,8 +55,6 @@ export function CustomersPage({
     string | null
   >(null);
   const searchInFlightRef = useRef(false);
-  const [searchValues, setSearchValues] =
-    useState<CustomerSearchValues>(initialSearchValues);
   const [isSearching, setIsSearching] = useState(false);
   const customers = useMemo(
     () =>
@@ -76,11 +76,10 @@ export function CustomersPage({
   }, [customers, favoriteIdSet, mode, searchValues]);
 
   useEffect(() => {
-    setSearchValues(initialSearchValues);
-    setHasTriggeredSearch(
-      mode === "favorites" || hasCustomerSearchValue(initialSearchValues),
-    );
-  }, [initialSearchValues, mode]);
+    if (mode === "search") return;
+
+    resetCustomerSearch();
+  }, [mode, resetCustomerSearch]);
 
   function handleSaveFavorites() {
     const blob = new Blob([formatCustomerFavoriteIdsJson(favoriteIds)], {
@@ -114,20 +113,15 @@ export function CustomersPage({
     await runSyntheticCustomerSearch(() => {
       const trimmedValues = trimCustomerSearchValues(values);
 
-      setHasTriggeredSearch(true);
-      setSearchValues(trimmedValues);
-      navigate({
-        to: "/customers",
-        search: compactCustomerSearchValues(trimmedValues),
-      });
+      setCustomerSearch(trimmedValues);
+      navigate({ to: "/customers" });
     });
   }
 
   async function handleResetSearch() {
     await runSyntheticCustomerSearch(() => {
-      setHasTriggeredSearch(false);
-      setSearchValues({ ...emptyCustomerSearchValues });
-      navigate({ to: "/customers", search: {} });
+      resetCustomerSearch();
+      navigate({ to: "/customers" });
     });
   }
 
@@ -242,23 +236,4 @@ export function CustomersPage({
       </div>
     </div>
   );
-}
-
-function compactCustomerSearchValues(values: CustomerSearchValues) {
-  const trimmedValues = trimCustomerSearchValues(values);
-  const search: Partial<CustomerSearchValues> = {};
-
-  for (const key of Object.keys(trimmedValues) as Array<
-    keyof CustomerSearchValues
-  >) {
-    if (trimmedValues[key]) {
-      search[key] = trimmedValues[key];
-    }
-  }
-
-  return search;
-}
-
-function hasCustomerSearchValue(values: CustomerSearchValues) {
-  return Object.values(trimCustomerSearchValues(values)).some(Boolean);
 }

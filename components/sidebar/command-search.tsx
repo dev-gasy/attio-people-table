@@ -25,6 +25,7 @@ import { useTheme } from "@/components/theme-provider";
 import { navSections } from "@/components/sidebar/nav-items";
 import type { PagePath } from "@/components/sidebar/types";
 import type { CustomerSearchValues } from "@/features/customers/customer-domain/customers-list";
+import { useCustomerSearchStore } from "@/features/customers/customer-domain/customer-search-store";
 import { getStaticKrakenEntrypoints } from "@/features/kraken/kraken-service";
 import { getStaticLookupNames } from "@/features/lookups/lookup-service";
 
@@ -455,7 +456,8 @@ export function CommandSearch({
 
     if (!trimmedValue) return;
 
-    navigate({ to: "/customers", search: { [field.id]: trimmedValue } });
+    useCustomerSearchStore.getState().setSearch({ [field.id]: trimmedValue });
+    navigate({ to: "/customers" });
     onClose();
   }
 
