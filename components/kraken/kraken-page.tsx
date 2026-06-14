@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/sortable-table-header";
 import {
   krakenEntrypointRulesQueryOptions,
-  krakenEntrypointsQueryOptions,
+  getStaticKrakenEntrypoints,
 } from "@/features/kraken/kraken-service";
 import { ruleTypes, type Rule, type RuleType } from "@/lib/workspace-data";
 
@@ -88,14 +88,7 @@ const defaultRuleColumnVisibility: Record<RuleColumnKey, boolean> = {
 
 export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
   const navigate = useNavigate();
-  const {
-    data: entrypoints = [],
-    error: entrypointsError,
-    isError: isEntrypointsError,
-    isFetching: isFetchingEntrypoints,
-    isPending: isLoadingEntrypoints,
-    refetch: refetchEntrypoints,
-  } = useQuery(krakenEntrypointsQueryOptions());
+  const entrypoints = useMemo(() => getStaticKrakenEntrypoints(), []);
   const {
     data,
     error: rulesError,
@@ -236,17 +229,12 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
             options={entrypointOptions}
             value={entrypointName ?? null}
             onChange={handleEntrypointChange}
-            placeholder={
-              isLoadingEntrypoints
-                ? "Loading entrypoints..."
-                : "Entrypoint name"
-            }
+            placeholder="Entrypoint name"
             searchPlaceholder="Search entrypoint names..."
             icon={ListFilter}
             className="min-w-0 flex-1 sm:min-w-[320px] sm:max-w-[420px]"
             align="right"
             clearable={false}
-            disabled={isLoadingEntrypoints || isEntrypointsError}
           />
         }
       />
@@ -318,16 +306,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
             </div>
 
             <div className="divide-y divide-border/60">
-              {isEntrypointsError ? (
-                <DataErrorView
-                  title="Could not load entrypoints"
-                  message={getErrorMessage(entrypointsError)}
-                  onRetry={() => {
-                    void refetchEntrypoints();
-                  }}
-                  isRetrying={isFetchingEntrypoints}
-                />
-              ) : !entrypointName ? null : isLoadingRules ? (
+              {!entrypointName ? null : isLoadingRules ? (
                 <RuleTablePending />
               ) : isRulesError ? (
                 <DataErrorView
@@ -350,7 +329,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
               )}
             </div>
 
-            {!isEntrypointsError && !entrypointName && (
+            {!entrypointName && (
               <div className="px-4 py-10 text-center text-sm text-muted-foreground">
                 Select an entrypoint name
               </div>

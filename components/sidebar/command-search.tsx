@@ -23,12 +23,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { useTheme } from "@/components/theme-provider";
 import { navSections } from "@/components/sidebar/nav-items";
 import type { PagePath } from "@/components/sidebar/types";
-import { lookupSeed } from "@/features/lookups/lookup-dtos";
-import type { KrakenEntrypointDto } from "@/features/kraken/kraken-dtos";
-import type { LookupNameDto } from "@/features/lookups/lookup-service";
 import type { CustomerSearchValues } from "@/features/customers/customer-domain/customers-list";
-import { createSlug } from "@/features/shared/slugs";
-import { entrypoints, rules } from "@/lib/workspace-data";
+import { getStaticKrakenEntrypoints } from "@/features/kraken/kraken-service";
+import { getStaticLookupNames } from "@/features/lookups/lookup-service";
 
 type CommandResult = {
   id: string;
@@ -689,27 +686,4 @@ function getStepPlaceholder(step: CommandStep) {
 
 function normalizeBusinessKey(value: string) {
   return value.trim().toUpperCase();
-}
-
-function getStaticKrakenEntrypoints(): KrakenEntrypointDto[] {
-  return entrypoints.map((entrypoint) => ({
-    ...entrypoint,
-    slug: createSlug(entrypoint.name),
-    rulesCount: rules.filter((rule) => rule.entrypointId === entrypoint.id)
-      .length,
-  }));
-}
-
-function getStaticLookupNames(): LookupNameDto[] {
-  const names = Array.from(
-    new Set(lookupSeed.map((lookup) => lookup.lookupName)),
-  );
-
-  return names.map((lookupName) => ({
-    name: lookupName,
-    slug: createSlug(lookupName),
-    lookupsCount: lookupSeed.filter(
-      (lookup) => lookup.lookupName === lookupName,
-    ).length,
-  }));
 }

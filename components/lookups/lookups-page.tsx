@@ -21,8 +21,8 @@ import {
   mapLookupDtosToLookups,
 } from "@/features/lookups/lookup-mappers";
 import {
+  getStaticLookupNames,
   lookupNameQueryOptions,
-  lookupNamesQueryOptions,
 } from "@/features/lookups/lookup-service";
 
 const LOOKUPS_PAGE_SIZE = 16;
@@ -92,14 +92,7 @@ const defaultLookupColumnVisibility: Record<LookupColumnKey, boolean> = {
 
 export function LookupsPage({ lookupName }: { lookupName?: string }) {
   const navigate = useNavigate();
-  const {
-    data: lookupNames = [],
-    error: lookupNamesError,
-    isError: isLookupNamesError,
-    isFetching: isFetchingLookupNames,
-    isPending: isLoadingLookupNames,
-    refetch: refetchLookupNames,
-  } = useQuery(lookupNamesQueryOptions());
+  const lookupNames = useMemo(() => getStaticLookupNames(), []);
   const {
     data,
     error: lookupsError,
@@ -231,15 +224,12 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             options={lookupNameOptions}
             value={lookupName ?? null}
             onChange={handleLookupNameChange}
-            placeholder={
-              isLoadingLookupNames ? "Loading lookup names..." : "Lookup name"
-            }
+            placeholder="Lookup name"
             searchPlaceholder="Search lookup names..."
             icon={ListTree}
             className="min-w-0 flex-1 sm:min-w-[320px] sm:max-w-[420px]"
             align="right"
             clearable={false}
-            disabled={isLoadingLookupNames || isLookupNamesError}
           />
         }
       />
@@ -300,16 +290,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             </div>
 
             <div className="divide-y divide-border/60">
-              {isLookupNamesError ? (
-                <DataErrorView
-                  title="Could not load lookup names"
-                  message={getErrorMessage(lookupNamesError)}
-                  onRetry={() => {
-                    void refetchLookupNames();
-                  }}
-                  isRetrying={isFetchingLookupNames}
-                />
-              ) : !lookupName ? null : isLoadingLookups ? (
+              {!lookupName ? null : isLoadingLookups ? (
                 <LookupTablePending />
               ) : isLookupsError ? (
                 <DataErrorView
@@ -332,7 +313,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
               )}
             </div>
 
-            {!isLookupNamesError && !lookupName && (
+            {!lookupName && (
               <div className="px-4 py-10 text-center text-sm text-muted-foreground">
                 Select a lookup name
               </div>

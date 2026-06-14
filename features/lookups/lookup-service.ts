@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { fetchJson } from "@/features/shared/fetch-json";
-import type { LookupDto } from "@/features/lookups/lookup-dtos";
+import { lookupSeed, type LookupDto } from "@/features/lookups/lookup-dtos";
+import { createSlug } from "@/features/shared/slugs";
 
 export type LookupNameDto = {
   name: string;
@@ -41,4 +42,18 @@ export function getLookupNames() {
 
 export function getLookupName(lookupName: string) {
   return fetchJson<LookupNameResponseDto>(`/api/lookups/names/${lookupName}`);
+}
+
+export function getStaticLookupNames(): LookupNameDto[] {
+  const names = Array.from(
+    new Set(lookupSeed.map((lookup) => lookup.lookupName)),
+  );
+
+  return names.map((lookupName) => ({
+    name: lookupName,
+    slug: createSlug(lookupName),
+    lookupsCount: lookupSeed.filter(
+      (lookup) => lookup.lookupName === lookupName,
+    ).length,
+  }));
 }
