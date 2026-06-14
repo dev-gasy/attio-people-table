@@ -18,10 +18,10 @@ export const Route = createRootRouteWithContext<{
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Attio · People" },
+      { title: "Attio CRM" },
       {
         name: "description",
-        content: "The CRM for the next generation of companies",
+        content: "The CRM for the next generation of groups",
       },
       { name: "color-scheme", content: "light dark" },
     ],

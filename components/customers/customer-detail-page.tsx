@@ -4,19 +4,14 @@ import { useMemo, useState, type ComponentType } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Activity,
-  AlertTriangle,
   ArrowLeft,
-  CalendarDays,
   Check,
-  CircleDollarSign,
   FileText,
   Home,
   Mail,
   Package,
   Phone,
   ShieldCheck,
-  Sparkles,
   UserRound,
 } from "lucide-react";
 import { Avatar } from "@/components/avatar";
@@ -27,12 +22,9 @@ import { Collapsible } from "@/components/ui/collapsible-section";
 import {
   filterCustomerProductsByActivity,
   getCustomerContactGroups,
-  getCustomerDetailMetrics,
-  getCustomerProductSnapshot,
   getCustomerProfileFields,
   getPreferredCustomerContacts,
   groupCustomerProductsByBusinessDimension,
-  type CustomerDetailMetricId,
   type CustomerProductActivityFilter,
 } from "@/features/customers/customer-domain/customer-detail";
 import { customerQueryOptions } from "@/features/customers/customer-service";
@@ -64,16 +56,6 @@ const contactIcons: Record<
   phone: Phone,
   email: Mail,
   address: Home,
-};
-
-const metricIcons: Record<
-  CustomerDetailMetricId,
-  ComponentType<{ className?: string }>
-> = {
-  lifetimeValue: CircleDollarSign,
-  activeProducts: Package,
-  openQuotes: Sparkles,
-  risk: AlertTriangle,
 };
 
 const productTypeStyles: Record<string, string> = {
@@ -217,32 +199,30 @@ function CustomerDetailLoading() {
       </div>
 
       <div className="flex-1 overflow-auto px-6 py-6">
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-wrap gap-3">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div
-                key={index}
-                className="min-w-[180px] flex-1 rounded-xl border border-border bg-muted/10 p-4"
-              >
-                <div className="h-3 w-24 animate-pulse rounded bg-muted" />
-                <div className="mt-3 h-6 w-32 animate-pulse rounded bg-muted" />
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <section
+              key={index}
+              className="overflow-hidden rounded-xl border border-border"
+            >
+              <div className="flex items-center gap-2.5 bg-muted/30 px-4 py-3">
+                <div className="h-4 w-4 animate-pulse rounded bg-muted" />
+                <div className="h-4 w-36 animate-pulse rounded bg-muted" />
               </div>
-            ))}
-          </div>
-          <section className="rounded-xl border border-border bg-muted/10 p-5">
-            <div className="h-4 w-36 animate-pulse rounded bg-muted" />
-            <div className="mt-4 flex flex-col divide-y divide-border/60">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="flex min-h-10 items-center gap-4 py-2"
-                >
-                  <div className="h-3 w-28 shrink-0 animate-pulse rounded bg-muted" />
-                  <div className="h-3 w-48 animate-pulse rounded bg-muted" />
+              <div className="border-t border-border px-4 py-4">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+                  {Array.from({ length: index === 1 ? 3 : 4 }).map(
+                    (_, rowIndex) => (
+                      <div key={rowIndex} className="min-w-0">
+                        <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+                        <div className="mt-2 h-3 w-44 animate-pulse rounded bg-muted" />
+                      </div>
+                    ),
+                  )}
                 </div>
-              ))}
-            </div>
-          </section>
+              </div>
+            </section>
+          ))}
         </div>
       </div>
     </div>
@@ -282,132 +262,63 @@ function BackToCustomers() {
 }
 
 function DetailsTab({ customer }: { customer: Customer }) {
-  const metrics = getCustomerDetailMetrics(customer);
   const fields = getCustomerProfileFields(customer);
   const preferredContacts = getPreferredCustomerContacts(customer);
-  const productSnapshot = getCustomerProductSnapshot(customer.products);
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map((metric) => {
-          const Icon = metricIcons[metric.id];
-
-          return (
-            <div
-              key={metric.label}
-              className="flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-4"
-            >
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Icon className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-                <span className="text-[15px] font-medium text-foreground">
-                  {metric.label}
-                </span>
-              </div>
-              <div className="mt-auto border-t border-border/60 pt-3 text-2xl font-semibold text-foreground">
-                {metric.value}
-              </div>
+      <Collapsible title="Account profile" icon={UserRound}>
+        <dl className="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-4 sm:grid-cols-2">
+          {fields.map((field) => (
+            <div key={field.label} className="min-w-0 text-sm">
+              <dt className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+                {field.label}
+              </dt>
+              <dd className="mt-1 min-w-0 truncate text-foreground">
+                {field.value}
+              </dd>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </dl>
+      </Collapsible>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <section className="rounded-xl border border-border bg-muted/20 p-4 xl:col-span-2">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <UserRound className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-            <span className="text-[15px] font-medium text-foreground">
-              Account profile
-            </span>
-          </div>
-          <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 border-t border-border/60 pt-3 sm:grid-cols-2">
-            {fields.map((field) => (
-              <div key={field.label} className="min-w-0 text-sm">
-                <dt className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
-                  {field.label}
-                </dt>
-                <dd className="mt-1 min-w-0 truncate text-foreground">
-                  {field.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+      <Collapsible title="Preferred contact" icon={Phone}>
+        <div className="divide-y divide-border/60">
+          {preferredContacts.map((section) => {
+            const Icon = contactIcons[section.kind];
 
-        <section className="rounded-xl border border-border bg-muted/20 p-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Phone className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-            <span className="text-[15px] font-medium text-foreground">
-              Preferred contact
-            </span>
-          </div>
-          <div className="mt-4 flex flex-col gap-3 border-t border-border/60 pt-3">
-            {preferredContacts.map((section) => {
-              const Icon = contactIcons[section.kind];
-
-              return (
-                <div
-                  key={section.kind}
-                  className="flex min-w-0 items-start gap-3 text-sm"
-                >
-                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                  <div className="min-w-0">
-                    <div className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
-                      {section.label}
-                    </div>
-                    <div className="mt-1 truncate text-foreground">
-                      {section.value}
-                    </div>
+            return (
+              <div
+                key={section.kind}
+                className="flex min-h-12 items-start gap-3 px-4 py-3 text-sm"
+              >
+                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="min-w-0">
+                  <div className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+                    {section.label}
+                  </div>
+                  <div className="mt-1 truncate text-foreground">
+                    {section.value}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="rounded-xl border border-border bg-muted/20 p-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Package className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-            <span className="text-[15px] font-medium text-foreground">
-              Product snapshot
-            </span>
-          </div>
-          <div className="mt-4 flex flex-col gap-3 border-t border-border/60 pt-3">
-            {productSnapshot.map((item) => (
-              <div
-                key={item.dimension}
-                className="flex items-center justify-between gap-4 text-sm"
-              >
-                <span className="truncate text-muted-foreground">
-                  {item.dimension}
-                </span>
-                <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
-                  {item.count}
-                </span>
               </div>
-            ))}
-          </div>
-        </section>
+            );
+          })}
+        </div>
+      </Collapsible>
 
-        <section className="rounded-xl border border-border bg-muted/20 p-4 xl:col-span-2">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <ShieldCheck className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-            <span className="text-[15px] font-medium text-foreground">
-              Account notes
-            </span>
-          </div>
-          <div className="mt-4 grid grid-cols-1 gap-3 border-t border-border/60 pt-3 sm:grid-cols-2">
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Renewal attention should focus on active policies and the highest
-              value pipeline products first.
-            </p>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Preferred outreach is already set for phone, email, and address in
-              the Contacts tab.
-            </p>
-          </div>
-        </section>
-      </div>
+      <Collapsible title="Account notes" icon={ShieldCheck}>
+        <div className="grid grid-cols-1 gap-3 px-4 py-4 sm:grid-cols-2">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Renewal attention should focus on active policies and the highest
+            value pipeline products first.
+          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Preferred outreach is already set for phone, email, and address in
+            the Contacts tab.
+          </p>
+        </div>
+      </Collapsible>
     </div>
   );
 }

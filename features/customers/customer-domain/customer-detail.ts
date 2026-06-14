@@ -9,18 +9,6 @@ import type {
 
 export type CustomerProductActivityFilter = CustomerProductActivity | "All";
 
-export type CustomerDetailMetricId =
-  | "lifetimeValue"
-  | "activeProducts"
-  | "openQuotes"
-  | "risk";
-
-export type CustomerDetailMetric = {
-  id: CustomerDetailMetricId;
-  label: string;
-  value: string;
-};
-
 export type CustomerProfileField = {
   label: string;
   value: string;
@@ -36,11 +24,6 @@ export type CustomerContactGroup = {
   kind: CustomerContactKind;
   title: string;
   contacts: CustomerContact[];
-};
-
-export type CustomerProductSnapshotItem = {
-  dimension: CustomerProductBusinessDimension;
-  count: number;
 };
 
 export type CustomerProductGroup = {
@@ -62,40 +45,6 @@ const customerContactKindOrder: CustomerContactKind[] = [
   "email",
   "address",
 ];
-
-export function getCustomerDetailMetrics(
-  customer: Customer,
-): CustomerDetailMetric[] {
-  const activeProducts = customer.products.filter(
-    (product) => product.activity === "Active",
-  );
-  const openPipeline = customer.products.filter(
-    (product) => product.type === "Quote" && product.activity === "Active",
-  ).length;
-
-  return [
-    {
-      id: "lifetimeValue",
-      label: "Lifetime value",
-      value: customer.lifetimeValue,
-    },
-    {
-      id: "activeProducts",
-      label: "Active products",
-      value: String(activeProducts.length),
-    },
-    {
-      id: "openQuotes",
-      label: "Open quotes",
-      value: String(openPipeline),
-    },
-    {
-      id: "risk",
-      label: "Risk",
-      value: customer.risk,
-    },
-  ];
-}
 
 export function getCustomerProfileFields(
   customer: Customer,
@@ -126,18 +75,6 @@ export function getPreferredCustomerContacts(
     return contact
       ? [{ kind, label: contact.label, value: contact.value }]
       : [];
-  });
-}
-
-export function getCustomerProductSnapshot(
-  products: CustomerProduct[],
-): CustomerProductSnapshotItem[] {
-  return customerProductBusinessDimensionOrder.flatMap((dimension) => {
-    const count = products.filter(
-      (product) => product.businessDimension === dimension,
-    ).length;
-
-    return count > 0 ? [{ dimension, count }] : [];
   });
 }
 

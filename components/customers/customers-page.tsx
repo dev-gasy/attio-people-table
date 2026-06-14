@@ -1,13 +1,14 @@
 "use client";
 
 import {
+  useEffect,
   useRef,
   useMemo,
   useState,
   type ChangeEvent,
   type ReactNode,
 } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   CalendarDays,
   Download,
@@ -27,6 +28,7 @@ import { SortableTableHeader } from "@/components/ui/sortable-table-header";
 import {
   filterCustomers,
   emptyCustomerSearchValues,
+  trimCustomerSearchValues,
   type CustomerSearchValues,
 } from "@/features/customers/customer-domain/customers-list";
 import {
@@ -46,7 +48,12 @@ const CUSTOMER_TABLE_COLUMNS =
   "grid-cols-[minmax(220px,1.35fr)_minmax(120px,170px)_minmax(140px,210px)_minmax(160px,260px)_minmax(100px,140px)]";
 type CustomerSortKey = "name" | "phone" | "email" | "address" | "dateOfBirth";
 
-export function CustomersPage() {
+export function CustomersPage({
+  initialSearchValues = emptyCustomerSearchValues,
+}: {
+  initialSearchValues?: CustomerSearchValues;
+}) {
+  const navigate = useNavigate();
   const { data, isPending } = useQuery(customersQueryOptions());
   const {
     favoriteIds,
@@ -60,7 +67,7 @@ export function CustomersPage() {
     string | null
   >(null);
   const [searchValues, setSearchValues] = useState<CustomerSearchValues>(
-    emptyCustomerSearchValues,
+    initialSearchValues,
   );
   const [sortKey, setSortKey] = useState<CustomerSortKey | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -102,6 +109,11 @@ export function CustomersPage() {
     [currentPage, orderedCustomers, pageSize],
   );
 
+  useEffect(() => {
+    setSearchValues(initialSearchValues);
+    setPage(1);
+  }, [initialSearchValues]);
+
   function handleSaveFavorites() {
     const blob = new Blob([formatCustomerFavoriteIdsJson(favoriteIds)], {
       type: "application/json",
@@ -116,20 +128,15 @@ export function CustomersPage() {
   }
 
   function handleSort(key: CustomerSortKey) {
-    setSortKey((currentKey) => {
-      if (currentKey !== key) {
-        setSortDirection("asc");
-        return key;
-      }
-
-      if (sortDirection === "asc") {
-        setSortDirection("desc");
-        return key;
-      }
-
+    if (sortKey !== key) {
+      setSortKey(key);
       setSortDirection("asc");
-      return null;
-    });
+    } else if (sortDirection === "asc") {
+      setSortDirection("desc");
+    } else {
+      setSortKey(null);
+      setSortDirection("asc");
+    }
     setPage(1);
   }
 
@@ -195,14 +202,22 @@ export function CustomersPage() {
 
       <div className="flex-1 overflow-auto px-6 pb-8">
         <CustomerSearchForm
+          values={searchValues}
           disabled={isPending}
           onSearch={(values) => {
-            setSearchValues(values);
+            const trimmedValues = trimCustomerSearchValues(values);
+
+            setSearchValues(trimmedValues);
             setPage(1);
+            navigate({
+              to: "/customers",
+              search: compactCustomerSearchValues(trimmedValues),
+            });
           }}
           onReset={() => {
             setSearchValues(emptyCustomerSearchValues);
             setPage(1);
+            navigate({ to: "/customers", search: {} });
           }}
         />
 
@@ -454,6 +469,21 @@ const stringCollator = new Intl.Collator(undefined, {
   numeric: true,
   sensitivity: "base",
 });
+
+function compactCustomerSearchValues(values: CustomerSearchValues) {
+  const trimmedValues = trimCustomerSearchValues(values);
+  const search: Partial<CustomerSearchValues> = {};
+
+  for (const key of Object.keys(trimmedValues) as Array<
+    keyof CustomerSearchValues
+  >) {
+    if (trimmedValues[key]) {
+      search[key] = trimmedValues[key];
+    }
+  }
+
+  return search;
+}
 
 function CustomerLoadingCell({
   widths,

@@ -4,7 +4,6 @@ import {
   ContactRound,
   FileText,
   ListTree,
-  Users,
   Zap,
 } from "lucide-react";
 import type {
@@ -22,12 +21,17 @@ export const navSections: SidebarNavSection[] = [
         icon: ContactRound,
         label: "Customers",
       },
-      { id: "people", to: "/people", icon: Users, label: "People" },
       {
-        id: "companies",
-        to: "/companies",
+        id: "groups",
+        to: "/groups",
         icon: Building2,
-        label: "Companies",
+        label: "Groups",
+      },
+      {
+        id: "load",
+        to: "/load",
+        icon: FileText,
+        label: "Load",
       },
     ],
   },

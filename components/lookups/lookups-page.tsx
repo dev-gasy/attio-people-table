@@ -5,6 +5,10 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { CalendarDays, Hash, Languages, ListTree, Search } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import {
+  ColumnVisibilityControl,
+  type ColumnVisibilityOption,
+} from "@/components/ui/column-visibility-control";
 import { Combobox, type ComboOption } from "@/components/ui/combobox";
 import { Pagination } from "@/components/ui/pagination";
 import {
@@ -21,14 +25,13 @@ import {
 } from "@/features/lookups/lookup-service";
 
 const LOOKUPS_PAGE_SIZE = 16;
-const LOOKUP_TABLE_COLUMNS =
-  "grid-cols-[minmax(220px,0.85fr)_minmax(220px,1fr)_minmax(220px,1fr)_minmax(140px,180px)]";
 
 type LookupSortKey =
   | "code"
   | "displayValueEn"
   | "displayValueFr"
   | "effectiveDate";
+type LookupColumnKey = LookupSortKey;
 
 const lookupNameCodeStyles: Record<string, string> = {
   "Account tier": "bg-violet-500/10 text-violet-700 dark:text-violet-300",
@@ -40,6 +43,51 @@ const lookupNameCodeStyles: Record<string, string> = {
   Language: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300",
   Priority: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
   Region: "bg-teal-500/10 text-teal-700 dark:text-teal-300",
+};
+
+const lookupColumns: Array<
+  ColumnVisibilityOption<LookupColumnKey> & {
+    icon: React.ComponentType<{ className?: string }>;
+    minWidth: number;
+    width: string;
+  }
+> = [
+  {
+    id: "code",
+    label: "Code",
+    icon: Hash,
+    minWidth: 220,
+    width: "minmax(220px, 0.85fr)",
+    alwaysVisible: true,
+  },
+  {
+    id: "displayValueEn",
+    label: "Display value EN",
+    icon: Languages,
+    minWidth: 220,
+    width: "minmax(220px, 1fr)",
+  },
+  {
+    id: "displayValueFr",
+    label: "Display value FR",
+    icon: Languages,
+    minWidth: 220,
+    width: "minmax(220px, 1fr)",
+  },
+  {
+    id: "effectiveDate",
+    label: "Effective date",
+    icon: CalendarDays,
+    minWidth: 160,
+    width: "minmax(140px, 180px)",
+  },
+];
+
+const defaultLookupColumnVisibility: Record<LookupColumnKey, boolean> = {
+  code: true,
+  displayValueEn: true,
+  displayValueFr: true,
+  effectiveDate: true,
 };
 
 export function LookupsPage({ lookupName }: { lookupName?: string }) {
@@ -70,6 +118,32 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
     useState<TableSortDirection>("asc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(LOOKUPS_PAGE_SIZE);
+  const [columnVisibility, setColumnVisibility] = useState(
+    defaultLookupColumnVisibility,
+  );
+  const visibleColumns = useMemo(
+    () =>
+      lookupColumns.filter(
+        (column) => column.alwaysVisible || columnVisibility[column.id],
+      ),
+    [columnVisibility],
+  );
+  const visibleColumnIds = useMemo(
+    () => new Set(visibleColumns.map((column) => column.id)),
+    [visibleColumns],
+  );
+  const tableGridStyle = useMemo(
+    () => ({
+      gridTemplateColumns: visibleColumns
+        .map((column) => column.width)
+        .join(" "),
+    }),
+    [visibleColumns],
+  );
+  const tableMinWidth = visibleColumns.reduce(
+    (total, column) => total + column.minWidth,
+    0,
+  );
   const normalizedQuery = query.trim().toLowerCase();
   const filteredLookups = useMemo(() => {
     if (!normalizedQuery) return lookups;
@@ -96,10 +170,13 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
   );
 
   function handleSort(key: LookupSortKey) {
-    if (sortKey === key) {
-      setSortDirection((direction) => (direction === "asc" ? "desc" : "asc"));
-    } else {
+    if (sortKey !== key) {
       setSortKey(key);
+      setSortDirection("asc");
+    } else if (sortDirection === "asc") {
+      setSortDirection("desc");
+    } else {
+      setSortKey(null);
       setSortDirection("asc");
     }
     setPage(1);
@@ -113,6 +190,19 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
       to: "/lookups/$lookupName",
       params: { lookupName: value },
     });
+  }
+
+  function handleColumnToggle(column: LookupColumnKey) {
+    const columnConfig = lookupColumns.find((item) => item.id === column);
+    if (columnConfig?.alwaysVisible) return;
+
+    setColumnVisibility((visibility) => ({
+      ...visibility,
+      [column]: !visibility[column],
+    }));
+    if (sortKey === column) {
+      setSortKey(null);
+    }
   }
 
   return (
@@ -134,7 +224,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             placeholder="Lookup name"
             searchPlaceholder="Search lookup names..."
             icon={ListTree}
-            className="min-w-0 flex-1 sm:min-w-[220px] sm:max-w-72"
+            className="min-w-0 flex-1 sm:min-w-[320px] sm:max-w-[420px]"
             align="right"
             clearable={false}
           />
@@ -144,7 +234,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
       <div className="flex-1 overflow-auto px-6 pt-1 pb-8">
         <div className="mb-3 flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
           <label
-            className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:min-w-[280px] sm:max-w-md ${
+            className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:min-w-[280px] ${
               !lookupName || isPending
                 ? "cursor-not-allowed opacity-60 hover:bg-muted/40"
                 : ""
@@ -162,57 +252,38 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
               className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
             />
           </label>
+          <ColumnVisibilityControl
+            columns={lookupColumns}
+            visibleColumns={visibleColumnIds}
+            onToggle={handleColumnToggle}
+            onReset={() => {
+              setColumnVisibility(defaultLookupColumnVisibility);
+            }}
+          />
         </div>
 
         <div className="overflow-auto rounded-xl border border-border bg-muted/10">
-          <div className="min-w-[860px]">
+          <div style={{ minWidth: tableMinWidth }}>
             <div
-              className={`sticky top-0 z-10 grid ${LOOKUP_TABLE_COLUMNS} border-b border-border/60 bg-background text-xs font-medium text-muted-foreground`}
+              style={tableGridStyle}
+              className="sticky top-0 z-10 grid border-b border-border/60 bg-background text-xs font-medium text-muted-foreground"
             >
-              <LookupHeaderCell>
-                <SortableTableHeader
-                  icon={Hash}
-                  label="Code"
-                  sortKey="code"
-                  activeSort={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                  className="text-xs"
-                />
-              </LookupHeaderCell>
-              <LookupHeaderCell>
-                <SortableTableHeader
-                  icon={Languages}
-                  label="Display value EN"
-                  sortKey="displayValueEn"
-                  activeSort={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                  className="text-xs"
-                />
-              </LookupHeaderCell>
-              <LookupHeaderCell>
-                <SortableTableHeader
-                  icon={Languages}
-                  label="Display value FR"
-                  sortKey="displayValueFr"
-                  activeSort={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                  className="text-xs"
-                />
-              </LookupHeaderCell>
-              <LookupHeaderCell last>
-                <SortableTableHeader
-                  icon={CalendarDays}
-                  label="Effective date"
-                  sortKey="effectiveDate"
-                  activeSort={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                  className="text-xs"
-                />
-              </LookupHeaderCell>
+              {visibleColumns.map((column, index) => (
+                <LookupHeaderCell
+                  key={column.id}
+                  last={index === visibleColumns.length - 1}
+                >
+                  <SortableTableHeader
+                    icon={column.icon}
+                    label={column.label}
+                    sortKey={column.id}
+                    activeSort={sortKey}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                    className="text-xs"
+                  />
+                </LookupHeaderCell>
+              ))}
             </div>
 
             <div className="divide-y divide-border/60">
@@ -220,7 +291,12 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
                 <LookupTablePending />
               ) : (
                 pageLookups.map((lookup) => (
-                  <LookupRow key={lookup.id} lookup={lookup} />
+                  <LookupRow
+                    key={lookup.id}
+                    lookup={lookup}
+                    columns={visibleColumns}
+                    gridStyle={tableGridStyle}
+                  />
                 ))
               )}
             </div>
@@ -283,35 +359,60 @@ function LookupHeaderCell({
   );
 }
 
-function LookupRow({ lookup }: { lookup: Lookup }) {
+function LookupRow({
+  columns,
+  gridStyle,
+  lookup,
+}: {
+  columns: typeof lookupColumns;
+  gridStyle: React.CSSProperties;
+  lookup: Lookup;
+}) {
   return (
-    <div className={`grid ${LOOKUP_TABLE_COLUMNS} text-sm hover:bg-muted/30`}>
-      <LookupCell>
-        <code
-          className={`min-w-0 truncate rounded-md px-2 py-0.5 text-xs ${
-            lookupNameCodeStyles[lookup.lookupName] ??
-            "bg-muted text-muted-foreground"
-          }`}
-        >
-          {lookup.code}
-        </code>
-      </LookupCell>
-      <LookupCell>
-        <span className="min-w-0 truncate text-foreground">
-          {lookup.displayValueEn}
-        </span>
-      </LookupCell>
-      <LookupCell>
-        <span className="min-w-0 truncate text-muted-foreground">
-          {lookup.displayValueFr}
-        </span>
-      </LookupCell>
-      <LookupCell last>
-        <span className="min-w-0 truncate text-muted-foreground">
-          {lookup.effectiveDate}
-        </span>
-      </LookupCell>
+    <div style={gridStyle} className="grid text-sm hover:bg-muted/30">
+      {columns.map((column, index) => (
+        <LookupCell key={column.id} last={index === columns.length - 1}>
+          {renderLookupCell(lookup, column.id)}
+        </LookupCell>
+      ))}
     </div>
+  );
+}
+
+function renderLookupCell(lookup: Lookup, column: LookupColumnKey) {
+  if (column === "code") {
+    return (
+      <code
+        className={`min-w-0 truncate rounded-md px-2 py-0.5 text-xs ${
+          lookupNameCodeStyles[lookup.lookupName] ??
+          "bg-muted text-muted-foreground"
+        }`}
+      >
+        {lookup.code}
+      </code>
+    );
+  }
+
+  if (column === "displayValueEn") {
+    return (
+      <span className="min-w-0 truncate text-foreground">
+        {lookup.displayValueEn}
+      </span>
+    );
+  }
+
+  if (column === "displayValueFr") {
+    return (
+      <span className="min-w-0 truncate text-muted-foreground">
+        {lookup.displayValueFr}
+      </span>
+    );
+  }
+
+  return (
+    <span className="min-w-0 truncate text-muted-foreground">
+      {lookup.effectiveDate}
+    </span>
   );
 }
 

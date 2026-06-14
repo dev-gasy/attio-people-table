@@ -12,6 +12,10 @@ import {
   Tags,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import {
+  ColumnVisibilityControl,
+  type ColumnVisibilityOption,
+} from "@/components/ui/column-visibility-control";
 import { Combobox, type ComboOption } from "@/components/ui/combobox";
 import { Pagination } from "@/components/ui/pagination";
 import {
@@ -29,16 +33,60 @@ import {
 } from "@/lib/workspace-data";
 
 const RULES_PAGE_SIZE = 16;
-const RULE_TABLE_COLUMNS =
-  "grid-cols-[minmax(280px,1.5fr)_minmax(130px,170px)_minmax(180px,0.65fr)_minmax(120px,150px)]";
 
 type RuleSortKey = "name" | "code" | "message" | "type";
+type RuleColumnKey = RuleSortKey;
 
 const ruleTypeStyles: Record<RuleType, string> = {
   Required: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
   Validation: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
   Reset: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
   Set: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+};
+
+const ruleColumns: Array<
+  ColumnVisibilityOption<RuleColumnKey> & {
+    icon: React.ComponentType<{ className?: string }>;
+    minWidth: number;
+    width: string;
+  }
+> = [
+  {
+    id: "name",
+    label: "Name",
+    icon: FileText,
+    minWidth: 280,
+    width: "minmax(280px, 1.5fr)",
+    alwaysVisible: true,
+  },
+  {
+    id: "code",
+    label: "Code",
+    icon: Hash,
+    minWidth: 150,
+    width: "minmax(130px, 170px)",
+  },
+  {
+    id: "message",
+    label: "Message",
+    icon: MessageSquareText,
+    minWidth: 180,
+    width: "minmax(180px, 0.65fr)",
+  },
+  {
+    id: "type",
+    label: "Type",
+    icon: Tags,
+    minWidth: 150,
+    width: "minmax(120px, 150px)",
+  },
+];
+
+const defaultRuleColumnVisibility: Record<RuleColumnKey, boolean> = {
+  name: true,
+  code: true,
+  message: true,
+  type: true,
 };
 
 export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
@@ -59,6 +107,9 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
     useState<TableSortDirection>("asc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(RULES_PAGE_SIZE);
+  const [columnVisibility, setColumnVisibility] = useState(
+    defaultRuleColumnVisibility,
+  );
   const normalizedQuery = query.trim().toLowerCase();
   const entrypointOptions: ComboOption[] = entrypoints.map((entrypoint) => ({
     value: entrypoint.slug,
@@ -70,6 +121,29 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
     label: type,
     hint: `${rules.filter((rule) => rule.type === type).length} rules`,
   }));
+  const visibleColumns = useMemo(
+    () =>
+      ruleColumns.filter(
+        (column) => column.alwaysVisible || columnVisibility[column.id],
+      ),
+    [columnVisibility],
+  );
+  const visibleColumnIds = useMemo(
+    () => new Set(visibleColumns.map((column) => column.id)),
+    [visibleColumns],
+  );
+  const tableGridStyle = useMemo(
+    () => ({
+      gridTemplateColumns: visibleColumns
+        .map((column) => column.width)
+        .join(" "),
+    }),
+    [visibleColumns],
+  );
+  const tableMinWidth = visibleColumns.reduce(
+    (total, column) => total + column.minWidth,
+    0,
+  );
 
   const filteredRules = useMemo(() => {
     return rules.filter((rule) => {
@@ -113,13 +187,29 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
   }
 
   function handleSort(key: RuleSortKey) {
-    if (sortKey === key) {
-      setSortDirection((direction) => (direction === "asc" ? "desc" : "asc"));
-    } else {
+    if (sortKey !== key) {
       setSortKey(key);
+      setSortDirection("asc");
+    } else if (sortDirection === "asc") {
+      setSortDirection("desc");
+    } else {
+      setSortKey(null);
       setSortDirection("asc");
     }
     setPage(1);
+  }
+
+  function handleColumnToggle(column: RuleColumnKey) {
+    const columnConfig = ruleColumns.find((item) => item.id === column);
+    if (columnConfig?.alwaysVisible) return;
+
+    setColumnVisibility((visibility) => ({
+      ...visibility,
+      [column]: !visibility[column],
+    }));
+    if (sortKey === column) {
+      setSortKey(null);
+    }
   }
 
   return (
@@ -134,91 +224,98 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
           ) : null
         }
         actions={
-          <>
-            <Combobox
-              options={entrypointOptions}
-              value={entrypointName ?? null}
-              onChange={handleEntrypointChange}
-              placeholder="Entrypoint name"
-              searchPlaceholder="Search entrypoint names..."
-              icon={ListFilter}
-              className="min-w-0 flex-1 sm:min-w-[220px] sm:max-w-72"
-              align="right"
-              clearable={false}
-              disabled={isPending}
-            />
-            <Combobox
-              options={ruleTypeOptions}
-              value={typeFilter}
-              onChange={handleTypeChange}
-              placeholder="All types"
-              searchPlaceholder="Search rule types..."
-              icon={ListFilter}
-              className="min-w-0 flex-1 sm:w-44 sm:flex-none"
-              align="right"
-              disabled={!entrypointName || isPending}
-            />
-          </>
+          <Combobox
+            options={entrypointOptions}
+            value={entrypointName ?? null}
+            onChange={handleEntrypointChange}
+            placeholder="Entrypoint name"
+            searchPlaceholder="Search entrypoint names..."
+            icon={ListFilter}
+            className="min-w-0 flex-1 sm:min-w-[320px] sm:max-w-[420px]"
+            align="right"
+            clearable={false}
+          />
         }
       />
 
-      <div className="flex-1 overflow-auto px-6 pt-4 pb-8">
+      <div className="flex-1 overflow-auto px-6 pt-1 pb-8">
+        <div className="mb-3 flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
+          <label
+            className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:min-w-[260px] ${
+              !entrypointName || isPending
+                ? "cursor-not-allowed opacity-60 hover:bg-muted/40"
+                : ""
+            }`}
+          >
+            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <input
+              value={query}
+              disabled={!entrypointName || isPending}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search rules..."
+              className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
+            />
+          </label>
+          <Combobox
+            options={ruleTypeOptions}
+            value={typeFilter}
+            onChange={handleTypeChange}
+            placeholder="All types"
+            searchPlaceholder="Search rule types..."
+            icon={ListFilter}
+            className="min-w-0 flex-1 sm:w-44 sm:flex-none"
+            align="right"
+            disabled={!entrypointName || isPending}
+          />
+          <ColumnVisibilityControl
+            columns={ruleColumns}
+            visibleColumns={visibleColumnIds}
+            onToggle={handleColumnToggle}
+            onReset={() => {
+              setColumnVisibility(defaultRuleColumnVisibility);
+            }}
+          />
+        </div>
+
         <div className="overflow-auto rounded-xl border border-border bg-muted/10">
-          <div className="min-w-[920px]">
+          <div style={{ minWidth: tableMinWidth }}>
             <div
-              className={`sticky top-0 z-10 grid ${RULE_TABLE_COLUMNS} border-b border-border/60 bg-background text-xs font-medium text-muted-foreground`}
+              style={tableGridStyle}
+              className="sticky top-0 z-10 grid border-b border-border/60 bg-background text-xs font-medium text-muted-foreground"
             >
-              <RuleHeaderCell>
-                <SortableTableHeader
-                  icon={FileText}
-                  label="Name"
-                  sortKey="name"
-                  activeSort={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                  className="text-xs"
-                />
-              </RuleHeaderCell>
-              <RuleHeaderCell>
-                <SortableTableHeader
-                  icon={Hash}
-                  label="Code"
-                  sortKey="code"
-                  activeSort={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                  className="text-xs"
-                />
-              </RuleHeaderCell>
-              <RuleHeaderCell>
-                <SortableTableHeader
-                  icon={MessageSquareText}
-                  label="Message"
-                  sortKey="message"
-                  activeSort={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                  className="text-xs"
-                />
-              </RuleHeaderCell>
-              <RuleHeaderCell last>
-                <SortableTableHeader
-                  icon={Tags}
-                  label="Type"
-                  sortKey="type"
-                  activeSort={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                  className="text-xs"
-                />
-              </RuleHeaderCell>
+              {visibleColumns.map((column, index) => (
+                <RuleHeaderCell
+                  key={column.id}
+                  last={index === visibleColumns.length - 1}
+                >
+                  <SortableTableHeader
+                    icon={column.icon}
+                    label={column.label}
+                    sortKey={column.id}
+                    activeSort={sortKey}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                    className="text-xs"
+                  />
+                </RuleHeaderCell>
+              ))}
             </div>
 
             <div className="divide-y divide-border/60">
               {!entrypointName ? null : isPending ? (
                 <RuleTablePending />
               ) : (
-                pageRules.map((rule) => <RuleRow key={rule.id} rule={rule} />)
+                pageRules.map((rule) => (
+                  <RuleRow
+                    key={rule.id}
+                    rule={rule}
+                    columns={visibleColumns}
+                    gridStyle={tableGridStyle}
+                  />
+                ))
               )}
             </div>
 
@@ -238,26 +335,6 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-border px-6 py-3">
-        <label
-          className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:min-w-[260px] sm:max-w-80 ${
-            !entrypointName || isPending
-              ? "cursor-not-allowed opacity-60 hover:bg-muted/40"
-              : ""
-          }`}
-        >
-          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-          <input
-            value={query}
-            disabled={!entrypointName || isPending}
-            onChange={(event) => {
-              setQuery(event.target.value);
-              setPage(1);
-            }}
-            placeholder="Search rules..."
-            className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
-          />
-        </label>
-
         {!isPending && filteredRules.length > 0 && (
           <Pagination
             page={currentPage}
@@ -342,34 +419,59 @@ function getRuleSortValue(rule: Rule, sortKey: RuleSortKey) {
   return rule[sortKey];
 }
 
-function RuleRow({ rule }: { rule: Rule }) {
+function RuleRow({
+  columns,
+  gridStyle,
+  rule,
+}: {
+  columns: typeof ruleColumns;
+  gridStyle: React.CSSProperties;
+  rule: Rule;
+}) {
   return (
-    <div className={`grid ${RULE_TABLE_COLUMNS} text-sm hover:bg-muted/30`}>
-      <RuleCell>
-        <span className="min-w-0 whitespace-normal break-words font-medium leading-5 text-foreground">
-          {rule.name}
-        </span>
-      </RuleCell>
-      <RuleCell>
-        <code className="min-w-0 truncate rounded-md bg-muted px-2 py-0.5 text-xs text-foreground">
-          {rule.code}
-        </code>
-      </RuleCell>
-      <RuleCell>
-        <span className="min-w-0 truncate text-muted-foreground">
-          {rule.message}
-        </span>
-      </RuleCell>
-      <RuleCell last>
-        <span
-          className={`inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-medium ${
-            ruleTypeStyles[rule.type]
-          }`}
-        >
-          {rule.type}
-        </span>
-      </RuleCell>
+    <div style={gridStyle} className="grid text-sm hover:bg-muted/30">
+      {columns.map((column, index) => (
+        <RuleCell key={column.id} last={index === columns.length - 1}>
+          {renderRuleCell(rule, column.id)}
+        </RuleCell>
+      ))}
     </div>
+  );
+}
+
+function renderRuleCell(rule: Rule, column: RuleColumnKey) {
+  if (column === "name") {
+    return (
+      <span className="min-w-0 whitespace-normal break-words font-medium leading-5 text-foreground">
+        {rule.name}
+      </span>
+    );
+  }
+
+  if (column === "code") {
+    return (
+      <code className="min-w-0 truncate rounded-md bg-muted px-2 py-0.5 text-xs text-foreground">
+        {rule.code}
+      </code>
+    );
+  }
+
+  if (column === "message") {
+    return (
+      <span className="min-w-0 truncate text-muted-foreground">
+        {rule.message}
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={`inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-medium ${
+        ruleTypeStyles[rule.type]
+      }`}
+    >
+      {rule.type}
+    </span>
   );
 }
 

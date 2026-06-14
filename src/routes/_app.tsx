@@ -18,11 +18,15 @@ function AppLayout() {
     () =>
       location.pathname.startsWith("/customers/")
         ? "customers"
-        : location.pathname.startsWith("/kraken/")
-          ? "kraken"
-          : location.pathname.startsWith("/lookups/")
-            ? "lookups"
-            : (routePageMap[location.pathname] ?? "people"),
+        : location.pathname.startsWith("/policies/")
+          ? "load"
+          : location.pathname.startsWith("/quotes/")
+            ? "load"
+            : location.pathname.startsWith("/kraken/")
+              ? "kraken"
+              : location.pathname.startsWith("/lookups/")
+                ? "lookups"
+                : (routePageMap[location.pathname] ?? "customers"),
     [location.pathname],
   );
 

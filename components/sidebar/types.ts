@@ -5,8 +5,8 @@ export type PageId =
   | "lookups"
   | "tasks"
   | "notes"
-  | "people"
-  | "companies"
+  | "groups"
+  | "load"
   | "customers";
 export type PagePath = `/${PageId}`;
 

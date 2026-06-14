@@ -2,6 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { RotateCcw, Search } from "lucide-react";
+import { useEffect, type ElementType, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Collapsible } from "@/components/ui/collapsible-section";
 import {
@@ -19,30 +20,49 @@ const fieldGroups: Array<
   }>
 > = [
   [
-    { name: "firstName", label: "First name", placeholder: "Avery" },
-    { name: "lastName", label: "Last name", placeholder: "Johnson" },
+    {
+      name: "firstName",
+      label: "First name",
+      placeholder: "Search by first name",
+    },
+    {
+      name: "lastName",
+      label: "Last name",
+      placeholder: "Search by last name",
+    },
     { name: "dateOfBirth", label: "Date of birth", type: "date" },
   ],
   [
     {
       name: "policyQuoteNumber",
       label: "Policy / quote number",
-      placeholder: "POL-000123",
+      placeholder: "Policy or quote ID",
     },
   ],
   [
-    { name: "email", label: "Email", placeholder: "name@example.com" },
-    { name: "phone", label: "Phone", placeholder: "(555) 123-4567" },
-    { name: "address", label: "Address", placeholder: "Street, city, state" },
+    { name: "email", label: "Email", placeholder: "name@domain.com" },
+    { name: "phone", label: "Phone", placeholder: "Phone number" },
+    {
+      name: "address",
+      label: "Address",
+      placeholder: "Street, city, state, or ZIP",
+    },
   ],
 ];
+
+type CustomerFieldApi = {
+  name: keyof CustomerSearchValues;
+  state: { value: string };
+  handleBlur: () => void;
+  handleChange: (value: string) => void;
+};
 
 function SearchField({
   form,
   searchField,
   disabled,
 }: {
-  form: ReturnType<typeof useForm<CustomerSearchValues>>;
+  form: { Field: ElementType };
   searchField: {
     name: keyof CustomerSearchValues;
     label: string;
@@ -54,7 +74,7 @@ function SearchField({
   return (
     <form.Field
       name={searchField.name}
-      children={(field) => (
+      children={(field: CustomerFieldApi): ReactNode => (
         <label className="flex min-w-0 flex-col gap-1.5">
           <span className="text-xs font-medium text-muted-foreground">
             {searchField.label}
@@ -76,20 +96,26 @@ function SearchField({
 }
 
 export function CustomerSearchForm({
+  values = emptyCustomerSearchValues,
   onSearch,
   onReset,
   disabled = false,
 }: {
+  values?: CustomerSearchValues;
   onSearch: (values: CustomerSearchValues) => void;
   onReset: () => void;
   disabled?: boolean;
 }) {
   const form = useForm({
-    defaultValues: emptyCustomerSearchValues,
+    defaultValues: values,
     onSubmit: ({ value }) => {
       onSearch(trimCustomerSearchValues(value));
     },
   });
+
+  useEffect(() => {
+    form.reset(values);
+  }, [values]);
 
   return (
     <form
