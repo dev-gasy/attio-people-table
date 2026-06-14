@@ -9,6 +9,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Search,
+  Star,
   Sun,
   Zap,
 } from "lucide-react";
@@ -166,6 +167,17 @@ export function CommandSearch({
           setStep({ id: "customer-field" });
           setQuery("");
           setActiveIndex(0);
+        },
+      },
+      {
+        id: "workflow-customer-favorites",
+        label: "Favorite customers",
+        group: "Workflows",
+        keywords: "customer favorites favorite saved starred",
+        icon: Star,
+        run: () => {
+          navigate({ to: "/customers/favorites" });
+          onClose();
         },
       },
       {

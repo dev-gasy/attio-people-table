@@ -25,7 +25,7 @@ function CustomersRoute() {
 function parseCustomerSearchParams(
   search: Record<string, unknown>,
 ): Partial<CustomerSearchValues> {
-  return trimCustomerSearchValues({
+  const values = trimCustomerSearchValues({
     firstName: getSearchString(search.firstName),
     lastName: getSearchString(search.lastName),
     dateOfBirth: getSearchString(search.dateOfBirth),
@@ -34,6 +34,8 @@ function parseCustomerSearchParams(
     phone: getSearchString(search.phone),
     address: getSearchString(search.address),
   });
+
+  return compactCustomerSearchValues(values);
 }
 
 function toCustomerSearchValues(
@@ -47,4 +49,16 @@ function toCustomerSearchValues(
 
 function getSearchString(value: unknown) {
   return typeof value === "string" ? value : "";
+}
+
+function compactCustomerSearchValues(values: CustomerSearchValues) {
+  const search: Partial<CustomerSearchValues> = {};
+
+  for (const key of Object.keys(values) as Array<keyof CustomerSearchValues>) {
+    if (values[key]) {
+      search[key] = values[key];
+    }
+  }
+
+  return search;
 }

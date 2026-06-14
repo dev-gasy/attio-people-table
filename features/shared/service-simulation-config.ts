@@ -27,7 +27,7 @@ const defaultRouteConfig = {
   enabled: true,
   latencyMs: 600,
   failure: {
-    enabled: true,
+    enabled: false,
     status: 503,
     statusText: "Service Unavailable",
     message: "Service is temporarily unavailable.",

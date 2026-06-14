@@ -30,6 +30,7 @@ import { Route as AppQuotesBusinessKeyRouteImport } from './routes/_app/quotes_.
 import { Route as AppPoliciesBusinessKeyRouteImport } from './routes/_app/policies_.$businessKey'
 import { Route as AppLookupsLookupNameRouteImport } from './routes/_app/lookups_.$lookupName'
 import { Route as AppKrakenEntrypointNameRouteImport } from './routes/_app/kraken_.$entrypointName'
+import { Route as AppCustomersFavoritesRouteImport } from './routes/_app/customers_.favorites'
 import { Route as AppCustomersCustomerIdRouteImport } from './routes/_app/customers_.$customerId'
 import { Route as ApiLookupsNamesLookupNameRouteImport } from './routes/api/lookups.names.$lookupName'
 import { Route as ApiKrakenEntrypointsEntrypointNameRulesRouteImport } from './routes/api/kraken.entrypoints.$entrypointName.rules'
@@ -138,6 +139,11 @@ const AppKrakenEntrypointNameRoute = AppKrakenEntrypointNameRouteImport.update({
   path: '/kraken/$entrypointName',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCustomersFavoritesRoute = AppCustomersFavoritesRouteImport.update({
+  id: '/customers_/favorites',
+  path: '/customers/favorites',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCustomersCustomerIdRoute = AppCustomersCustomerIdRouteImport.update({
   id: '/customers_/$customerId',
   path: '/customers/$customerId',
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/api/groups': typeof ApiGroupsRoute
   '/api/lookups': typeof ApiLookupsRouteWithChildren
   '/customers/$customerId': typeof AppCustomersCustomerIdRoute
+  '/customers/favorites': typeof AppCustomersFavoritesRoute
   '/kraken/$entrypointName': typeof AppKrakenEntrypointNameRoute
   '/lookups/$lookupName': typeof AppLookupsLookupNameRoute
   '/policies/$businessKey': typeof AppPoliciesBusinessKeyRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/api/groups': typeof ApiGroupsRoute
   '/api/lookups': typeof ApiLookupsRouteWithChildren
   '/customers/$customerId': typeof AppCustomersCustomerIdRoute
+  '/customers/favorites': typeof AppCustomersFavoritesRoute
   '/kraken/$entrypointName': typeof AppKrakenEntrypointNameRoute
   '/lookups/$lookupName': typeof AppLookupsLookupNameRoute
   '/policies/$businessKey': typeof AppPoliciesBusinessKeyRoute
@@ -221,6 +229,7 @@ export interface FileRoutesById {
   '/api/groups': typeof ApiGroupsRoute
   '/api/lookups': typeof ApiLookupsRouteWithChildren
   '/_app/customers_/$customerId': typeof AppCustomersCustomerIdRoute
+  '/_app/customers_/favorites': typeof AppCustomersFavoritesRoute
   '/_app/kraken_/$entrypointName': typeof AppKrakenEntrypointNameRoute
   '/_app/lookups_/$lookupName': typeof AppLookupsLookupNameRoute
   '/_app/policies_/$businessKey': typeof AppPoliciesBusinessKeyRoute
@@ -248,6 +257,7 @@ export interface FileRouteTypes {
     | '/api/groups'
     | '/api/lookups'
     | '/customers/$customerId'
+    | '/customers/favorites'
     | '/kraken/$entrypointName'
     | '/lookups/$lookupName'
     | '/policies/$businessKey'
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
     | '/api/groups'
     | '/api/lookups'
     | '/customers/$customerId'
+    | '/customers/favorites'
     | '/kraken/$entrypointName'
     | '/lookups/$lookupName'
     | '/policies/$businessKey'
@@ -299,6 +310,7 @@ export interface FileRouteTypes {
     | '/api/groups'
     | '/api/lookups'
     | '/_app/customers_/$customerId'
+    | '/_app/customers_/favorites'
     | '/_app/kraken_/$entrypointName'
     | '/_app/lookups_/$lookupName'
     | '/_app/policies_/$businessKey'
@@ -472,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppKrakenEntrypointNameRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/customers_/favorites': {
+      id: '/_app/customers_/favorites'
+      path: '/customers/favorites'
+      fullPath: '/customers/favorites'
+      preLoaderRoute: typeof AppCustomersFavoritesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/customers_/$customerId': {
       id: '/_app/customers_/$customerId'
       path: '/customers/$customerId'
@@ -505,6 +524,7 @@ interface AppRouteChildren {
   AppNotesRoute: typeof AppNotesRoute
   AppTasksRoute: typeof AppTasksRoute
   AppCustomersCustomerIdRoute: typeof AppCustomersCustomerIdRoute
+  AppCustomersFavoritesRoute: typeof AppCustomersFavoritesRoute
   AppKrakenEntrypointNameRoute: typeof AppKrakenEntrypointNameRoute
   AppLookupsLookupNameRoute: typeof AppLookupsLookupNameRoute
   AppPoliciesBusinessKeyRoute: typeof AppPoliciesBusinessKeyRoute
@@ -520,6 +540,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppNotesRoute: AppNotesRoute,
   AppTasksRoute: AppTasksRoute,
   AppCustomersCustomerIdRoute: AppCustomersCustomerIdRoute,
+  AppCustomersFavoritesRoute: AppCustomersFavoritesRoute,
   AppKrakenEntrypointNameRoute: AppKrakenEntrypointNameRoute,
   AppLookupsLookupNameRoute: AppLookupsLookupNameRoute,
   AppPoliciesBusinessKeyRoute: AppPoliciesBusinessKeyRoute,
