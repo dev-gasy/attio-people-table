@@ -65,7 +65,9 @@ export function Combobox({
       >
         {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
         <span
-          className={selected ? "text-foreground" : "text-muted-foreground"}
+          className={`min-w-0 truncate ${
+            selected ? "text-foreground" : "text-muted-foreground"
+          }`}
         >
           {selected ? selected.label : placeholder}
         </span>

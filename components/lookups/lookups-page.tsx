@@ -126,11 +126,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             </span>
           ) : null
         }
-      />
-
-      <div className="flex flex-wrap items-end gap-3 border-y border-border px-6 py-3 text-sm text-muted-foreground">
-        <div className="flex min-w-[260px] flex-1 flex-col gap-1.5">
-          <span className="text-xs font-medium">Lookup name</span>
+        actions={
           <Combobox
             options={lookupNameOptions}
             value={lookupName}
@@ -138,29 +134,36 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             placeholder="Lookup name"
             searchPlaceholder="Search lookup names..."
             icon={ListTree}
-            className="min-w-0 flex-1"
-            align="left"
+            className="min-w-0 flex-1 sm:min-w-[220px] sm:max-w-72"
+            align="right"
             clearable={false}
           />
-        </div>
-        <label className="flex min-w-[320px] flex-1 flex-col gap-1.5">
-          <span className="text-xs font-medium">Lookup search</span>
-          <span className="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted">
+        }
+      />
+
+      <div className="flex-1 overflow-auto px-6 pt-1 pb-8">
+        <div className="mb-3 flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
+          <label
+            className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:min-w-[280px] sm:max-w-md ${
+              !lookupName || isPending
+                ? "cursor-not-allowed opacity-60 hover:bg-muted/40"
+                : ""
+            }`}
+          >
             <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
             <input
               value={query}
+              disabled={!lookupName || isPending}
               onChange={(event) => {
                 setQuery(event.target.value);
                 setPage(1);
               }}
               placeholder="Search code, English, or French..."
-              className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+              className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
             />
-          </span>
-        </label>
-      </div>
+          </label>
+        </div>
 
-      <div className="flex-1 overflow-auto px-6 pt-4 pb-8">
         <div className="overflow-auto rounded-xl border border-border bg-muted/10">
           <div className="min-w-[860px]">
             <div

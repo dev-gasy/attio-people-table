@@ -15,6 +15,8 @@ export function Pagination({
   onPageChange,
   onPageSizeChange,
   pageSizeOptions = [8, 16, 25, 50],
+  className = "",
+  bordered = true,
 }: {
   page: number;
   pageCount: number;
@@ -23,12 +25,16 @@ export function Pagination({
   onPageChange: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   pageSizeOptions?: number[];
+  className?: string;
+  bordered?: boolean;
 }) {
   const showPageSize = Boolean(onPageSizeChange);
 
   if (pageCount <= 1 && total <= pageSize && !showPageSize) {
     return (
-      <div className="flex items-center px-6 py-3 text-sm text-muted-foreground">
+      <div
+        className={`flex items-center px-6 py-3 text-sm text-muted-foreground ${className}`}
+      >
         {total} {total === 1 ? "record" : "records"}
       </div>
     );
@@ -51,7 +57,11 @@ export function Pagination({
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-6 py-3">
+    <div
+      className={`flex flex-wrap items-center justify-between gap-3 px-6 py-3 ${
+        bordered ? "border-t border-border" : ""
+      } ${className}`}
+    >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <span className="text-sm text-muted-foreground">
           {start}&ndash;{end} of {total}

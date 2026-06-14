@@ -135,18 +135,6 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
         }
         actions={
           <>
-            <label className="flex min-w-[260px] flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:max-w-80">
-              <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <input
-                value={query}
-                onChange={(event) => {
-                  setQuery(event.target.value);
-                  setPage(1);
-                }}
-                placeholder="Search rules..."
-                className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
-              />
-            </label>
             <Combobox
               options={entrypointOptions}
               value={entrypointName ?? null}
@@ -154,9 +142,10 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
               placeholder="Entrypoint name"
               searchPlaceholder="Search entrypoint names..."
               icon={ListFilter}
-              className="min-w-[220px] flex-1 sm:max-w-72"
+              className="min-w-0 flex-1 sm:min-w-[220px] sm:max-w-72"
               align="right"
               clearable={false}
+              disabled={isPending}
             />
             <Combobox
               options={ruleTypeOptions}
@@ -165,8 +154,9 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
               placeholder="All types"
               searchPlaceholder="Search rule types..."
               icon={ListFilter}
-              className="w-44"
+              className="min-w-0 flex-1 sm:w-44 sm:flex-none"
               align="right"
+              disabled={!entrypointName || isPending}
             />
           </>
         }
@@ -247,19 +237,43 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
         </div>
       </div>
 
-      {!isPending && filteredRules.length > 0 && (
-        <Pagination
-          page={currentPage}
-          pageCount={pageCount}
-          total={sortedRules.length}
-          pageSize={pageSize}
-          onPageChange={setPage}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setPage(1);
-          }}
-        />
-      )}
+      <div className="flex flex-wrap items-center gap-3 border-t border-border px-6 py-3">
+        <label
+          className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:min-w-[260px] sm:max-w-80 ${
+            !entrypointName || isPending
+              ? "cursor-not-allowed opacity-60 hover:bg-muted/40"
+              : ""
+          }`}
+        >
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <input
+            value={query}
+            disabled={!entrypointName || isPending}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Search rules..."
+            className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
+          />
+        </label>
+
+        {!isPending && filteredRules.length > 0 && (
+          <Pagination
+            page={currentPage}
+            pageCount={pageCount}
+            total={sortedRules.length}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+            bordered={false}
+            className="min-w-0 flex-1 px-0 py-0 sm:min-w-[320px]"
+          />
+        )}
+      </div>
     </div>
   );
 }
