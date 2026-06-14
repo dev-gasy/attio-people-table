@@ -4,10 +4,9 @@ import type { Row } from "@tanstack/react-table";
 import { AtSign, Plus, Star, User, Zap } from "lucide-react";
 import type { Person } from "@/features/people/person-mappers";
 import { PeopleTableRow } from "@/components/people/people-table-row";
-import {
-  SortableHeader,
-  type SortKey,
-} from "@/components/people/sortable-header";
+import { SortableTableHeader } from "@/components/ui/sortable-table-header";
+
+export type PeopleSortKey = "name" | "email" | "rating" | null;
 
 export function PeopleTableGrid({
   rows,
@@ -21,11 +20,11 @@ export function PeopleTableGrid({
 }: {
   rows: Row<Person>[];
   allSelected: boolean;
-  activeSort: SortKey;
+  activeSort: PeopleSortKey;
   direction: "asc" | "desc";
   isLoading?: boolean;
   onAdd: () => void;
-  onSort: (key: Exclude<SortKey, null>) => void;
+  onSort: (key: Exclude<PeopleSortKey, null>) => void;
   onToggleAll: () => void;
 }) {
   return (
@@ -42,7 +41,7 @@ export function PeopleTableGrid({
             />
           </div>
           <div className="border-r border-border px-4 py-3">
-            <SortableHeader
+            <SortableTableHeader
               icon={User}
               label="Record"
               sortKey="name"
@@ -52,7 +51,7 @@ export function PeopleTableGrid({
             />
           </div>
           <div className="border-r border-border px-4 py-3">
-            <SortableHeader
+            <SortableTableHeader
               icon={AtSign}
               label="Email address"
               sortKey="email"
@@ -62,10 +61,14 @@ export function PeopleTableGrid({
             />
           </div>
           <div className="border-r border-border px-4 py-3">
-            <SortableHeader icon={Zap} label="Connection strength" sparkle />
+            <SortableTableHeader
+              icon={Zap}
+              label="Connection strength"
+              sparkle
+            />
           </div>
           <div className="px-4 py-3">
-            <SortableHeader
+            <SortableTableHeader
               icon={Star}
               label="Work experience"
               sortKey="rating"

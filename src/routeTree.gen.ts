@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPeopleRouteImport } from './routes/api/people'
+import { Route as ApiLookupsRouteImport } from './routes/api/lookups'
 import { Route as ApiCustomersRouteImport } from './routes/api/customers'
 import { Route as ApiCompaniesRouteImport } from './routes/api/companies'
 import { Route as AppTasksRouteImport } from './routes/_app/tasks'
 import { Route as AppPeopleRouteImport } from './routes/_app/people'
 import { Route as AppNotesRouteImport } from './routes/_app/notes'
+import { Route as AppLookupsRouteImport } from './routes/_app/lookups'
 import { Route as AppKrakenRouteImport } from './routes/_app/kraken'
 import { Route as AppCustomersRouteImport } from './routes/_app/customers'
 import { Route as AppCompaniesRouteImport } from './routes/_app/companies'
@@ -35,6 +37,11 @@ const IndexRoute = IndexRouteImport.update({
 const ApiPeopleRoute = ApiPeopleRouteImport.update({
   id: '/api/people',
   path: '/api/people',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLookupsRoute = ApiLookupsRouteImport.update({
+  id: '/api/lookups',
+  path: '/api/lookups',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCustomersRoute = ApiCustomersRouteImport.update({
@@ -60,6 +67,11 @@ const AppPeopleRoute = AppPeopleRouteImport.update({
 const AppNotesRoute = AppNotesRouteImport.update({
   id: '/notes',
   path: '/notes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLookupsRoute = AppLookupsRouteImport.update({
+  id: '/lookups',
+  path: '/lookups',
   getParentRoute: () => AppRoute,
 } as any)
 const AppKrakenRoute = AppKrakenRouteImport.update({
@@ -93,11 +105,13 @@ export interface FileRoutesByFullPath {
   '/companies': typeof AppCompaniesRoute
   '/customers': typeof AppCustomersRoute
   '/kraken': typeof AppKrakenRoute
+  '/lookups': typeof AppLookupsRoute
   '/notes': typeof AppNotesRoute
   '/people': typeof AppPeopleRoute
   '/tasks': typeof AppTasksRoute
   '/api/companies': typeof ApiCompaniesRoute
   '/api/customers': typeof ApiCustomersRouteWithChildren
+  '/api/lookups': typeof ApiLookupsRoute
   '/api/people': typeof ApiPeopleRoute
   '/customers/$customerId': typeof AppCustomersCustomerIdRoute
   '/api/customers/$customerId': typeof ApiCustomersCustomerIdRoute
@@ -107,11 +121,13 @@ export interface FileRoutesByTo {
   '/companies': typeof AppCompaniesRoute
   '/customers': typeof AppCustomersRoute
   '/kraken': typeof AppKrakenRoute
+  '/lookups': typeof AppLookupsRoute
   '/notes': typeof AppNotesRoute
   '/people': typeof AppPeopleRoute
   '/tasks': typeof AppTasksRoute
   '/api/companies': typeof ApiCompaniesRoute
   '/api/customers': typeof ApiCustomersRouteWithChildren
+  '/api/lookups': typeof ApiLookupsRoute
   '/api/people': typeof ApiPeopleRoute
   '/customers/$customerId': typeof AppCustomersCustomerIdRoute
   '/api/customers/$customerId': typeof ApiCustomersCustomerIdRoute
@@ -123,11 +139,13 @@ export interface FileRoutesById {
   '/_app/companies': typeof AppCompaniesRoute
   '/_app/customers': typeof AppCustomersRoute
   '/_app/kraken': typeof AppKrakenRoute
+  '/_app/lookups': typeof AppLookupsRoute
   '/_app/notes': typeof AppNotesRoute
   '/_app/people': typeof AppPeopleRoute
   '/_app/tasks': typeof AppTasksRoute
   '/api/companies': typeof ApiCompaniesRoute
   '/api/customers': typeof ApiCustomersRouteWithChildren
+  '/api/lookups': typeof ApiLookupsRoute
   '/api/people': typeof ApiPeopleRoute
   '/_app/customers_/$customerId': typeof AppCustomersCustomerIdRoute
   '/api/customers/$customerId': typeof ApiCustomersCustomerIdRoute
@@ -139,11 +157,13 @@ export interface FileRouteTypes {
     | '/companies'
     | '/customers'
     | '/kraken'
+    | '/lookups'
     | '/notes'
     | '/people'
     | '/tasks'
     | '/api/companies'
     | '/api/customers'
+    | '/api/lookups'
     | '/api/people'
     | '/customers/$customerId'
     | '/api/customers/$customerId'
@@ -153,11 +173,13 @@ export interface FileRouteTypes {
     | '/companies'
     | '/customers'
     | '/kraken'
+    | '/lookups'
     | '/notes'
     | '/people'
     | '/tasks'
     | '/api/companies'
     | '/api/customers'
+    | '/api/lookups'
     | '/api/people'
     | '/customers/$customerId'
     | '/api/customers/$customerId'
@@ -168,11 +190,13 @@ export interface FileRouteTypes {
     | '/_app/companies'
     | '/_app/customers'
     | '/_app/kraken'
+    | '/_app/lookups'
     | '/_app/notes'
     | '/_app/people'
     | '/_app/tasks'
     | '/api/companies'
     | '/api/customers'
+    | '/api/lookups'
     | '/api/people'
     | '/_app/customers_/$customerId'
     | '/api/customers/$customerId'
@@ -183,6 +207,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   ApiCompaniesRoute: typeof ApiCompaniesRoute
   ApiCustomersRoute: typeof ApiCustomersRouteWithChildren
+  ApiLookupsRoute: typeof ApiLookupsRoute
   ApiPeopleRoute: typeof ApiPeopleRoute
 }
 
@@ -207,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: '/api/people'
       fullPath: '/api/people'
       preLoaderRoute: typeof ApiPeopleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/lookups': {
+      id: '/api/lookups'
+      path: '/api/lookups'
+      fullPath: '/api/lookups'
+      preLoaderRoute: typeof ApiLookupsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/customers': {
@@ -242,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/notes'
       fullPath: '/notes'
       preLoaderRoute: typeof AppNotesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/lookups': {
+      id: '/_app/lookups'
+      path: '/lookups'
+      fullPath: '/lookups'
+      preLoaderRoute: typeof AppLookupsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/kraken': {
@@ -286,6 +325,7 @@ interface AppRouteChildren {
   AppCompaniesRoute: typeof AppCompaniesRoute
   AppCustomersRoute: typeof AppCustomersRoute
   AppKrakenRoute: typeof AppKrakenRoute
+  AppLookupsRoute: typeof AppLookupsRoute
   AppNotesRoute: typeof AppNotesRoute
   AppPeopleRoute: typeof AppPeopleRoute
   AppTasksRoute: typeof AppTasksRoute
@@ -296,6 +336,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompaniesRoute: AppCompaniesRoute,
   AppCustomersRoute: AppCustomersRoute,
   AppKrakenRoute: AppKrakenRoute,
+  AppLookupsRoute: AppLookupsRoute,
   AppNotesRoute: AppNotesRoute,
   AppPeopleRoute: AppPeopleRoute,
   AppTasksRoute: AppTasksRoute,
@@ -321,6 +362,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   ApiCompaniesRoute: ApiCompaniesRoute,
   ApiCustomersRoute: ApiCustomersRouteWithChildren,
+  ApiLookupsRoute: ApiLookupsRoute,
   ApiPeopleRoute: ApiPeopleRoute,
 }
 export const routeTree = rootRouteImport

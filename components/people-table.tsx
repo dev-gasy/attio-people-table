@@ -29,9 +29,11 @@ import {
   PEOPLE_PAGE_SIZE,
 } from "@/components/people/constants";
 import { PeoplePageHeader } from "@/components/people/people-page-header";
-import { PeopleTableGrid } from "@/components/people/people-table-grid";
+import {
+  PeopleTableGrid,
+  type PeopleSortKey,
+} from "@/components/people/people-table-grid";
 import { PeopleToolbar } from "@/components/people/people-toolbar";
-import type { SortKey } from "@/components/people/sortable-header";
 import { Pagination } from "@/components/ui/pagination";
 
 export type PeopleTableSearch = {
@@ -63,7 +65,7 @@ export function PeopleTable() {
     [rowSelection],
   );
   const sortKey =
-    (sorting[0]?.id as Exclude<SortKey, null> | undefined) ?? null;
+    (sorting[0]?.id as Exclude<PeopleSortKey, null> | undefined) ?? null;
   const direction = sorting[0]?.desc ? "desc" : "asc";
   const columnFilters = useMemo<ColumnFiltersState>(
     () =>
@@ -149,7 +151,7 @@ export function PeopleTable() {
     setPage(1);
   }
 
-  function handleSort(key: Exclude<SortKey, null>) {
+  function handleSort(key: Exclude<PeopleSortKey, null>) {
     setSorting((prev) => {
       const current = prev[0];
       if (current?.id !== key) {
@@ -183,13 +185,11 @@ export function PeopleTable() {
       />
       <PeopleToolbar
         connectionFilter={connectionFilter}
-        sortKey={sortKey}
         onAdd={() => setAddOpen(true)}
         onFilterConnection={(connection) => {
           setConnectionFilter(connection);
           setPage(1);
         }}
-        onSort={handleSort}
       />
       <PeopleTableGrid
         rows={rows}

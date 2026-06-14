@@ -5,9 +5,11 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getCoreRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
+  type SortingState,
 } from "@tanstack/react-table";
 import { AddCompanyModal } from "@/components/companies/add-company-modal";
 import { CompaniesContent } from "@/components/companies/companies-content";
@@ -47,6 +49,7 @@ export function CompaniesPage() {
   const [localCompanies, setLocalCompanies] = useState<Company[] | null>(null);
   const companies = localCompanies ?? seedCompanies;
   const [statusFilter, setStatusFilter] = useState<CompanyStatus>();
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [view, setView] = useState<CompaniesView>("grid");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(COMPANIES_PAGE_SIZE);
@@ -86,12 +89,17 @@ export function CompaniesPage() {
     state: {
       columnFilters,
       pagination: tablePagination,
+      sorting,
     },
     getRowId: (row) => String(row.id),
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
+  const sortKey = (sorting[0]?.id as CompanySortKey | undefined) ?? null;
+  const direction = sorting[0]?.desc ? "desc" : "asc";
   const filteredRows = table.getRowModel().rows;
   const filteredTotal = filteredRows.length;
   const pageCount = Math.max(1, Math.ceil(filteredTotal / pageSize));
@@ -110,6 +118,20 @@ export function CompaniesPage() {
     ]);
     setForm(emptyCompanyForm);
     setAddOpen(false);
+    setPage(1);
+  }
+
+  function handleSort(key: CompanySortKey) {
+    setSorting((prev) => {
+      const current = prev[0];
+      if (current?.id !== key) {
+        return [{ id: key, desc: false }];
+      }
+      if (!current.desc) {
+        return [{ id: key, desc: true }];
+      }
+      return [];
+    });
     setPage(1);
   }
 
@@ -133,7 +155,10 @@ export function CompaniesPage() {
 
       <CompaniesContent
         filteredTotal={filteredTotal}
+        activeSort={sortKey}
+        direction={direction}
         isLoading={isPending}
+        onSort={handleSort}
         rows={gridRows}
         view={view}
       />
@@ -162,3 +187,11 @@ export function CompaniesPage() {
     </div>
   );
 }
+
+export type CompanySortKey =
+  | "name"
+  | "domain"
+  | "status"
+  | "employees"
+  | "arr"
+  | "location";

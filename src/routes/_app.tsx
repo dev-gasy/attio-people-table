@@ -4,6 +4,7 @@ import { AppSidebar, type PageId } from "@/components/app-sidebar";
 
 const routePageMap: Record<string, PageId> = {
   "/kraken": "kraken",
+  "/lookups": "lookups",
   "/tasks": "tasks",
   "/notes": "notes",
   "/people": "people",

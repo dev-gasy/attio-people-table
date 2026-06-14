@@ -1,30 +1,18 @@
 "use client";
 
-import {
-  ArrowUpDown,
-  ChevronDown,
-  ListFilter,
-  Plus,
-  Settings,
-  Table2,
-} from "lucide-react";
+import { ChevronDown, ListFilter, Plus, Settings, Table2 } from "lucide-react";
 import type { Connection } from "@/features/people/person-mappers";
 import { connectionOptions } from "@/components/people/constants";
-import type { SortKey } from "@/components/people/sortable-header";
 import { Combobox } from "@/components/ui/combobox";
 
 export function PeopleToolbar({
   connectionFilter,
-  sortKey,
   onAdd,
   onFilterConnection,
-  onSort,
 }: {
   connectionFilter?: Connection;
-  sortKey: SortKey;
   onAdd: () => void;
   onFilterConnection: (connection?: Connection) => void;
-  onSort: (key: Exclude<SortKey, null>) => void;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2 px-6 pb-4">
@@ -44,15 +32,6 @@ export function PeopleToolbar({
         searchPlaceholder="Filter by strength..."
         className="w-52"
       />
-      <button
-        onClick={() => onSort("name")}
-        className={`flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-muted ${
-          sortKey ? "bg-muted text-foreground" : "bg-muted/40 text-foreground"
-        }`}
-      >
-        <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-        Sort
-      </button>
 
       <div className="ml-auto flex items-center gap-2">
         <button className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground hover:bg-muted">

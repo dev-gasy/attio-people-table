@@ -1,19 +1,38 @@
 "use client";
 
 import type { Row } from "@tanstack/react-table";
+import {
+  BadgeCheck,
+  Building2,
+  DollarSign,
+  Globe,
+  MapPin,
+  Users,
+} from "lucide-react";
 import { CompanyCard } from "@/components/companies/company-card";
 import { CompanyRow } from "@/components/companies/company-row";
 import type { CompaniesView } from "@/components/companies/types";
+import type { CompanySortKey } from "@/components/companies-page";
+import { SortableTableHeader } from "@/components/ui/sortable-table-header";
 import type { Company } from "@/features/companies/company-mappers";
 
+const COMPANY_TABLE_COLUMNS =
+  "grid-cols-[minmax(180px,1.5fr)_minmax(140px,1.2fr)_120px_minmax(96px,0.7fr)_minmax(80px,0.6fr)_minmax(140px,1fr)]";
+
 export function CompaniesContent({
+  activeSort,
+  direction,
   filteredTotal,
   isLoading = false,
+  onSort,
   rows,
   view,
 }: {
+  activeSort: CompanySortKey | null;
+  direction: "asc" | "desc";
   filteredTotal: number;
   isLoading?: boolean;
+  onSort: (key: CompanySortKey) => void;
   rows: Row<Company>[];
   view: CompaniesView;
 }) {
@@ -33,13 +52,63 @@ export function CompaniesContent({
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
-          <div className="grid grid-cols-[minmax(180px,1.5fr)_minmax(140px,1.2fr)_120px_minmax(96px,0.7fr)_minmax(80px,0.6fr)_minmax(140px,1fr)] items-center gap-4 border-b border-border/60 px-4 py-2 text-xs font-medium text-muted-foreground">
-            <span className="truncate">Company</span>
-            <span className="truncate">Web address</span>
-            <span className="truncate">Status</span>
-            <span className="truncate">Employees</span>
-            <span className="truncate">ARR</span>
-            <span className="truncate">Location</span>
+          <div
+            className={`grid ${COMPANY_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 px-4 py-2`}
+          >
+            <SortableTableHeader
+              icon={Building2}
+              label="Company"
+              sortKey="name"
+              activeSort={activeSort}
+              direction={direction}
+              onSort={onSort}
+              className="text-xs"
+            />
+            <SortableTableHeader
+              icon={Globe}
+              label="Web address"
+              sortKey="domain"
+              activeSort={activeSort}
+              direction={direction}
+              onSort={onSort}
+              className="text-xs"
+            />
+            <SortableTableHeader
+              icon={BadgeCheck}
+              label="Status"
+              sortKey="status"
+              activeSort={activeSort}
+              direction={direction}
+              onSort={onSort}
+              className="text-xs"
+            />
+            <SortableTableHeader
+              icon={Users}
+              label="Employees"
+              sortKey="employees"
+              activeSort={activeSort}
+              direction={direction}
+              onSort={onSort}
+              className="text-xs"
+            />
+            <SortableTableHeader
+              icon={DollarSign}
+              label="ARR"
+              sortKey="arr"
+              activeSort={activeSort}
+              direction={direction}
+              onSort={onSort}
+              className="text-xs"
+            />
+            <SortableTableHeader
+              icon={MapPin}
+              label="Location"
+              sortKey="location"
+              activeSort={activeSort}
+              direction={direction}
+              onSort={onSort}
+              className="text-xs"
+            />
           </div>
           {rows.map((row) => (
             <CompanyRow key={row.id} company={row.original} />
@@ -82,7 +151,9 @@ function CompaniesLoadingContent({ view }: { view: CompaniesView }) {
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
-      <div className="grid grid-cols-[minmax(180px,1.5fr)_minmax(140px,1.2fr)_120px_minmax(96px,0.7fr)_minmax(80px,0.6fr)_minmax(140px,1fr)] items-center gap-4 border-b border-border/60 px-4 py-2 text-xs font-medium text-muted-foreground">
+      <div
+        className={`grid ${COMPANY_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 px-4 py-2 text-xs font-medium text-muted-foreground`}
+      >
         <span className="truncate">Company</span>
         <span className="truncate">Web address</span>
         <span className="truncate">Status</span>
@@ -93,7 +164,7 @@ function CompaniesLoadingContent({ view }: { view: CompaniesView }) {
       {Array.from({ length: 10 }).map((_, index) => (
         <div
           key={index}
-          className="grid grid-cols-[minmax(180px,1.5fr)_minmax(140px,1.2fr)_120px_minmax(96px,0.7fr)_minmax(80px,0.6fr)_minmax(140px,1fr)] items-center gap-4 border-b border-border/60 px-4 py-3"
+          className={`grid ${COMPANY_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 px-4 py-3`}
         >
           <div className="h-3 w-32 animate-pulse rounded bg-muted" />
           <div className="h-3 w-28 animate-pulse rounded bg-muted" />

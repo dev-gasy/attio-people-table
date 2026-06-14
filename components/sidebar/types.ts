@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 
 export type PageId =
   | "kraken"
+  | "lookups"
   | "tasks"
   | "notes"
   | "people"
@@ -14,4 +15,9 @@ export type SidebarNavItem = {
   to: PagePath;
   icon: ComponentType<{ className?: string }>;
   label: string;
+};
+
+export type SidebarNavSection = {
+  label: string;
+  items: SidebarNavItem[];
 };

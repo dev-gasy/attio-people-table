@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ActivityPage } from "@/components/activity-page";
+import { KrakenPage } from "@/components/kraken/kraken-page";
 
 export const Route = createFileRoute("/_app/kraken")({
-  component: ActivityPage,
+  component: KrakenPage,
 });

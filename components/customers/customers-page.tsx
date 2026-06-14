@@ -5,7 +5,6 @@ import {
   useMemo,
   useState,
   type ChangeEvent,
-  type ComponentType,
   type ReactNode,
 } from "react";
 import { Link } from "@tanstack/react-router";
@@ -24,10 +23,10 @@ import { CustomerFavoriteButton } from "@/components/customers/customer-favorite
 import { CustomerSearchForm } from "@/components/customers/customer-search-form";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/ui/pagination";
+import { SortableTableHeader } from "@/components/ui/sortable-table-header";
 import {
   filterCustomers,
   emptyCustomerSearchValues,
-  sortFavoriteCustomersFirst,
   type CustomerSearchValues,
 } from "@/features/customers/customer-domain/customers-list";
 import {
@@ -45,6 +44,7 @@ import {
 const CUSTOMERS_PAGE_SIZE = 25;
 const CUSTOMER_TABLE_COLUMNS =
   "grid-cols-[minmax(220px,1.35fr)_minmax(120px,170px)_minmax(140px,210px)_minmax(160px,260px)_minmax(100px,140px)]";
+type CustomerSortKey = "name" | "phone" | "email" | "address" | "dateOfBirth";
 
 export function CustomersPage() {
   const { data, isPending } = useQuery(customersQueryOptions());
@@ -62,6 +62,8 @@ export function CustomersPage() {
   const [searchValues, setSearchValues] = useState<CustomerSearchValues>(
     emptyCustomerSearchValues,
   );
+  const [sortKey, setSortKey] = useState<CustomerSortKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(CUSTOMERS_PAGE_SIZE);
   const customers = useMemo(
@@ -80,8 +82,14 @@ export function CustomersPage() {
     [customers, searchValues],
   );
   const orderedCustomers = useMemo(
-    () => sortFavoriteCustomersFirst(filteredCustomers, favoriteIdSet),
-    [favoriteIdSet, filteredCustomers],
+    () =>
+      sortCustomersWithFavoritesFirst(
+        filteredCustomers,
+        favoriteIdSet,
+        sortKey,
+        sortDirection,
+      ),
+    [favoriteIdSet, filteredCustomers, sortDirection, sortKey],
   );
   const pageCount = Math.max(1, Math.ceil(orderedCustomers.length / pageSize));
   const currentPage = Math.min(page, pageCount);
@@ -105,6 +113,24 @@ export function CustomersPage() {
     link.download = "favorite-customers.json";
     link.click();
     URL.revokeObjectURL(url);
+  }
+
+  function handleSort(key: CustomerSortKey) {
+    setSortKey((currentKey) => {
+      if (currentKey !== key) {
+        setSortDirection("asc");
+        return key;
+      }
+
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+        return key;
+      }
+
+      setSortDirection("asc");
+      return null;
+    });
+    setPage(1);
   }
 
   async function handleLoadFavorites(event: ChangeEvent<HTMLInputElement>) {
@@ -184,11 +210,56 @@ export function CustomersPage() {
             <div
               className={`sticky top-0 z-10 grid ${CUSTOMER_TABLE_COLUMNS} border-b border-border/60 bg-background`}
             >
-              <CustomerTableHeader icon={User} label="Customer" />
-              <CustomerTableHeader icon={Phone} label="Phone" />
-              <CustomerTableHeader icon={Mail} label="Email" />
-              <CustomerTableHeader icon={MapPin} label="Address" />
-              <CustomerTableHeader icon={CalendarDays} label="DOB" last />
+              <CustomerTableHeaderCell>
+                <SortableTableHeader
+                  icon={User}
+                  label="Customer"
+                  sortKey="name"
+                  activeSort={sortKey}
+                  direction={sortDirection}
+                  onSort={handleSort}
+                />
+              </CustomerTableHeaderCell>
+              <CustomerTableHeaderCell>
+                <SortableTableHeader
+                  icon={Phone}
+                  label="Phone"
+                  sortKey="phone"
+                  activeSort={sortKey}
+                  direction={sortDirection}
+                  onSort={handleSort}
+                />
+              </CustomerTableHeaderCell>
+              <CustomerTableHeaderCell>
+                <SortableTableHeader
+                  icon={Mail}
+                  label="Email"
+                  sortKey="email"
+                  activeSort={sortKey}
+                  direction={sortDirection}
+                  onSort={handleSort}
+                />
+              </CustomerTableHeaderCell>
+              <CustomerTableHeaderCell>
+                <SortableTableHeader
+                  icon={MapPin}
+                  label="Address"
+                  sortKey="address"
+                  activeSort={sortKey}
+                  direction={sortDirection}
+                  onSort={handleSort}
+                />
+              </CustomerTableHeaderCell>
+              <CustomerTableHeaderCell last>
+                <SortableTableHeader
+                  icon={CalendarDays}
+                  label="DOB"
+                  sortKey="dateOfBirth"
+                  activeSort={sortKey}
+                  direction={sortDirection}
+                  onSort={handleSort}
+                />
+              </CustomerTableHeaderCell>
             </div>
 
             {isPending ? (
@@ -310,9 +381,7 @@ function PreferredContactValue({
   customer: Customer;
   kind: CustomerContactKind;
 }) {
-  const contact = customer.contacts.find(
-    (item) => item.kind === kind && item.preferred,
-  );
+  const contact = getPreferredContact(customer, kind);
 
   return (
     <span
@@ -324,6 +393,66 @@ function PreferredContactValue({
     </span>
   );
 }
+
+function sortCustomersWithFavoritesFirst(
+  customers: Customer[],
+  favoriteIdSet: Set<number>,
+  sortKey: CustomerSortKey | null,
+  direction: "asc" | "desc",
+) {
+  if (!sortKey) {
+    return [
+      ...customers.filter((customer) => favoriteIdSet.has(customer.id)),
+      ...customers.filter((customer) => !favoriteIdSet.has(customer.id)),
+    ];
+  }
+
+  const favorites = customers.filter((customer) =>
+    favoriteIdSet.has(customer.id),
+  );
+  const others = customers.filter(
+    (customer) => !favoriteIdSet.has(customer.id),
+  );
+
+  return [
+    ...sortCustomers(favorites, sortKey, direction),
+    ...sortCustomers(others, sortKey, direction),
+  ];
+}
+
+function sortCustomers(
+  customers: Customer[],
+  sortKey: CustomerSortKey,
+  direction: "asc" | "desc",
+) {
+  return [...customers].sort((a, b) => {
+    const result =
+      sortKey === "dateOfBirth"
+        ? Date.parse(a.dateOfBirth) - Date.parse(b.dateOfBirth)
+        : stringCollator.compare(
+            getCustomerSortValue(a, sortKey),
+            getCustomerSortValue(b, sortKey),
+          );
+
+    return direction === "asc" ? result : -result;
+  });
+}
+
+function getCustomerSortValue(customer: Customer, sortKey: CustomerSortKey) {
+  if (sortKey === "name") return customer.name;
+  if (sortKey === "dateOfBirth") return customer.dateOfBirth;
+
+  return getPreferredContact(customer, sortKey)?.value ?? "";
+}
+
+function getPreferredContact(customer: Customer, kind: CustomerContactKind) {
+  return customer.contacts.find((item) => item.kind === kind && item.preferred);
+}
+
+const stringCollator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: "base",
+});
 
 function CustomerLoadingCell({
   widths,
@@ -348,23 +477,18 @@ function CustomerLoadingCell({
   );
 }
 
-function CustomerTableHeader({
-  icon: Icon,
-  label,
+function CustomerTableHeaderCell({
+  children,
   last,
 }: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
+  children: ReactNode;
   last?: boolean;
 }) {
   return (
     <div
       className={`min-w-0 max-w-full ${last ? "" : "border-r border-border"} px-4 py-3`}
     >
-      <div className="flex min-w-0 max-w-full items-center gap-2 text-sm font-medium text-muted-foreground">
-        <Icon className="h-4 w-4" />
-        <span className="min-w-0 max-w-full truncate">{label}</span>
-      </div>
+      {children}
     </div>
   );
 }
