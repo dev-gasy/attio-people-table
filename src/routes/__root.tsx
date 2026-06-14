@@ -1,51 +1,51 @@
-import type { ReactNode } from 'react'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import type { ReactNode } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
-} from '@tanstack/react-router'
-import type { QueryClient } from '@tanstack/react-query'
-import { ThemeProvider } from '@/components/theme-provider'
-import appCss from '@/src/styles/globals.css?url'
+} from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
+import { ThemeProvider } from "@/components/theme-provider";
+import appCss from "@/src/styles/globals.css?url";
 
 export const Route = createRootRouteWithContext<{
-  queryClient: QueryClient
+  queryClient: QueryClient;
 }>()({
   head: () => ({
     meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'Attio · People' },
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "Attio · People" },
       {
-        name: 'description',
-        content: 'The CRM for the next generation of companies',
+        name: "description",
+        content: "The CRM for the next generation of companies",
       },
-      { name: 'color-scheme', content: 'light dark' },
+      { name: "color-scheme", content: "light dark" },
     ],
     links: [
-      { rel: 'stylesheet', href: appCss },
+      { rel: "stylesheet", href: appCss },
       {
-        rel: 'icon',
-        href: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
+        rel: "icon",
+        href: "/icon-light-32x32.png",
+        media: "(prefers-color-scheme: light)",
       },
       {
-        rel: 'icon',
-        href: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
+        rel: "icon",
+        href: "/icon-dark-32x32.png",
+        media: "(prefers-color-scheme: dark)",
       },
-      { rel: 'icon', href: '/icon.svg', type: 'image/svg+xml' },
-      { rel: 'apple-touch-icon', href: '/apple-icon.png' },
+      { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/apple-icon.png" },
     ],
   }),
   component: RootComponent,
-})
+});
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext()
+  const { queryClient } = Route.useRouteContext();
 
   return (
     <RootDocument>
@@ -56,7 +56,7 @@ function RootComponent() {
         <ReactQueryDevtools buttonPosition="bottom-left" />
       </QueryClientProvider>
     </RootDocument>
-  )
+  );
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
@@ -70,5 +70,5 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }

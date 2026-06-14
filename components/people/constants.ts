@@ -1,5 +1,8 @@
 import type { Connection } from "@/features/people/person-mappers";
-import { avatarColors, connectionOptions } from "@/features/people/person-mappers";
+import {
+  avatarColors,
+  connectionOptions,
+} from "@/features/people/person-mappers";
 
 export const PEOPLE_PAGE_SIZE = 8;
 export { avatarColors, connectionOptions };

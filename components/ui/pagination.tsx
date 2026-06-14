@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
 import {
   ChevronFirst,
   ChevronLast,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react"
+} from "lucide-react";
 
 export function Pagination({
   page,
@@ -16,37 +16,37 @@ export function Pagination({
   onPageSizeChange,
   pageSizeOptions = [8, 16, 25, 50],
 }: {
-  page: number
-  pageCount: number
-  total: number
-  pageSize: number
-  onPageChange: (page: number) => void
-  onPageSizeChange?: (pageSize: number) => void
-  pageSizeOptions?: number[]
+  page: number;
+  pageCount: number;
+  total: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  pageSizeOptions?: number[];
 }) {
-  const showPageSize = Boolean(onPageSizeChange)
+  const showPageSize = Boolean(onPageSizeChange);
 
   if (pageCount <= 1 && total <= pageSize && !showPageSize) {
     return (
       <div className="flex items-center px-6 py-3 text-sm text-muted-foreground">
         {total} {total === 1 ? "record" : "records"}
       </div>
-    )
+    );
   }
 
-  const start = total === 0 ? 0 : (page - 1) * pageSize + 1
-  const end = Math.min(page * pageSize, total)
+  const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, total);
   const pageSizeChoices = Array.from(
     new Set([...pageSizeOptions, pageSize].filter((size) => size > 0)),
-  ).sort((a, b) => a - b)
+  ).sort((a, b) => a - b);
 
   // Build a compact page list with ellipsis
-  const pages: (number | "...")[] = []
+  const pages: (number | "...")[] = [];
   for (let i = 1; i <= pageCount; i++) {
     if (i === 1 || i === pageCount || Math.abs(i - page) <= 1) {
-      pages.push(i)
+      pages.push(i);
     } else if (pages[pages.length - 1] !== "...") {
-      pages.push("...")
+      pages.push("...");
     }
   }
 
@@ -61,7 +61,9 @@ export function Pagination({
             <span>Rows per page</span>
             <select
               value={pageSize}
-              onChange={(event) => onPageSizeChange?.(Number(event.target.value))}
+              onChange={(event) =>
+                onPageSizeChange?.(Number(event.target.value))
+              }
               className="h-7 rounded-md border border-border bg-background px-2 text-sm text-foreground outline-none transition-colors focus:border-ring focus:ring-3 focus:ring-ring/20"
             >
               {pageSizeChoices.map((size) => (
@@ -130,5 +132,5 @@ export function Pagination({
         </button>
       </div>
     </div>
-  )
+  );
 }

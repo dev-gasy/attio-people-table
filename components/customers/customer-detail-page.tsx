@@ -20,17 +20,28 @@ import {
   UserRound,
 } from "lucide-react";
 import { Avatar } from "@/components/avatar";
+import { CustomerFavoriteButton } from "@/components/customers/customer-favorite-button";
 import { CustomerStatusBadge } from "@/components/customers/customer-status-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Collapsible } from "@/components/ui/collapsible-section";
+import {
+  filterCustomerProductsByActivity,
+  getCustomerContactGroups,
+  getCustomerDetailMetrics,
+  getCustomerProductSnapshot,
+  getCustomerProfileFields,
+  getPreferredCustomerContacts,
+  groupCustomerProductsByBusinessDimension,
+  type CustomerDetailMetricId,
+  type CustomerProductActivityFilter,
+} from "@/features/customers/customer-domain/customer-detail";
 import { customerQueryOptions } from "@/features/customers/customer-service";
+import { useCustomerFavorites } from "@/features/customers/use-customer-favorites";
 import {
   type Customer,
   type CustomerContact,
   type CustomerContactKind,
   type CustomerProduct,
-  type CustomerProductActivity,
-  type CustomerProductBusinessDimension,
   mapCustomerDtoToCustomer,
 } from "@/features/customers/customer-mappers";
 
@@ -46,15 +57,24 @@ const tabs: Array<{
   { id: "products", label: "Products", icon: Package },
 ];
 
-const contactSections: Array<{
-  kind: CustomerContactKind;
-  title: string;
-  icon: ComponentType<{ className?: string }>;
-}> = [
-  { kind: "phone", title: "Phone list", icon: Phone },
-  { kind: "email", title: "Email list", icon: Mail },
-  { kind: "address", title: "Addresses", icon: Home },
-];
+const contactIcons: Record<
+  CustomerContactKind,
+  ComponentType<{ className?: string }>
+> = {
+  phone: Phone,
+  email: Mail,
+  address: Home,
+};
+
+const metricIcons: Record<
+  CustomerDetailMetricId,
+  ComponentType<{ className?: string }>
+> = {
+  lifetimeValue: CircleDollarSign,
+  activeProducts: Package,
+  openQuotes: Sparkles,
+  risk: AlertTriangle,
+};
 
 const productTypeStyles: Record<string, string> = {
   Policy: "text-emerald-700 dark:text-emerald-300",
@@ -64,7 +84,7 @@ const productTypeStyles: Record<string, string> = {
 };
 
 const productFilterOptions: Array<{
-  value: CustomerProductActivity | "All";
+  value: CustomerProductActivityFilter;
   label: string;
 }> = [
   { value: "All", label: "All" },
@@ -72,20 +92,9 @@ const productFilterOptions: Array<{
   { value: "Inactive", label: "Inactive" },
 ];
 
-const businessDimensionOrder: CustomerProductBusinessDimension[] = [
-  "Personal lines",
-  "Commercial",
-  "Life and health",
-  "Claims",
-  "Pipeline",
-];
-
-export function CustomerDetailPage({
-  customerId,
-}: {
-  customerId: string;
-}) {
+export function CustomerDetailPage({ customerId }: { customerId: string }) {
   const [activeTab, setActiveTab] = useState<CustomerTab>("details");
+  const { isFavorite, toggleFavorite } = useCustomerFavorites();
   const numericCustomerId = Number(customerId);
   const hasValidCustomerId = Number.isFinite(numericCustomerId);
   const { data, isPending } = useQuery({
@@ -124,6 +133,10 @@ export function CustomerDetailPage({
                 {customer.name}
               </h1>
               <CustomerStatusBadge status={customer.status} />
+              <CustomerFavoriteButton
+                favorite={isFavorite(customer.id)}
+                onClick={() => toggleFavorite(customer.id)}
+              />
             </div>
           </div>
         </div>
@@ -269,75 +282,29 @@ function BackToCustomers() {
 }
 
 function DetailsTab({ customer }: { customer: Customer }) {
-  const activeProducts = customer.products.filter(
-    (product) => product.activity === "Active",
-  );
-  const inactiveProducts = customer.products.length - activeProducts.length;
-  const openPipeline = customer.products.filter(
-    (product) => product.type === "Quote" && product.activity === "Active",
-  ).length;
-  const preferredContacts = contactSections
-    .map((section) => ({
-      ...section,
-      contact: customer.contacts.find(
-        (contact) => contact.kind === section.kind && contact.preferred,
-      ),
-    }))
-    .filter((section) => section.contact);
-  const fields = [
-    {
-      label: "Customer ID",
-      value: `CUS-${String(customer.id).padStart(4, "0")}`,
-    },
-    { label: "Lifecycle", value: customer.status },
-    { label: "Segment", value: customer.segment },
-    { label: "Owner", value: customer.owner },
-    { label: "Location", value: customer.location },
-    { label: "Customer since", value: customer.since },
-    { label: "Lifetime value", value: customer.lifetimeValue },
-    { label: "Risk", value: customer.risk },
-  ];
-  const metrics = [
-    {
-      label: "Lifetime value",
-      value: customer.lifetimeValue,
-      icon: CircleDollarSign,
-    },
-    {
-      label: "Active products",
-      value: String(activeProducts.length),
-      icon: Package,
-    },
-    {
-      label: "Open quotes",
-      value: String(openPipeline),
-      icon: Sparkles,
-    },
-    {
-      label: "Risk",
-      value: customer.risk,
-      icon: AlertTriangle,
-    },
-  ];
+  const metrics = getCustomerDetailMetrics(customer);
+  const fields = getCustomerProfileFields(customer);
+  const preferredContacts = getPreferredCustomerContacts(customer);
+  const productSnapshot = getCustomerProductSnapshot(customer.products);
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap gap-3">
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => {
-          const Icon = metric.icon;
+          const Icon = metricIcons[metric.id];
 
           return (
             <div
               key={metric.label}
-              className="min-w-[180px] flex-1 rounded-xl border border-border bg-muted/10 p-4"
+              className="flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-4"
             >
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-xs font-medium text-muted-foreground">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Icon className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                <span className="text-[15px] font-medium text-foreground">
                   {metric.label}
                 </span>
-                <Icon className="h-4 w-4 text-muted-foreground" />
               </div>
-              <div className="mt-2 truncate text-xl font-semibold text-foreground">
+              <div className="mt-auto border-t border-border/60 pt-3 text-2xl font-semibold text-foreground">
                 {metric.value}
               </div>
             </div>
@@ -345,117 +312,109 @@ function DetailsTab({ customer }: { customer: Customer }) {
         })}
       </div>
 
-      <div className="flex flex-col gap-5 xl:flex-row">
-        <section className="flex-1 rounded-xl border border-border bg-muted/10 p-5">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <UserRound className="h-4 w-4 text-muted-foreground" />
-            Account profile
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <section className="rounded-xl border border-border bg-muted/20 p-4 xl:col-span-2">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <UserRound className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+            <span className="text-[15px] font-medium text-foreground">
+              Account profile
+            </span>
           </div>
-          <dl className="mt-4 flex flex-col divide-y divide-border/60">
+          <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 border-t border-border/60 pt-3 sm:grid-cols-2">
             {fields.map((field) => (
-              <div
-                key={field.label}
-                className="flex min-h-10 items-center gap-4 py-2 text-sm"
-              >
-                <dt className="w-32 shrink-0 text-muted-foreground">
+              <div key={field.label} className="min-w-0 text-sm">
+                <dt className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
                   {field.label}
                 </dt>
-                <dd className="min-w-0 flex-1 truncate text-foreground">
+                <dd className="mt-1 min-w-0 truncate text-foreground">
                   {field.value}
                 </dd>
               </div>
             ))}
           </dl>
         </section>
-      </div>
 
-      <div className="flex flex-col gap-5 xl:flex-row">
-        <section className="flex-1 rounded-xl border border-border bg-muted/10 p-5">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <Phone className="h-4 w-4 text-muted-foreground" />
-            Preferred contact
+        <section className="rounded-xl border border-border bg-muted/20 p-4">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Phone className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+            <span className="text-[15px] font-medium text-foreground">
+              Preferred contact
+            </span>
           </div>
-          <div className="mt-4 flex flex-col divide-y divide-border/60">
+          <div className="mt-4 flex flex-col gap-3 border-t border-border/60 pt-3">
             {preferredContacts.map((section) => {
-              const Icon = section.icon;
-              const contact = section.contact;
-
-              return contact ? (
-                <div
-                  key={section.kind}
-                  className="flex min-h-11 items-center gap-4 py-2.5"
-                >
-                  <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span className="w-20 shrink-0 text-xs font-medium uppercase tracking-normal text-muted-foreground">
-                    {contact.label}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate text-sm text-foreground">
-                    {contact.value}
-                  </span>
-                </div>
-              ) : null;
-            })}
-          </div>
-        </section>
-
-        <section className="flex-1 rounded-xl border border-border bg-muted/10 p-5">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <Package className="h-4 w-4 text-muted-foreground" />
-            Product snapshot
-          </div>
-          <div className="mt-4 flex flex-col divide-y divide-border/60">
-            {businessDimensionOrder.map((dimension) => {
-              const count = customer.products.filter(
-                (product) => product.businessDimension === dimension,
-              ).length;
-
-              if (count === 0) return null;
+              const Icon = contactIcons[section.kind];
 
               return (
                 <div
-                  key={dimension}
-                  className="flex min-h-10 items-center justify-between gap-4 py-2 text-sm"
+                  key={section.kind}
+                  className="flex min-w-0 items-start gap-3 text-sm"
                 >
-                  <span className="truncate text-muted-foreground">
-                    {dimension}
-                  </span>
-                  <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
-                    {count}
-                  </span>
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+                      {section.label}
+                    </div>
+                    <div className="mt-1 truncate text-foreground">
+                      {section.value}
+                    </div>
+                  </div>
                 </div>
               );
             })}
           </div>
         </section>
-      </div>
 
-      <section className="rounded-xl border border-border bg-muted/10 p-5">
-        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <ShieldCheck className="h-4 w-4 text-muted-foreground" />
-          Account notes
-        </div>
-        <div className="mt-4 flex flex-col gap-3">
-          <div className="rounded-lg border border-border bg-background/40 p-3 text-sm text-muted-foreground">
-            Renewal attention should focus on active policies and the highest
-            value pipeline products first.
+        <section className="rounded-xl border border-border bg-muted/20 p-4">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Package className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+            <span className="text-[15px] font-medium text-foreground">
+              Product snapshot
+            </span>
           </div>
-          <div className="rounded-lg border border-border bg-background/40 p-3 text-sm text-muted-foreground">
-            Preferred outreach is already set for phone, email, and address in
-            the Contacts tab.
+          <div className="mt-4 flex flex-col gap-3 border-t border-border/60 pt-3">
+            {productSnapshot.map((item) => (
+              <div
+                key={item.dimension}
+                className="flex items-center justify-between gap-4 text-sm"
+              >
+                <span className="truncate text-muted-foreground">
+                  {item.dimension}
+                </span>
+                <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
+                  {item.count}
+                </span>
+              </div>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section className="rounded-xl border border-border bg-muted/20 p-4 xl:col-span-2">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <ShieldCheck className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+            <span className="text-[15px] font-medium text-foreground">
+              Account notes
+            </span>
+          </div>
+          <div className="mt-4 grid grid-cols-1 gap-3 border-t border-border/60 pt-3 sm:grid-cols-2">
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Renewal attention should focus on active policies and the highest
+              value pipeline products first.
+            </p>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Preferred outreach is already set for phone, email, and address in
+              the Contacts tab.
+            </p>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
 
 function ContactsTab({ contacts }: { contacts: CustomerContact[] }) {
   const contactsByKind = useMemo(
-    () =>
-      contactSections.map((section) => ({
-        ...section,
-        contacts: contacts.filter((contact) => contact.kind === section.kind),
-      })),
+    () => getCustomerContactGroups(contacts),
     [contacts],
   );
 
@@ -467,7 +426,7 @@ function ContactsTab({ contacts }: { contacts: CustomerContact[] }) {
             key={section.kind}
             title={section.title}
             count={section.contacts.length}
-            icon={section.icon}
+            icon={contactIcons[section.kind]}
           >
             <div className="divide-y divide-border/60">
               {section.contacts.map((contact) => (
@@ -501,26 +460,14 @@ function ContactRow({ contact }: { contact: CustomerContact }) {
 }
 
 function ProductsTab({ products }: { products: CustomerProduct[] }) {
-  const [activityFilter, setActivityFilter] = useState<
-    CustomerProductActivity | "All"
-  >("All");
+  const [activityFilter, setActivityFilter] =
+    useState<CustomerProductActivityFilter>("All");
   const filteredProducts = useMemo(
-    () =>
-      activityFilter === "All"
-        ? products
-        : products.filter((product) => product.activity === activityFilter),
+    () => filterCustomerProductsByActivity(products, activityFilter),
     [activityFilter, products],
   );
   const groupedProducts = useMemo(
-    () =>
-      businessDimensionOrder
-        .map((dimension) => ({
-          dimension,
-          products: filteredProducts.filter(
-            (product) => product.businessDimension === dimension,
-          ),
-        }))
-        .filter((group) => group.products.length > 0),
+    () => groupCustomerProductsByBusinessDimension(filteredProducts),
     [filteredProducts],
   );
 

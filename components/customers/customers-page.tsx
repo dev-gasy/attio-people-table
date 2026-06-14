@@ -1,18 +1,41 @@
 "use client";
 
-import { useMemo, useState, type ComponentType } from "react";
+import {
+  useRef,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, Mail, MapPin, Phone, User } from "lucide-react";
+import {
+  CalendarDays,
+  Download,
+  Mail,
+  MapPin,
+  Phone,
+  Upload,
+  User,
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@/components/avatar";
-import {
-  CustomerSearchForm,
-  emptyCustomerSearchValues,
-  type CustomerSearchValues,
-} from "@/components/customers/customer-search-form";
+import { CustomerFavoriteButton } from "@/components/customers/customer-favorite-button";
+import { CustomerSearchForm } from "@/components/customers/customer-search-form";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/ui/pagination";
+import {
+  filterCustomers,
+  emptyCustomerSearchValues,
+  sortFavoriteCustomersFirst,
+  type CustomerSearchValues,
+} from "@/features/customers/customer-domain/customers-list";
+import {
+  formatCustomerFavoriteIdsJson,
+  parseCustomerFavoriteIdsJson,
+} from "@/features/customers/customer-domain/favorites";
 import { customersQueryOptions } from "@/features/customers/customer-service";
+import { useCustomerFavorites } from "@/features/customers/use-customer-favorites";
 import {
   type Customer,
   type CustomerContactKind,
@@ -25,6 +48,17 @@ const CUSTOMER_TABLE_COLUMNS =
 
 export function CustomersPage() {
   const { data, isPending } = useQuery(customersQueryOptions());
+  const {
+    favoriteIds,
+    favoriteIdSet,
+    isFavorite,
+    setFavoriteIds,
+    toggleFavorite,
+  } = useCustomerFavorites();
+  const importInputRef = useRef<HTMLInputElement>(null);
+  const [favoritesImportError, setFavoritesImportError] = useState<
+    string | null
+  >(null);
   const [searchValues, setSearchValues] = useState<CustomerSearchValues>(
     emptyCustomerSearchValues,
   );
@@ -33,7 +67,11 @@ export function CustomersPage() {
   const customers = useMemo(
     () =>
       data
-        ? mapCustomerDtosToCustomers(data.customers, data.contacts, data.products)
+        ? mapCustomerDtosToCustomers(
+            data.customers,
+            data.contacts,
+            data.products,
+          )
         : [],
     [data],
   );
@@ -41,23 +79,93 @@ export function CustomersPage() {
     () => filterCustomers(customers, searchValues),
     [customers, searchValues],
   );
-  const pageCount = Math.max(
-    1,
-    Math.ceil(filteredCustomers.length / pageSize),
+  const orderedCustomers = useMemo(
+    () => sortFavoriteCustomersFirst(filteredCustomers, favoriteIdSet),
+    [favoriteIdSet, filteredCustomers],
   );
+  const pageCount = Math.max(1, Math.ceil(orderedCustomers.length / pageSize));
   const currentPage = Math.min(page, pageCount);
   const pageCustomers = useMemo(
     () =>
-      filteredCustomers.slice(
+      orderedCustomers.slice(
         (currentPage - 1) * pageSize,
         currentPage * pageSize,
       ),
-    [currentPage, filteredCustomers, pageSize],
+    [currentPage, orderedCustomers, pageSize],
   );
+
+  function handleSaveFavorites() {
+    const blob = new Blob([formatCustomerFavoriteIdsJson(favoriteIds)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "favorite-customers.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleLoadFavorites(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) return;
+
+    try {
+      const result = parseCustomerFavoriteIdsJson(await file.text());
+
+      if (!result.ok) {
+        setFavoritesImportError(result.error);
+        return;
+      }
+
+      setFavoriteIds(result.ids);
+      setFavoritesImportError(null);
+      setPage(1);
+    } catch {
+      setFavoritesImportError("Could not read favorites JSON.");
+    }
+  }
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <PageHeader title="Customers" />
+      <PageHeader
+        title="Customers"
+        actions={
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {favoritesImportError && (
+              <span className="text-sm text-destructive">
+                {favoritesImportError}
+              </span>
+            )}
+            <input
+              ref={importInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={handleLoadFavorites}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => importInputRef.current?.click()}
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 text-sm font-medium text-foreground hover:bg-muted"
+            >
+              <Upload className="h-4 w-4" />
+              Load favorites
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveFavorites}
+              className="flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              <Download className="h-4 w-4" />
+              Save favorites
+            </button>
+          </div>
+        }
+      />
 
       <div className="flex-1 overflow-auto px-6 pb-8">
         <CustomerSearchForm
@@ -73,7 +181,9 @@ export function CustomersPage() {
 
         <div className="mt-4 overflow-auto rounded-xl border border-border bg-muted/10">
           <div className="w-full min-w-0">
-            <div className={`sticky top-0 z-10 grid ${CUSTOMER_TABLE_COLUMNS} border-b border-border/60 bg-background`}>
+            <div
+              className={`sticky top-0 z-10 grid ${CUSTOMER_TABLE_COLUMNS} border-b border-border/60 bg-background`}
+            >
               <CustomerTableHeader icon={User} label="Customer" />
               <CustomerTableHeader icon={Phone} label="Phone" />
               <CustomerTableHeader icon={Mail} label="Email" />
@@ -85,36 +195,44 @@ export function CustomersPage() {
               <CustomerTableLoadingRows />
             ) : (
               pageCustomers.map((customer) => (
-                <Link
+                <div
                   key={customer.id}
-                  to="/customers/$customerId"
-                  params={{ customerId: String(customer.id) }}
                   className={`group grid ${CUSTOMER_TABLE_COLUMNS} border-b border-border/60 text-left hover:bg-muted/30`}
                 >
                   <span className="flex min-w-0 max-w-full items-center gap-2.5 border-r border-border/60 px-4 py-2.5">
-                    <Avatar
-                      initial={customer.initial}
-                      color={customer.color}
+                    <CustomerFavoriteButton
+                      favorite={isFavorite(customer.id)}
+                      onClick={() => toggleFavorite(customer.id)}
                     />
-                    <span className="min-w-0 max-w-full truncate text-base font-semibold text-foreground">
-                      {customer.name}
-                    </span>
+                    <Link
+                      to="/customers/$customerId"
+                      params={{ customerId: String(customer.id) }}
+                      className="flex min-w-0 flex-1 items-center gap-2.5"
+                    >
+                      <Avatar
+                        initial={customer.initial}
+                        color={customer.color}
+                      />
+                      <span className="min-w-0 max-w-full truncate text-base font-semibold text-foreground">
+                        {customer.name}
+                      </span>
+                    </Link>
                   </span>
-                  <span className="flex min-w-0 max-w-full items-center border-r border-border/60 px-4 py-2.5">
+                  <CustomerDetailCellLink customerId={customer.id}>
                     <PreferredContactValue customer={customer} kind="phone" />
-                  </span>
-                  <span className="flex min-w-0 max-w-full items-center border-r border-border/60 px-4 py-2.5">
+                  </CustomerDetailCellLink>
+                  <CustomerDetailCellLink customerId={customer.id}>
                     <PreferredContactValue customer={customer} kind="email" />
-                  </span>
-                  <span className="flex min-w-0 max-w-full items-center border-r border-border/60 px-4 py-2.5">
+                  </CustomerDetailCellLink>
+                  <CustomerDetailCellLink customerId={customer.id}>
                     <PreferredContactValue customer={customer} kind="address" />
-                  </span>
-                  <span className="flex min-w-0 max-w-full items-center px-4 py-2.5">
+                  </CustomerDetailCellLink>
+                  <CustomerDetailCellLink customerId={customer.id} last>
                     <span className="min-w-0 max-w-full truncate text-sm text-muted-foreground">
                       {customer.dateOfBirth}
                     </span>
-                  </span>
-                </Link>
+                  </CustomerDetailCellLink>
+                </div>
               ))
             )}
 
@@ -127,11 +245,11 @@ export function CustomersPage() {
         </div>
       </div>
 
-      {!isPending && filteredCustomers.length > 0 && (
+      {!isPending && orderedCustomers.length > 0 && (
         <Pagination
           page={currentPage}
           pageCount={pageCount}
-          total={filteredCustomers.length}
+          total={orderedCustomers.length}
           pageSize={pageSize}
           onPageChange={setPage}
           onPageSizeChange={(size) => {
@@ -141,6 +259,28 @@ export function CustomersPage() {
         />
       )}
     </div>
+  );
+}
+
+function CustomerDetailCellLink({
+  customerId,
+  children,
+  last,
+}: {
+  customerId: number;
+  children: ReactNode;
+  last?: boolean;
+}) {
+  return (
+    <Link
+      to="/customers/$customerId"
+      params={{ customerId: String(customerId) }}
+      className={`flex min-w-0 max-w-full items-center px-4 py-2.5 ${
+        last ? "" : "border-r border-border/60"
+      }`}
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -206,72 +346,6 @@ function CustomerLoadingCell({
       ))}
     </div>
   );
-}
-
-function filterCustomers(customers: Customer[], values: CustomerSearchValues) {
-  const normalizedValues = normalizeSearchValues(values);
-  const hasSearch = Object.values(normalizedValues).some(Boolean);
-
-  if (!hasSearch) return customers;
-
-  return customers.filter((customer) =>
-    searchMatches(normalizedValues.firstName, customer.firstName) ||
-    searchMatches(normalizedValues.lastName, customer.lastName) ||
-    dateOfBirthMatches(normalizedValues.dateOfBirth, customer.dateOfBirth) ||
-    policyQuoteMatches(normalizedValues.policyQuoteNumber, customer) ||
-    contactMatches(normalizedValues.email, customer, "email") ||
-    contactMatches(normalizedValues.phone, customer, "phone") ||
-    contactMatches(normalizedValues.address, customer, "address"),
-  );
-}
-
-function normalizeSearchValues(values: CustomerSearchValues) {
-  return {
-    firstName: normalize(values.firstName),
-    lastName: normalize(values.lastName),
-    dateOfBirth: values.dateOfBirth.trim(),
-    policyQuoteNumber: normalize(values.policyQuoteNumber),
-    email: normalize(values.email),
-    phone: normalize(values.phone),
-    address: normalize(values.address),
-  };
-}
-
-function searchMatches(searchValue: string, value: string) {
-  return searchValue.length > 0 && normalize(value).includes(searchValue);
-}
-
-function dateOfBirthMatches(searchValue: string, value: string) {
-  return searchValue.length > 0 && value === searchValue;
-}
-
-function contactMatches(
-  searchValue: string,
-  customer: Customer,
-  kind: "email" | "phone" | "address",
-) {
-  return (
-    searchValue.length > 0 &&
-    customer.contacts.some(
-      (contact) =>
-        contact.kind === kind && normalize(contact.value).includes(searchValue),
-    )
-  );
-}
-
-function policyQuoteMatches(searchValue: string, customer: Customer) {
-  return (
-    searchValue.length > 0 &&
-    customer.products.some(
-      (product) =>
-        (product.type === "Policy" || product.type === "Quote") &&
-        normalize(product.referenceNumber).includes(searchValue),
-    )
-  );
-}
-
-function normalize(value: string) {
-  return value.trim().toLowerCase();
 }
 
 function CustomerTableHeader({

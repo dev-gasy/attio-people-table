@@ -2,7 +2,9 @@ export async function fetchJson<TData>(path: string): Promise<TData> {
   const response = await fetch(await resolveFetchUrl(path));
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Request failed: ${response.status} ${response.statusText}`,
+    );
   }
 
   return response.json() as Promise<TData>;

@@ -37,7 +37,9 @@ export function PeopleToolbar({
         icon={ListFilter}
         options={connectionOptions}
         value={connectionFilter as Connection | null}
-        onChange={(v) => onFilterConnection((v as Connection | null) ?? undefined)}
+        onChange={(v) =>
+          onFilterConnection((v as Connection | null) ?? undefined)
+        }
         placeholder="Filter connection"
         searchPlaceholder="Filter by strength..."
         className="w-52"

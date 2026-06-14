@@ -1,34 +1,30 @@
-import { useMemo, useState } from 'react'
-import {
-  createFileRoute,
-  Outlet,
-  useLocation,
-} from '@tanstack/react-router'
-import { AppSidebar, type PageId } from '@/components/app-sidebar'
+import { useMemo, useState } from "react";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+import { AppSidebar, type PageId } from "@/components/app-sidebar";
 
 const routePageMap: Record<string, PageId> = {
-  '/kraken': 'kraken',
-  '/tasks': 'tasks',
-  '/notes': 'notes',
-  '/people': 'people',
-  '/companies': 'companies',
-  '/customers': 'customers',
-}
+  "/kraken": "kraken",
+  "/tasks": "tasks",
+  "/notes": "notes",
+  "/people": "people",
+  "/companies": "companies",
+  "/customers": "customers",
+};
 
-export const Route = createFileRoute('/_app')({
+export const Route = createFileRoute("/_app")({
   component: AppLayout,
-})
+});
 
 function AppLayout() {
-  const [collapsed, setCollapsed] = useState(false)
-  const location = useLocation()
+  const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
   const activePage = useMemo(
     () =>
-      location.pathname.startsWith('/customers/')
-        ? 'customers'
-        : routePageMap[location.pathname] ?? 'people',
+      location.pathname.startsWith("/customers/")
+        ? "customers"
+        : (routePageMap[location.pathname] ?? "people"),
     [location.pathname],
-  )
+  );
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
@@ -41,5 +37,5 @@ function AppLayout() {
         <Outlet />
       </main>
     </div>
-  )
+  );
 }

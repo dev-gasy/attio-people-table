@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useMemo, useState } from "react"
-import { Search, Plus, FileText } from "lucide-react"
-import { Avatar } from "@/components/avatar"
-import { PageHeader } from "@/components/page-header"
-import { notes } from "@/lib/workspace-data"
+import { useMemo, useState } from "react";
+import { Search, Plus, FileText } from "lucide-react";
+import { Avatar } from "@/components/avatar";
+import { PageHeader } from "@/components/page-header";
+import { notes } from "@/lib/workspace-data";
 
 export function NotesPage() {
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState("");
 
   const rows = useMemo(
     () =>
@@ -17,7 +17,7 @@ export function NotesPage() {
           n.excerpt.toLowerCase().includes(query.toLowerCase()),
       ),
     [query],
-  )
+  );
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
@@ -74,5 +74,5 @@ export function NotesPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -15,10 +15,10 @@ const accessibleAvatarColors: Record<string, string> = {
   "bg-violet-500": "bg-violet-700 dark:bg-violet-500",
   "bg-zinc-500": "bg-zinc-600 dark:bg-zinc-500",
   "bg-zinc-700": "bg-zinc-700",
-}
+};
 
 export function getAccessibleAvatarColor(color: string) {
-  return accessibleAvatarColors[color] ?? color
+  return accessibleAvatarColors[color] ?? color;
 }
 
 export function Avatar({
@@ -26,17 +26,17 @@ export function Avatar({
   color,
   size = "sm",
 }: {
-  initial: string
-  color: string
-  size?: "sm" | "md"
+  initial: string;
+  color: string;
+  size?: "sm" | "md";
 }) {
-  const dim = size === "md" ? "h-9 w-9 text-sm" : "h-6 w-6 text-[11px]"
-  const colorClass = getAccessibleAvatarColor(color)
+  const dim = size === "md" ? "h-9 w-9 text-sm" : "h-6 w-6 text-[11px]";
+  const colorClass = getAccessibleAvatarColor(color);
   return (
     <span
       className={`flex shrink-0 items-center justify-center rounded-full font-semibold text-white ${colorClass} ${dim}`}
     >
       {initial}
     </span>
-  )
+  );
 }

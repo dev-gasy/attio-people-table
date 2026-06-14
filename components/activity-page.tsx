@@ -21,8 +21,7 @@ const ruleTypeStyles: Record<RuleType, string> = {
   Required: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
   Validation: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
   Reset: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
-  Set:
-    "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  Set: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
 };
 
 const entrypointOptions: ComboOption[] = entrypoints.map((entrypoint) => ({
@@ -55,10 +54,7 @@ export function ActivityPage() {
   const currentPage = Math.min(page, pageCount);
   const pageRules = useMemo(
     () =>
-      filteredRules.slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize,
-      ),
+      filteredRules.slice((currentPage - 1) * pageSize, currentPage * pageSize),
     [currentPage, filteredRules, pageSize],
   );
 

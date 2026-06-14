@@ -123,13 +123,7 @@ function PeopleTableLoadingRows() {
   );
 }
 
-function LoadingCell({
-  widths,
-  last,
-}: {
-  widths: string[];
-  last?: boolean;
-}) {
+function LoadingCell({ widths, last }: { widths: string[]; last?: boolean }) {
   return (
     <div
       className={`flex items-center gap-2 px-4 py-3 ${
@@ -137,10 +131,7 @@ function LoadingCell({
       }`}
     >
       {widths.map((width) => (
-        <span
-          key={width}
-          className={`${width} block animate-pulse bg-muted`}
-        />
+        <span key={width} className={`${width} block animate-pulse bg-muted`} />
       ))}
     </div>
   );

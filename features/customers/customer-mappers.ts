@@ -73,7 +73,8 @@ export function mapCustomerDtoToCustomer(
     ...dto,
     initial: getCustomerInitials(dto),
     color:
-      customerColorById[dto.id] ?? customerColors[dto.id % customerColors.length],
+      customerColorById[dto.id] ??
+      customerColors[dto.id % customerColors.length],
     contacts: contacts.filter((contact) => contact.customerId === dto.id),
     products: products.filter((product) => product.customerId === dto.id),
   };

@@ -17,12 +17,8 @@ export function SidebarSearch({ collapsed }: { collapsed: boolean }) {
           <Search className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">Search</span>
           <div className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
-            <kbd className="rounded bg-muted px-1.5 py-0.5 text-[11px]">
-              ⌘
-            </kbd>
-            <kbd className="rounded bg-muted px-1.5 py-0.5 text-[11px]">
-              K
-            </kbd>
+            <kbd className="rounded bg-muted px-1.5 py-0.5 text-[11px]">⌘</kbd>
+            <kbd className="rounded bg-muted px-1.5 py-0.5 text-[11px]">K</kbd>
           </div>
         </div>
       )}

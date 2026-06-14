@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { X } from "lucide-react"
+import { useEffect } from "react";
+import { X } from "lucide-react";
 
 export function Modal({
   open,
@@ -10,21 +10,21 @@ export function Modal({
   description,
   children,
 }: {
-  open: boolean
-  onClose: () => void
-  title: string
-  description?: string
-  children: React.ReactNode
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
 }) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose()
+      if (e.key === "Escape") onClose();
     }
-    if (open) document.addEventListener("keydown", onKey)
-    return () => document.removeEventListener("keydown", onKey)
-  }, [open, onClose])
+    if (open) document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
-  if (!open) return null
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh]">
@@ -59,5 +59,5 @@ export function Modal({
         <div className="px-5 py-4">{children}</div>
       </div>
     </div>
-  )
+  );
 }

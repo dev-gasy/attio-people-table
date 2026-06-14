@@ -29,16 +29,24 @@ const connectionSeeds = [
 
 faker.seed(1001);
 
-export const peopleSeed: PersonDto[] = Array.from({ length: 300 }, (_, index) => {
-  const name = faker.person.fullName();
+export const peopleSeed: PersonDto[] = Array.from(
+  { length: 300 },
+  (_, index) => {
+    const name = faker.person.fullName();
 
-  return {
-    id: index + 1,
-    name,
-    hasPhoto: faker.datatype.boolean({ probability: 0.35 }),
-    email: faker.internet.email({ firstName: name.split(" ")[0], lastName: name.split(" ").at(-1) }).toLowerCase(),
-    connection: faker.helpers.arrayElement(connectionSeeds),
-    connectionWith: faker.person.firstName(),
-    rating: faker.number.int({ min: 1, max: 4 }),
-  };
-});
+    return {
+      id: index + 1,
+      name,
+      hasPhoto: faker.datatype.boolean({ probability: 0.35 }),
+      email: faker.internet
+        .email({
+          firstName: name.split(" ")[0],
+          lastName: name.split(" ").at(-1),
+        })
+        .toLowerCase(),
+      connection: faker.helpers.arrayElement(connectionSeeds),
+      connectionWith: faker.person.firstName(),
+      rating: faker.number.int({ min: 1, max: 4 }),
+    };
+  },
+);

@@ -15,7 +15,9 @@ export const Route = createFileRoute("/api/customers/$customerId")({
         const customerId = Number(params.customerId);
 
         return Response.json({
-          customer: customersSeed.find((customer) => customer.id === customerId),
+          customer: customersSeed.find(
+            (customer) => customer.id === customerId,
+          ),
           contacts: customerContactsSeed.filter(
             (contact) => contact.customerId === customerId,
           ),

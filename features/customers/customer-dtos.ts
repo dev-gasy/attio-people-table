@@ -180,7 +180,8 @@ export const customerContactsSeed: CustomerContactDto[] = customersSeed.flatMap(
   (customer) =>
     customerContactTemplates.flatMap(({ kind, labels }, kindIndex) =>
       labels.map((label, contactIndex) => ({
-        id: (customer.id - 1) * contactsPerCustomer +
+        id:
+          (customer.id - 1) * contactsPerCustomer +
           kindIndex * labels.length +
           contactIndex +
           1,

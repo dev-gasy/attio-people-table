@@ -1,34 +1,34 @@
-"use client"
+"use client";
 
-import { useMemo, useState } from "react"
-import { Check, Plus } from "lucide-react"
-import { Avatar } from "@/components/avatar"
-import { PageHeader } from "@/components/page-header"
-import { tasksSeed, type Task } from "@/lib/workspace-data"
+import { useMemo, useState } from "react";
+import { Check, Plus } from "lucide-react";
+import { Avatar } from "@/components/avatar";
+import { PageHeader } from "@/components/page-header";
+import { tasksSeed, type Task } from "@/lib/workspace-data";
 
 const priorityStyles: Record<Task["priority"], string> = {
   High: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
   Medium: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
   Low: "bg-muted/60 text-muted-foreground",
-}
+};
 
 export function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>(tasksSeed)
-  const [filter, setFilter] = useState<"all" | "open" | "done">("all")
+  const [tasks, setTasks] = useState<Task[]>(tasksSeed);
+  const [filter, setFilter] = useState<"all" | "open" | "done">("all");
 
   function toggle(id: number) {
     setTasks((prev) =>
       prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
-    )
+    );
   }
 
   const visible = useMemo(() => {
-    if (filter === "open") return tasks.filter((t) => !t.done)
-    if (filter === "done") return tasks.filter((t) => t.done)
-    return tasks
-  }, [tasks, filter])
+    if (filter === "open") return tasks.filter((t) => !t.done);
+    if (filter === "done") return tasks.filter((t) => t.done);
+    return tasks;
+  }, [tasks, filter]);
 
-  const openCount = tasks.filter((t) => !t.done).length
+  const openCount = tasks.filter((t) => !t.done).length;
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
@@ -109,5 +109,5 @@ export function TasksPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

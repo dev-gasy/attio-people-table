@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { Check, ChevronDown, Search } from "lucide-react"
+import { useEffect, useRef, useState } from "react";
+import { Check, ChevronDown, Search } from "lucide-react";
 
 export type ComboOption = {
-  value: string
-  label: string
-  hint?: string
-}
+  value: string;
+  label: string;
+  hint?: string;
+};
 
 export function Combobox({
   options,
@@ -19,34 +19,34 @@ export function Combobox({
   className = "",
   align = "left",
 }: {
-  options: ComboOption[]
-  value: string | null
-  onChange: (value: string | null) => void
-  placeholder?: string
-  searchPlaceholder?: string
-  icon?: React.ComponentType<{ className?: string }>
-  className?: string
-  align?: "left" | "right"
+  options: ComboOption[];
+  value: string | null;
+  onChange: (value: string | null) => void;
+  placeholder?: string;
+  searchPlaceholder?: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  className?: string;
+  align?: "left" | "right";
 }) {
-  const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState("")
-  const ref = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
-        setQuery("")
+        setOpen(false);
+        setQuery("");
       }
     }
-    document.addEventListener("mousedown", onClick)
-    return () => document.removeEventListener("mousedown", onClick)
-  }, [])
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
 
-  const selected = options.find((o) => o.value === value)
+  const selected = options.find((o) => o.value === value);
   const filtered = options.filter((o) =>
     o.label.toLowerCase().includes(query.toLowerCase()),
-  )
+  );
 
   return (
     <div ref={ref} className={`relative ${className}`}>
@@ -56,7 +56,9 @@ export function Combobox({
         className="flex w-full items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
       >
         {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
-        <span className={selected ? "text-foreground" : "text-muted-foreground"}>
+        <span
+          className={selected ? "text-foreground" : "text-muted-foreground"}
+        >
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDown className="ml-auto h-3.5 w-3.5 text-muted-foreground" />
@@ -83,9 +85,9 @@ export function Combobox({
               <button
                 type="button"
                 onClick={() => {
-                  onChange(null)
-                  setOpen(false)
-                  setQuery("")
+                  onChange(null);
+                  setOpen(false);
+                  setQuery("");
                 }}
                 className="flex w-full items-center rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:bg-muted"
               >
@@ -97,15 +99,17 @@ export function Combobox({
                 key={o.value}
                 type="button"
                 onClick={() => {
-                  onChange(o.value)
-                  setOpen(false)
-                  setQuery("")
+                  onChange(o.value);
+                  setOpen(false);
+                  setQuery("");
                 }}
                 className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-sm text-foreground hover:bg-muted"
               >
                 <span className="flex-1">{o.label}</span>
                 {o.hint && (
-                  <span className="text-xs text-muted-foreground">{o.hint}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {o.hint}
+                  </span>
                 )}
                 {value === o.value && (
                   <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -121,5 +125,5 @@ export function Combobox({
         </div>
       )}
     </div>
-  )
+  );
 }

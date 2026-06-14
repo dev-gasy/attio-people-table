@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronRight } from "lucide-react"
+import { useState } from "react";
+import { ChevronRight } from "lucide-react";
 
 export function Collapsible({
   title,
@@ -11,14 +11,14 @@ export function Collapsible({
   icon: Icon,
   children,
 }: {
-  title: string
-  subtitle?: string
-  count?: number
-  defaultOpen?: boolean
-  icon?: React.ComponentType<{ className?: string }>
-  children: React.ReactNode
+  title: string;
+  subtitle?: string;
+  count?: number;
+  defaultOpen?: boolean;
+  icon?: React.ComponentType<{ className?: string }>;
+  children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen)
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <div className="overflow-hidden rounded-xl border border-border">
@@ -53,5 +53,5 @@ export function Collapsible({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -12,7 +12,10 @@ export function getPeople() {
   return fetchJson<PersonDto[]>("/api/people");
 }
 
-export function createPerson(input: CreatePersonDto, people: PersonDto[]): PersonDto {
+export function createPerson(
+  input: CreatePersonDto,
+  people: PersonDto[],
+): PersonDto {
   const id = Math.max(0, ...people.map((person) => person.id)) + 1;
 
   return {

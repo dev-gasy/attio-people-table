@@ -4,26 +4,11 @@ import { useForm } from "@tanstack/react-form";
 import { RotateCcw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible } from "@/components/ui/collapsible-section";
-
-export type CustomerSearchValues = {
-  firstName: string;
-  lastName: string;
-  dateOfBirth: string;
-  policyQuoteNumber: string;
-  email: string;
-  phone: string;
-  address: string;
-};
-
-export const emptyCustomerSearchValues: CustomerSearchValues = {
-  firstName: "",
-  lastName: "",
-  dateOfBirth: "",
-  policyQuoteNumber: "",
-  email: "",
-  phone: "",
-  address: "",
-};
+import {
+  emptyCustomerSearchValues,
+  trimCustomerSearchValues,
+  type CustomerSearchValues,
+} from "@/features/customers/customer-domain/customers-list";
 
 const fieldGroups: Array<
   Array<{
@@ -58,10 +43,10 @@ function SearchField({
 }: {
   form: ReturnType<typeof useForm<CustomerSearchValues>>;
   searchField: {
-  name: keyof CustomerSearchValues;
-  label: string;
-  placeholder?: string;
-  type?: string;
+    name: keyof CustomerSearchValues;
+    label: string;
+    placeholder?: string;
+    type?: string;
   };
 }) {
   return (
@@ -97,7 +82,7 @@ export function CustomerSearchForm({
   const form = useForm({
     defaultValues: emptyCustomerSearchValues,
     onSubmit: ({ value }) => {
-      onSearch(trimSearchValues(value));
+      onSearch(trimCustomerSearchValues(value));
     },
   });
 
@@ -111,10 +96,7 @@ export function CustomerSearchForm({
       <Collapsible title="Customer search" icon={Search}>
         <div className="divide-y divide-border/60 bg-muted/10">
           {fieldGroups.map((group, index) => (
-            <section
-              key={index}
-              className="px-4 py-4"
-            >
+            <section key={index} className="px-4 py-4">
               <div className="grid gap-3 md:grid-cols-3">
                 {group.map((searchField) => (
                   <SearchField
@@ -148,16 +130,4 @@ export function CustomerSearchForm({
       </Collapsible>
     </form>
   );
-}
-
-function trimSearchValues(values: CustomerSearchValues): CustomerSearchValues {
-  return {
-    firstName: values.firstName.trim(),
-    lastName: values.lastName.trim(),
-    dateOfBirth: values.dateOfBirth.trim(),
-    policyQuoteNumber: values.policyQuoteNumber.trim(),
-    email: values.email.trim(),
-    phone: values.phone.trim(),
-    address: values.address.trim(),
-  };
 }

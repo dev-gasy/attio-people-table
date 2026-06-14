@@ -67,9 +67,7 @@ export function PeopleTable() {
   const direction = sorting[0]?.desc ? "desc" : "asc";
   const columnFilters = useMemo<ColumnFiltersState>(
     () =>
-      connectionFilter
-        ? [{ id: "connection", value: connectionFilter }]
-        : [],
+      connectionFilter ? [{ id: "connection", value: connectionFilter }] : [],
     [connectionFilter],
   );
   const tablePagination = useMemo(
@@ -120,29 +118,28 @@ export function PeopleTable() {
   const pageCount = Math.max(1, Math.ceil(filteredTotal / pageSize));
   const currentPage = Math.min(page, pageCount);
   const rows = useMemo(
-    () =>
-      tableRows.slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize,
-      ),
+    () => tableRows.slice((currentPage - 1) * pageSize, currentPage * pageSize),
     [currentPage, pageSize, tableRows],
   );
 
   const allSelected = rows.length > 0 && rows.every((r) => r.getIsSelected());
 
-  const toggleAll = useCallback(function toggleAll() {
-    setRowSelection((prev) => {
-      const next = { ...prev };
-      rows.forEach((row) => {
-        if (allSelected) {
-          delete next[row.id];
-        } else {
-          next[row.id] = true;
-        }
+  const toggleAll = useCallback(
+    function toggleAll() {
+      setRowSelection((prev) => {
+        const next = { ...prev };
+        rows.forEach((row) => {
+          if (allSelected) {
+            delete next[row.id];
+          } else {
+            next[row.id] = true;
+          }
+        });
+        return next;
       });
-      return next;
-    });
-  }, [allSelected, rows]);
+    },
+    [allSelected, rows],
+  );
 
   function deleteSelected() {
     setLocalPeople((prev) =>

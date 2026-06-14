@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { type ReactNode } from "react"
+import { type ReactNode } from "react";
 
 export function PageHeader({
   title,
   actions,
   badge,
 }: {
-  title: string
-  actions?: ReactNode
-  badge?: ReactNode
+  title: string;
+  actions?: ReactNode;
+  badge?: ReactNode;
 }) {
   return (
     <header className="flex flex-wrap items-center gap-2 px-6 pt-5 pb-4">
@@ -21,5 +21,5 @@ export function PageHeader({
         </div>
       )}
     </header>
-  )
+  );
 }

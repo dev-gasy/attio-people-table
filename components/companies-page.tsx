@@ -98,10 +98,7 @@ export function CompaniesPage() {
   const currentPage = Math.min(page, pageCount);
   const gridRows = useMemo(
     () =>
-      filteredRows.slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize,
-      ),
+      filteredRows.slice((currentPage - 1) * pageSize, currentPage * pageSize),
     [currentPage, filteredRows, pageSize],
   );
   function handleAdd(e: FormEvent) {
