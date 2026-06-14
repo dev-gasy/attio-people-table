@@ -19,6 +19,7 @@ import {
   emptyGroupForm,
 } from "@/components/groups/constants";
 import type { GroupsView } from "@/components/groups/types";
+import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { PageHeader } from "@/components/page-header";
 import {
   type Group,
@@ -39,7 +40,14 @@ export type GroupsPageSearch = {
 };
 
 export function GroupsPage() {
-  const { data: groupsData = [], isPending } = useQuery(groupsQueryOptions());
+  const {
+    data: groupsData = [],
+    error,
+    isError,
+    isFetching,
+    isPending,
+    refetch,
+  } = useQuery(groupsQueryOptions());
   const seedGroups = useMemo(
     () => mapGroupDtosToGroups(groupsData),
     [groupsData],
@@ -151,17 +159,30 @@ export function GroupsPage() {
         }
       />
 
-      <GroupsContent
-        filteredTotal={filteredTotal}
-        activeSort={sortKey}
-        direction={direction}
-        isLoading={isPending}
-        onSort={handleSort}
-        rows={gridRows}
-        view={view}
-      />
+      {isError ? (
+        <div className="flex-1 overflow-auto px-6 pb-8">
+          <DataErrorView
+            title="Could not load groups"
+            message={getErrorMessage(error)}
+            onRetry={() => {
+              void refetch();
+            }}
+            isRetrying={isFetching}
+          />
+        </div>
+      ) : (
+        <GroupsContent
+          filteredTotal={filteredTotal}
+          activeSort={sortKey}
+          direction={direction}
+          isLoading={isPending}
+          onSort={handleSort}
+          rows={gridRows}
+          view={view}
+        />
+      )}
 
-      {!isPending && filteredTotal > 0 && (
+      {!isPending && !isError && filteredTotal > 0 && (
         <Pagination
           page={currentPage}
           pageCount={pageCount}

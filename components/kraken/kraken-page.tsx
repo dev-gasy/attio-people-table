@@ -11,6 +11,7 @@ import {
   Search,
   Tags,
 } from "lucide-react";
+import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { PageHeader } from "@/components/page-header";
 import {
   ColumnVisibilityControl,
@@ -87,10 +88,22 @@ const defaultRuleColumnVisibility: Record<RuleColumnKey, boolean> = {
 
 export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
   const navigate = useNavigate();
-  const { data: entrypoints = [], isPending: isLoadingEntrypoints } = useQuery(
-    krakenEntrypointsQueryOptions(),
-  );
-  const { data, isPending: isLoadingRules } = useQuery({
+  const {
+    data: entrypoints = [],
+    error: entrypointsError,
+    isError: isEntrypointsError,
+    isFetching: isFetchingEntrypoints,
+    isPending: isLoadingEntrypoints,
+    refetch: refetchEntrypoints,
+  } = useQuery(krakenEntrypointsQueryOptions());
+  const {
+    data,
+    error: rulesError,
+    isError: isRulesError,
+    isFetching: isFetchingRules,
+    isPending: isLoadingRules,
+    refetch: refetchRules,
+  } = useQuery({
     ...krakenEntrypointRulesQueryOptions(entrypointName ?? ""),
     enabled: Boolean(entrypointName),
   });
@@ -233,7 +246,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
             className="min-w-0 flex-1 sm:min-w-[320px] sm:max-w-[420px]"
             align="right"
             clearable={false}
-            disabled={isLoadingEntrypoints}
+            disabled={isLoadingEntrypoints || isEntrypointsError}
           />
         }
       />
@@ -250,7 +263,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
             <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
             <input
               value={query}
-              disabled={!entrypointName || isLoadingRules}
+              disabled={!entrypointName || isLoadingRules || isRulesError}
               onChange={(event) => {
                 setQuery(event.target.value);
                 setPage(1);
@@ -268,7 +281,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
             icon={ListFilter}
             className="min-w-0 flex-1 sm:w-44 sm:flex-none"
             align="right"
-            disabled={!entrypointName || isLoadingRules}
+            disabled={!entrypointName || isLoadingRules || isRulesError}
           />
           <ColumnVisibilityControl
             columns={ruleColumns}
@@ -305,8 +318,26 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
             </div>
 
             <div className="divide-y divide-border/60">
-              {!entrypointName ? null : isLoadingRules ? (
+              {isEntrypointsError ? (
+                <DataErrorView
+                  title="Could not load entrypoints"
+                  message={getErrorMessage(entrypointsError)}
+                  onRetry={() => {
+                    void refetchEntrypoints();
+                  }}
+                  isRetrying={isFetchingEntrypoints}
+                />
+              ) : !entrypointName ? null : isLoadingRules ? (
                 <RuleTablePending />
+              ) : isRulesError ? (
+                <DataErrorView
+                  title="Could not load rules"
+                  message={getErrorMessage(rulesError)}
+                  onRetry={() => {
+                    void refetchRules();
+                  }}
+                  isRetrying={isFetchingRules}
+                />
               ) : (
                 pageRules.map((rule) => (
                   <RuleRow
@@ -319,7 +350,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
               )}
             </div>
 
-            {!entrypointName && (
+            {!isEntrypointsError && !entrypointName && (
               <div className="px-4 py-10 text-center text-sm text-muted-foreground">
                 Select an entrypoint name
               </div>
@@ -327,6 +358,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
 
             {entrypointName &&
               !isLoadingRules &&
+              !isRulesError &&
               filteredRules.length === 0 && (
                 <div className="px-4 py-10 text-center text-sm text-muted-foreground">
                   No rules found
@@ -337,7 +369,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-border px-6 py-3">
-        {!isLoadingRules && filteredRules.length > 0 && (
+        {!isLoadingRules && !isRulesError && filteredRules.length > 0 && (
           <Pagination
             page={currentPage}
             pageCount={pageCount}
@@ -361,21 +393,6 @@ function RuleTablePending() {
   return (
     <div className="px-4 py-10 text-center text-sm text-muted-foreground">
       Loading rules...
-    </div>
-  );
-}
-
-export function KrakenPageLoading() {
-  return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <PageHeader title="Kraken" />
-      <div className="flex-1 overflow-auto px-6 pt-4 pb-8">
-        <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
-          <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-            Loading rules...
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

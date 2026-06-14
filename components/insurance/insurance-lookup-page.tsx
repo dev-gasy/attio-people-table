@@ -44,7 +44,7 @@ export function InsuranceLookupPage() {
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <PageHeader title="Load" />
+      <PageHeader title="Policy/Quote" />
 
       <div className="flex-1 overflow-auto px-6 pb-8">
         <div className="flex flex-col gap-4">

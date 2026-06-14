@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { CalendarDays, Hash, Languages, ListTree, Search } from "lucide-react";
+import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { PageHeader } from "@/components/page-header";
 import {
   ColumnVisibilityControl,
@@ -91,10 +92,22 @@ const defaultLookupColumnVisibility: Record<LookupColumnKey, boolean> = {
 
 export function LookupsPage({ lookupName }: { lookupName?: string }) {
   const navigate = useNavigate();
-  const { data: lookupNames = [], isPending: isLoadingLookupNames } = useQuery(
-    lookupNamesQueryOptions(),
-  );
-  const { data, isPending: isLoadingLookups } = useQuery({
+  const {
+    data: lookupNames = [],
+    error: lookupNamesError,
+    isError: isLookupNamesError,
+    isFetching: isFetchingLookupNames,
+    isPending: isLoadingLookupNames,
+    refetch: refetchLookupNames,
+  } = useQuery(lookupNamesQueryOptions());
+  const {
+    data,
+    error: lookupsError,
+    isError: isLookupsError,
+    isFetching: isFetchingLookups,
+    isPending: isLoadingLookups,
+    refetch: refetchLookups,
+  } = useQuery({
     ...lookupNameQueryOptions(lookupName ?? ""),
     enabled: Boolean(lookupName),
   });
@@ -226,7 +239,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             className="min-w-0 flex-1 sm:min-w-[320px] sm:max-w-[420px]"
             align="right"
             clearable={false}
-            disabled={isLoadingLookupNames}
+            disabled={isLoadingLookupNames || isLookupNamesError}
           />
         }
       />
@@ -243,7 +256,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
             <input
               value={query}
-              disabled={!lookupName || isLoadingLookups}
+              disabled={!lookupName || isLoadingLookups || isLookupsError}
               onChange={(event) => {
                 setQuery(event.target.value);
                 setPage(1);
@@ -287,8 +300,26 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
             </div>
 
             <div className="divide-y divide-border/60">
-              {!lookupName ? null : isLoadingLookups ? (
+              {isLookupNamesError ? (
+                <DataErrorView
+                  title="Could not load lookup names"
+                  message={getErrorMessage(lookupNamesError)}
+                  onRetry={() => {
+                    void refetchLookupNames();
+                  }}
+                  isRetrying={isFetchingLookupNames}
+                />
+              ) : !lookupName ? null : isLoadingLookups ? (
                 <LookupTablePending />
+              ) : isLookupsError ? (
+                <DataErrorView
+                  title="Could not load lookups"
+                  message={getErrorMessage(lookupsError)}
+                  onRetry={() => {
+                    void refetchLookups();
+                  }}
+                  isRetrying={isFetchingLookups}
+                />
               ) : (
                 pageLookups.map((lookup) => (
                   <LookupRow
@@ -301,7 +332,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
               )}
             </div>
 
-            {!lookupName && (
+            {!isLookupNamesError && !lookupName && (
               <div className="px-4 py-10 text-center text-sm text-muted-foreground">
                 Select a lookup name
               </div>
@@ -309,6 +340,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
 
             {lookupName &&
               !isLoadingLookups &&
+              !isLookupsError &&
               filteredLookups.length === 0 && (
                 <div className="px-4 py-10 text-center text-sm text-muted-foreground">
                   No lookups found
@@ -318,7 +350,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
         </div>
       </div>
 
-      {!isLoadingLookups && filteredLookups.length > 0 && (
+      {!isLoadingLookups && !isLookupsError && filteredLookups.length > 0 && (
         <Pagination
           page={currentPage}
           pageCount={pageCount}
@@ -459,19 +491,4 @@ function getLookupSortValue(lookup: Lookup, sortKey: LookupSortKey) {
   if (sortKey === "effectiveDate") return lookup.effectiveDateValue;
 
   return lookup[sortKey];
-}
-
-export function LookupsPageLoading() {
-  return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <PageHeader title="Lookups" />
-      <div className="flex-1 overflow-auto px-6 pt-4 pb-8">
-        <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
-          <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-            Loading lookups...
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }

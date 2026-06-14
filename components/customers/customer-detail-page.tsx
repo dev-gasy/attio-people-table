@@ -17,6 +17,7 @@ import {
 import { Avatar } from "@/components/avatar";
 import { CustomerFavoriteButton } from "@/components/customers/customer-favorite-button";
 import { CustomerStatusBadge } from "@/components/customers/customer-status-badge";
+import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { buttonVariants } from "@/components/ui/button";
 import { Collapsible } from "@/components/ui/collapsible-section";
 import {
@@ -79,7 +80,7 @@ export function CustomerDetailPage({ customerId }: { customerId: string }) {
   const { isFavorite, toggleFavorite } = useCustomerFavorites();
   const numericCustomerId = Number(customerId);
   const hasValidCustomerId = Number.isFinite(numericCustomerId);
-  const { data, isPending } = useQuery({
+  const { data, error, isError, isFetching, isPending, refetch } = useQuery({
     ...customerQueryOptions(numericCustomerId),
     enabled: hasValidCustomerId,
   });
@@ -97,6 +98,18 @@ export function CustomerDetailPage({ customerId }: { customerId: string }) {
 
   if (isPending) {
     return <CustomerDetailLoading />;
+  }
+
+  if (isError) {
+    return (
+      <CustomerDetailError
+        message={getErrorMessage(error)}
+        isRetrying={isFetching}
+        onRetry={() => {
+          void refetch();
+        }}
+      />
+    );
   }
 
   if (!customer) {
@@ -157,6 +170,32 @@ export function CustomerDetailPage({ customerId }: { customerId: string }) {
         {activeTab === "products" && (
           <ProductsTab products={customer.products} />
         )}
+      </div>
+    </div>
+  );
+}
+
+function CustomerDetailError({
+  message,
+  isRetrying,
+  onRetry,
+}: {
+  message: string;
+  isRetrying: boolean;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <div className="px-6 py-5">
+        <BackToCustomers />
+      </div>
+      <div className="flex flex-1 items-center justify-center px-6">
+        <DataErrorView
+          title="Could not load customer"
+          message={message}
+          onRetry={onRetry}
+          isRetrying={isRetrying}
+        />
       </div>
     </div>
   );

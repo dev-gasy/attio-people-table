@@ -31,7 +31,7 @@ export const navSections: SidebarNavSection[] = [
         id: "load",
         to: "/load",
         icon: FileText,
-        label: "Load",
+        label: "Policy/Quote",
       },
     ],
   },

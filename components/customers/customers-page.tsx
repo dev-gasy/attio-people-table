@@ -22,6 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@/components/avatar";
 import { CustomerFavoriteButton } from "@/components/customers/customer-favorite-button";
 import { CustomerSearchForm } from "@/components/customers/customer-search-form";
+import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/ui/pagination";
 import { SortableTableHeader } from "@/components/ui/sortable-table-header";
@@ -55,7 +56,9 @@ export function CustomersPage({
   initialSearchValues?: CustomerSearchValues;
 }) {
   const navigate = useNavigate();
-  const { data, isPending } = useQuery(customersQueryOptions());
+  const { data, error, isError, isFetching, isPending, refetch } = useQuery(
+    customersQueryOptions(),
+  );
   const {
     favoriteIds,
     favoriteIdSet,
@@ -241,7 +244,7 @@ export function CustomersPage({
       <div className="flex-1 overflow-auto px-6 pb-8">
         <CustomerSearchForm
           values={searchValues}
-          disabled={isPending || isSearching}
+          disabled={isPending || isSearching || isError}
           onSearch={handleSearch}
           onReset={handleResetSearch}
         />
@@ -305,6 +308,15 @@ export function CustomersPage({
 
             {isPending ? (
               <CustomerTableLoadingRows />
+            ) : isError ? (
+              <DataErrorView
+                title="Could not load customers"
+                message={getErrorMessage(error)}
+                onRetry={() => {
+                  void refetch();
+                }}
+                isRetrying={isFetching}
+              />
             ) : (
               pageCustomers.map((customer) => (
                 <div
@@ -348,7 +360,7 @@ export function CustomersPage({
               ))
             )}
 
-            {!isPending && filteredCustomers.length === 0 && (
+            {!isPending && !isError && filteredCustomers.length === 0 && (
               <div className="px-4 py-10 text-center text-sm text-muted-foreground">
                 No customers match your search
               </div>
@@ -357,7 +369,7 @@ export function CustomersPage({
         </div>
       </div>
 
-      {!isPending && orderedCustomers.length > 0 && (
+      {!isPending && !isError && orderedCustomers.length > 0 && (
         <Pagination
           page={currentPage}
           pageCount={pageCount}

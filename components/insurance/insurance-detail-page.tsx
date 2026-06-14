@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
+import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { buttonVariants } from "@/components/ui/button";
 import {
   getCoverageFields,
@@ -63,7 +64,7 @@ export function InsuranceDetailPage({
   kind: InsuranceRecordKind;
 }) {
   const [activeTab, setActiveTab] = useState<InsuranceTab>("details");
-  const { data, isPending } = useQuery(
+  const { data, error, isError, isFetching, isPending, refetch } = useQuery(
     insuranceRecordQueryOptions(kind, businessKey),
   );
   const record = useMemo(
@@ -75,6 +76,19 @@ export function InsuranceDetailPage({
 
   if (isPending) {
     return <InsuranceDetailLoading />;
+  }
+
+  if (isError) {
+    return (
+      <InsuranceDetailError
+        title={`Could not load ${label.title.toLowerCase()}`}
+        message={getErrorMessage(error)}
+        isRetrying={isFetching}
+        onRetry={() => {
+          void refetch();
+        }}
+      />
+    );
   }
 
   if (!record) {
@@ -94,6 +108,34 @@ export function InsuranceDetailPage({
         {activeTab === "coverage" && (
           <CoveragesSection coverages={record.coverages} />
         )}
+      </div>
+    </div>
+  );
+}
+
+function InsuranceDetailError({
+  title,
+  message,
+  isRetrying,
+  onRetry,
+}: {
+  title: string;
+  message: string;
+  isRetrying: boolean;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <div className="px-6 py-5">
+        <BackToLoad />
+      </div>
+      <div className="flex flex-1 items-center justify-center px-6">
+        <DataErrorView
+          title={title}
+          message={message}
+          onRetry={onRetry}
+          isRetrying={isRetrying}
+        />
       </div>
     </div>
   );
