@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getCustomerServer } from "@/features/customers/customer-server";
+import { getCustomerServer } from "@/features/customers/data/customer-server";
 
 export const Route = createFileRoute("/api/customers/$customerId")({
   server: {

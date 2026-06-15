@@ -13,7 +13,7 @@ import { Combobox, type ComboOption } from "@/components/ui/combobox";
 import { Pagination } from "@/components/ui/pagination";
 import { KrakenControls } from "@/features/kraken/components/kraken-controls";
 import { KrakenRulesTable } from "@/features/kraken/components/kraken-rules-table";
-import { getRuleTypeCounts } from "@/features/kraken/kraken-domain/rules";
+import { getRuleTypeCounts } from "@/features/kraken/domain/rules";
 import {
   krakenEntrypointRulesQueryOptions,
   getStaticKrakenEntrypoints,

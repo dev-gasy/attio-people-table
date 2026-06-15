@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import { FieldGrid } from "@/components/field-grid";
-import type { InsuranceField } from "@/features/insurance/insurance-domain/insurance-detail";
+import type { InsuranceField } from "@/features/insurance/domain/insurance-detail";
 
 export function InsuranceRecordBlock({
   fields,

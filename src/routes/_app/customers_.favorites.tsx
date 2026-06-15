@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CustomersPage } from "@/features/customers/components/customers-page";
+import { CustomersPage } from "@/features/customers/components/list/customers-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { customersQueryOptions } from "@/features/customers/customer-service";
+import { customersQueryOptions } from "@/features/customers/data/customer-service";
 import { buildPageMeta } from "@/src/lib/page-meta";
 
 export const Route = createFileRoute("/_app/customers_/favorites")({

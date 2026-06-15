@@ -3,7 +3,7 @@ import {
   customerProductsSeed,
   customersSeed,
   type CustomerProductDto,
-} from "@/features/customers/customer-dtos";
+} from "@/features/customers/data/customer-dtos";
 
 export type InsuranceRecordKindDto = "policy" | "quote";
 

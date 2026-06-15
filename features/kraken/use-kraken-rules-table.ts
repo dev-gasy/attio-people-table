@@ -6,7 +6,7 @@ import {
   filterRules,
   sortRules,
   type RuleSortKey,
-} from "@/features/kraken/kraken-domain/rules";
+} from "@/features/kraken/domain/rules";
 import { useColumnVisibility } from "@/hooks/use-column-visibility";
 import { usePagination } from "@/hooks/use-pagination";
 import { useSortCycle } from "@/hooks/use-sort-cycle";

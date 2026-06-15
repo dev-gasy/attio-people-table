@@ -1,7 +1,7 @@
 import { ShieldCheck } from "lucide-react";
 import { Collapsible } from "@/components/ui/collapsible-section";
 import { InsuranceRecordBlock } from "@/features/insurance/components/insurance-record-block";
-import { getCoverageFields } from "@/features/insurance/insurance-domain/insurance-detail";
+import { getCoverageFields } from "@/features/insurance/domain/insurance-detail";
 import type { InsuranceCoverage } from "@/features/insurance/insurance-mappers";
 
 export function InsuranceCoveragesSection({

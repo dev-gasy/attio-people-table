@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CustomerDetailPage } from "@/features/customers/components/customer-detail-page";
+import { CustomerDetailPage } from "@/features/customers/components/detail/customer-detail-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { customerQueryOptions } from "@/features/customers/customer-service";
+import { customerQueryOptions } from "@/features/customers/data/customer-service";
 import { buildPageMeta } from "@/src/lib/page-meta";
 
 export const Route = createFileRoute("/_app/customers_/$customerId")({

@@ -5,7 +5,7 @@ import {
   filterLookups,
   sortLookups,
   type LookupSortKey,
-} from "@/features/lookups/lookup-domain/lookups";
+} from "@/features/lookups/domain/lookups";
 import type { Lookup } from "@/features/lookups/lookup-mappers";
 import { useColumnVisibility } from "@/hooks/use-column-visibility";
 import { usePagination } from "@/hooks/use-pagination";

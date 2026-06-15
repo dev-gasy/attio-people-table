@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CustomersPage } from "@/features/customers/components/customers-page";
+import { CustomersPage } from "@/features/customers/components/list/customers-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
 import { buildPageMeta } from "@/src/lib/page-meta";
 

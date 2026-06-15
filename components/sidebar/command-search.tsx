@@ -18,8 +18,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useTheme } from "@/components/theme-provider";
 import { navIcons, navSections } from "@/components/sidebar/nav-items";
 import type { PagePath } from "@/components/sidebar/types";
-import type { CustomerSearchValues } from "@/features/customers/customer-domain/customers-list";
-import { useCustomerSearchStore } from "@/features/customers/customer-domain/customer-search-store";
+import type { CustomerSearchValues } from "@/features/customers/domain/customers-list";
+import { useCustomerSearchStore } from "@/features/customers/stores/customer-search-store";
 import { getStaticKrakenEntrypoints } from "@/features/kraken/kraken-service";
 import { getStaticLookupNames } from "@/features/lookups/lookup-service";
 

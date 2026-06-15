@@ -4,7 +4,7 @@ import {
   createLicenceResult,
   emptyLicenceForm,
   type LicenceForm,
-} from "@/features/driving-licence/driving-licence-domain/licence";
+} from "@/features/driving-licence/domain/licence";
 
 export function useDrivingLicencePage() {
   const [form, setForm] = useState<LicenceForm>(emptyLicenceForm);

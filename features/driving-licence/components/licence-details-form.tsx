@@ -1,11 +1,11 @@
 import { BadgeCheck, IdCard, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { canadianProvinces } from "@/features/driving-licence/driving-licence-domain/provinces";
+import { canadianProvinces } from "@/features/driving-licence/domain/provinces";
 import type {
   Gender,
   LicenceForm,
-} from "@/features/driving-licence/driving-licence-domain/licence";
+} from "@/features/driving-licence/domain/licence";
 
 const genderOptions: Gender[] = ["Male", "Female"];
 

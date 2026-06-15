@@ -1,5 +1,5 @@
 import { IdCard } from "lucide-react";
-import type { LicenceResult } from "@/features/driving-licence/driving-licence-domain/licence";
+import type { LicenceResult } from "@/features/driving-licence/domain/licence";
 
 export function LicencePreview({ result }: { result: LicenceResult | null }) {
   if (!result) {

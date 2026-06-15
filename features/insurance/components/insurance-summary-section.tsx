@@ -5,7 +5,7 @@ import {
   insuranceKindStyles,
   insuranceRouteLabels,
 } from "@/features/insurance/components/insurance-detail-constants";
-import { getInsuranceSummaryFields } from "@/features/insurance/insurance-domain/insurance-detail";
+import { getInsuranceSummaryFields } from "@/features/insurance/domain/insurance-detail";
 import type {
   InsuranceRecord,
   InsuranceRecordKind,

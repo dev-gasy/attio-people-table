@@ -1,7 +1,7 @@
 import { UserRound } from "lucide-react";
 import { Collapsible } from "@/components/ui/collapsible-section";
 import { InsuranceRecordBlock } from "@/features/insurance/components/insurance-record-block";
-import { getPartyFields } from "@/features/insurance/insurance-domain/insurance-detail";
+import { getPartyFields } from "@/features/insurance/domain/insurance-detail";
 import type { InsuranceParty } from "@/features/insurance/insurance-mappers";
 
 export function InsurancePartiesSection({
