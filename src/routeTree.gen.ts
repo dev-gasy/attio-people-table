@@ -20,6 +20,7 @@ import { Route as AppLookupsRouteImport } from './routes/_app/lookups'
 import { Route as AppLoadRouteImport } from './routes/_app/load'
 import { Route as AppKrakenRouteImport } from './routes/_app/kraken'
 import { Route as AppGroupsRouteImport } from './routes/_app/groups'
+import { Route as AppDrivingLicenceRouteImport } from './routes/_app/driving-licence'
 import { Route as AppCustomersRouteImport } from './routes/_app/customers'
 import { Route as ApiQuotesBusinessKeyRouteImport } from './routes/api/quotes.$businessKey'
 import { Route as ApiPoliciesBusinessKeyRouteImport } from './routes/api/policies.$businessKey'
@@ -87,6 +88,11 @@ const AppKrakenRoute = AppKrakenRouteImport.update({
 const AppGroupsRoute = AppGroupsRouteImport.update({
   id: '/groups',
   path: '/groups',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDrivingLicenceRoute = AppDrivingLicenceRouteImport.update({
+  id: '/driving-licence',
+  path: '/driving-licence',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCustomersRoute = AppCustomersRouteImport.update({
@@ -165,6 +171,7 @@ const ApiKrakenEntrypointsEntrypointNameRulesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/customers': typeof AppCustomersRoute
+  '/driving-licence': typeof AppDrivingLicenceRoute
   '/groups': typeof AppGroupsRoute
   '/kraken': typeof AppKrakenRoute
   '/load': typeof AppLoadRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/customers': typeof AppCustomersRoute
+  '/driving-licence': typeof AppDrivingLicenceRoute
   '/groups': typeof AppGroupsRoute
   '/kraken': typeof AppKrakenRoute
   '/load': typeof AppLoadRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/_app/customers': typeof AppCustomersRoute
+  '/_app/driving-licence': typeof AppDrivingLicenceRoute
   '/_app/groups': typeof AppGroupsRoute
   '/_app/kraken': typeof AppKrakenRoute
   '/_app/load': typeof AppLoadRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/customers'
+    | '/driving-licence'
     | '/groups'
     | '/kraken'
     | '/load'
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/customers'
+    | '/driving-licence'
     | '/groups'
     | '/kraken'
     | '/load'
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/_app/customers'
+    | '/_app/driving-licence'
     | '/_app/groups'
     | '/_app/kraken'
     | '/_app/load'
@@ -414,6 +426,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGroupsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/driving-licence': {
+      id: '/_app/driving-licence'
+      path: '/driving-licence'
+      fullPath: '/driving-licence'
+      preLoaderRoute: typeof AppDrivingLicenceRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/customers': {
       id: '/_app/customers'
       path: '/customers'
@@ -517,6 +536,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppCustomersRoute: typeof AppCustomersRoute
+  AppDrivingLicenceRoute: typeof AppDrivingLicenceRoute
   AppGroupsRoute: typeof AppGroupsRoute
   AppKrakenRoute: typeof AppKrakenRoute
   AppLoadRoute: typeof AppLoadRoute
@@ -533,6 +553,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppCustomersRoute: AppCustomersRoute,
+  AppDrivingLicenceRoute: AppDrivingLicenceRoute,
   AppGroupsRoute: AppGroupsRoute,
   AppKrakenRoute: AppKrakenRoute,
   AppLoadRoute: AppLoadRoute,

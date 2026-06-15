@@ -125,7 +125,7 @@ function LoadFormHeader({ title }: { title: string }) {
 
 function LoadFormActions({ disabled }: { disabled: boolean }) {
   return (
-    <div className="flex items-center justify-end border-t border-border bg-background/40 px-4 py-3">
+    <div className="flex items-center border-t border-border bg-background/40 px-4 py-3">
       <Button type="submit" disabled={disabled}>
         <Search className="h-4 w-4" />
         Load

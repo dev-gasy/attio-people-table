@@ -3,6 +3,7 @@ import {
   CheckSquare,
   ContactRound,
   FileText,
+  IdCard,
   ListTree,
   Zap,
 } from "lucide-react";
@@ -47,6 +48,12 @@ export const navSections: SidebarNavSection[] = [
     items: [
       { id: "lookups", to: "/lookups", icon: ListTree, label: "Lookups" },
       { id: "kraken", to: "/kraken", icon: Zap, label: "Kraken" },
+      {
+        id: "driving-licence",
+        to: "/driving-licence",
+        icon: IdCard,
+        label: "Driving Licence",
+      },
     ],
   },
 ];

@@ -204,7 +204,7 @@ export function CustomersPage({
         }
       />
 
-      <PageFrameBody className="pb-8">
+      <PageFrameBody className="space-y-6">
         {mode === "search" && (
           <CustomerSearchForm
             values={searchValues}

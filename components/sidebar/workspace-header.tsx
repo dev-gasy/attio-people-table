@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 export function WorkspaceHeader({
   collapsed,
@@ -10,23 +10,37 @@ export function WorkspaceHeader({
   onToggleCollapse: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-sidebar-border px-4 py-3.5">
-      {!collapsed && (
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-orange-400 to-emerald-400">
-            <span className="text-sm font-bold text-background">A</span>
-          </div>
-          <span className="text-[15px] font-semibold text-sidebar-foreground">
-            attio
-          </span>
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-        </div>
-      )}
+    <div
+      className={`flex h-[var(--page-frame-header-height,4.5rem)] border-b border-sidebar-border px-4 ${
+        collapsed
+          ? "flex-col items-center justify-center gap-1.5"
+          : "items-center justify-between"
+      }`}
+    >
+      <div
+        className={`flex min-w-0 items-center ${
+          collapsed ? "justify-center" : "gap-2.5"
+        }`}
+      >
+        {!collapsed && (
+          <>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden">
+              <img
+                src="/icon.svg"
+                alt=""
+                className="h-7 w-7"
+                aria-hidden="true"
+              />
+            </span>
+            <span className="min-w-0 truncate text-[15px] font-semibold text-sidebar-foreground">
+              attio
+            </span>
+          </>
+        )}
+      </div>
       <button
         onClick={onToggleCollapse}
-        className={`rounded-md p-1 text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground ${
-          collapsed ? "mx-auto" : ""
-        }`}
+        className="rounded-md p-1 text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground"
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         {collapsed ? (

@@ -86,7 +86,7 @@ export function CustomerTable({
 
   return (
     <>
-      <div className="mt-4 overflow-auto rounded-xl border border-border bg-muted/10">
+      <div className="overflow-auto rounded-xl border border-border bg-muted/10">
         <div className="w-full min-w-0">
           <div
             className={`sticky top-0 z-10 grid ${CUSTOMER_TABLE_COLUMNS} border-b border-border/60 bg-background`}
