@@ -20,7 +20,7 @@ export function PageFrameHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="sticky top-0 z-50 min-h-[var(--page-frame-header-height)] border-b border-border bg-background/70 px-6 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 min-h-(--page-frame-header-height) border-b border-border bg-background/70 px-6 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       {children ?? (
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           {title && (
@@ -42,7 +42,7 @@ export function PageFrameHeader({
 
 export function PageFrameControls({ children }: { children: ReactNode }) {
   return (
-    <div className="sticky top-[var(--page-frame-header-height)] z-40 border-b border-border bg-background/70 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+    <div className="sticky top-(--page-frame-header-height) z-40 border-b border-border bg-background/70 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       {children}
     </div>
   );
