@@ -1,0 +1,26 @@
+import { ShieldCheck } from "lucide-react";
+import { Collapsible } from "@/components/ui/collapsible-section";
+import { InsuranceRecordBlock } from "@/features/insurance/components/insurance-record-block";
+import { getCoverageFields } from "@/features/insurance/insurance-domain/insurance-detail";
+import type { InsuranceCoverage } from "@/features/insurance/insurance-mappers";
+
+export function InsuranceCoveragesSection({
+  coverages,
+}: {
+  coverages: InsuranceCoverage[];
+}) {
+  return (
+    <Collapsible title="Coverage" count={coverages.length} icon={ShieldCheck}>
+      <div className="divide-y divide-border/60">
+        {coverages.map((coverage) => (
+          <InsuranceRecordBlock
+            key={coverage.id}
+            title={coverage.name}
+            fields={getCoverageFields(coverage)}
+            icon={ShieldCheck}
+          />
+        ))}
+      </div>
+    </Collapsible>
+  );
+}

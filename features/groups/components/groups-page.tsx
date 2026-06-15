@@ -58,9 +58,7 @@ export function GroupsPage() {
           <DataErrorView
             title="Could not load groups"
             message={getErrorMessage(error)}
-            onRetry={() => {
-              void refetch();
-            }}
+            onRetry={refetch}
             isRetrying={isFetching}
           />
         </PageFrameBody>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function Collapsible({
   title,
@@ -7,6 +8,9 @@ export function Collapsible({
   count,
   defaultOpen = true,
   icon: Icon,
+  headerClassName,
+  iconClassName,
+  countClassName,
   children,
 }: {
   title: string;
@@ -14,6 +18,9 @@ export function Collapsible({
   count?: number;
   defaultOpen?: boolean;
   icon?: React.ComponentType<{ className?: string }>;
+  headerClassName?: string;
+  iconClassName?: string;
+  countClassName?: string;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -23,12 +30,24 @@ export function Collapsible({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-2.5 bg-muted/30 px-4 py-3 text-left hover:bg-muted/50"
+        className={cn(
+          "flex w-full items-center gap-2.5 bg-muted/30 px-4 py-3 text-left hover:bg-muted/50",
+          headerClassName,
+        )}
       >
-        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+        {Icon && (
+          <Icon
+            className={cn("h-4 w-4 text-muted-foreground", iconClassName)}
+          />
+        )}
         <span className="text-sm font-medium text-foreground">{title}</span>
         {typeof count === "number" && (
-          <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+          <span
+            className={cn(
+              "rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground",
+              countClassName,
+            )}
+          >
             {count}
           </span>
         )}
