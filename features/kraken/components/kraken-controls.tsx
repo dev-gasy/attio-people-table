@@ -25,7 +25,7 @@ export function KrakenControls({
         disabled={!hasEntrypoint || disabled}
         onValueChange={table.setQuery}
         placeholder="Search rules..."
-        className="flex-1 sm:min-w-[260px]"
+        className="flex-1 sm:min-w-65"
       />
       <Combobox
         options={ruleTypeOptions}

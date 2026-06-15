@@ -10,23 +10,14 @@ type CustomerSortKey = "name" | "phone" | "email" | "address" | "dateOfBirth";
 
 export type CustomerTableState = ReturnType<typeof useCustomerTable>;
 
-export function useCustomerTable({
-  customers,
-  favoriteIdSet,
-}: {
-  customers: Customer[];
-  favoriteIdSet: Set<number>;
-}) {
+export function useCustomerTable({ customers }: { customers: Customer[] }) {
   const sort = useSortCycle<CustomerSortKey>();
   const orderedCustomers = useMemo(
     () =>
-      sortCustomersWithFavoritesFirst(
-        customers,
-        favoriteIdSet,
-        sort.sortKey,
-        sort.direction,
-      ),
-    [customers, favoriteIdSet, sort.direction, sort.sortKey],
+      sort.sortKey
+        ? sortCustomers(customers, sort.sortKey, sort.direction)
+        : customers,
+    [customers, sort.direction, sort.sortKey],
   );
   const pagination = usePagination({
     items: orderedCustomers,
@@ -43,32 +34,6 @@ export function useCustomerTable({
     pagination,
     sort,
   };
-}
-
-function sortCustomersWithFavoritesFirst(
-  customers: Customer[],
-  favoriteIdSet: Set<number>,
-  sortKey: CustomerSortKey | null,
-  direction: "asc" | "desc",
-) {
-  if (!sortKey) {
-    return [
-      ...customers.filter((customer) => favoriteIdSet.has(customer.id)),
-      ...customers.filter((customer) => !favoriteIdSet.has(customer.id)),
-    ];
-  }
-
-  const favorites = customers.filter((customer) =>
-    favoriteIdSet.has(customer.id),
-  );
-  const others = customers.filter(
-    (customer) => !favoriteIdSet.has(customer.id),
-  );
-
-  return [
-    ...sortCustomers(favorites, sortKey, direction),
-    ...sortCustomers(others, sortKey, direction),
-  ];
 }
 
 function sortCustomers(

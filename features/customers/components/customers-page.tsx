@@ -37,7 +37,6 @@ export function CustomersPage({
   } = useCustomersPage({ mode });
   const table = useCustomerTable({
     customers: visibleCustomers,
-    favoriteIdSet,
   });
   const showPagination =
     shouldLoadCustomers &&
