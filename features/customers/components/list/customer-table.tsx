@@ -45,7 +45,7 @@ export function CustomerTable({
   table: CustomerTableState;
 }) {
   return (
-    <div className="min-h-0  pb-8">
+    <div className="min-h-0">
       <div className="overflow-auto rounded-xl border border-border bg-muted/10">
         <div className="w-full min-w-0">
           <div
