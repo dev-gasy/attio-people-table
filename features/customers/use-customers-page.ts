@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -7,10 +7,6 @@ import {
   type CustomerSearchValues,
 } from "@/features/customers/customer-domain/customers-list";
 import { useCustomerSearchStore } from "@/features/customers/customer-domain/customer-search-store";
-import {
-  formatCustomerFavoriteIdsJson,
-  parseCustomerFavoriteIdsJson,
-} from "@/features/customers/customer-domain/favorites";
 import { customersQueryOptions } from "@/features/customers/customer-service";
 import { useCustomerFavorites } from "@/features/customers/use-customer-favorites";
 import { waitForServiceLatency } from "@/features/shared/service-latency";
@@ -33,10 +29,6 @@ export function useCustomersPage({ mode }: { mode: CustomersPageMode }) {
     enabled: shouldLoadCustomers,
   });
   const favorites = useCustomerFavorites();
-  const importInputRef = useRef<HTMLInputElement>(null);
-  const [favoritesImportError, setFavoritesImportError] = useState<
-    string | null
-  >(null);
   const searchInFlightRef = useRef(false);
   const [isSearching, setIsSearching] = useState(false);
   const customers = useMemo(() => query.data ?? [], [query.data]);
@@ -55,20 +47,6 @@ export function useCustomersPage({ mode }: { mode: CustomersPageMode }) {
 
     resetCustomerSearch();
   }, [mode, resetCustomerSearch]);
-
-  function handleSaveFavorites() {
-    const blob = new Blob(
-      [formatCustomerFavoriteIdsJson(favorites.favoriteIds)],
-      { type: "application/json" },
-    );
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = "favorite-customers.json";
-    link.click();
-    URL.revokeObjectURL(url);
-  }
 
   async function runSyntheticCustomerSearch(applySearch: () => void) {
     if (query.isLoading || searchInFlightRef.current) return;
@@ -99,35 +77,10 @@ export function useCustomersPage({ mode }: { mode: CustomersPageMode }) {
     });
   }
 
-  async function handleLoadFavorites(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-
-    if (!file) return;
-
-    try {
-      const result = parseCustomerFavoriteIdsJson(await file.text());
-
-      if (!result.ok) {
-        setFavoritesImportError(result.error);
-        return;
-      }
-
-      favorites.setFavoriteIds(result.ids);
-      setFavoritesImportError(null);
-    } catch {
-      setFavoritesImportError("Could not read favorites JSON.");
-    }
-  }
-
   return {
     favorites,
-    favoritesImportError,
-    handleLoadFavorites,
     handleResetSearch,
-    handleSaveFavorites,
     handleSearch,
-    importInputRef,
     isSearching,
     query,
     searchValues,

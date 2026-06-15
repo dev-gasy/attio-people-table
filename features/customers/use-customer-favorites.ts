@@ -1,45 +1,30 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
 
-import { toggleCustomerFavoriteId } from "@/features/customers/customer-domain/favorites";
-import {
-  getCustomerFavoriteIds,
-  saveCustomerFavoriteIds,
-} from "@/features/customers/customer-domain/favorites-storage";
+import { customerFavoritesStore } from "./customer-favorites-store";
 
 export function useCustomerFavorites() {
-  const [favoriteIdSet, setFavoriteIdSet] = useState<Set<number>>(
-    () => new Set(getCustomerFavoriteIds()),
+  const ids = useSyncExternalStore(
+    customerFavoritesStore.subscribe,
+    customerFavoritesStore.getSnapshot,
   );
 
-  const favoriteIds = useMemo(
-    () => Array.from(favoriteIdSet).sort((a, b) => a - b),
-    [favoriteIdSet],
-  );
+  const favoriteIdSet = useMemo(() => new Set(ids), [ids]);
 
-  const setFavoriteIds = useCallback((nextIds: number[]) => {
-    setFavoriteIdSet(new Set(saveCustomerFavoriteIds(nextIds)));
-  }, []);
+  const sortedFavoriteIds = useMemo(
+    () => [...ids].sort((a, b) => a - b),
+    [ids],
+  );
 
   const isFavorite = useCallback(
     (customerId: number) => favoriteIdSet.has(customerId),
     [favoriteIdSet],
   );
 
-  const toggleFavorite = useCallback((customerId: number) => {
-    setFavoriteIdSet((currentIdSet) => {
-      const savedIds = saveCustomerFavoriteIds(
-        toggleCustomerFavoriteId(customerId, Array.from(currentIdSet)),
-      );
-
-      return new Set(savedIds);
-    });
-  }, []);
-
   return {
-    favoriteIds,
+    favoriteIds: sortedFavoriteIds,
     favoriteIdSet,
     isFavorite,
-    setFavoriteIds,
-    toggleFavorite,
+    setFavoriteIds: customerFavoritesStore.setFavoriteIds,
+    toggleFavorite: customerFavoritesStore.toggleFavorite,
   };
 }
