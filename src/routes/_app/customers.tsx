@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CustomersPage } from "@/components/customers/customers-page";
+import { CustomersPage } from "@/features/customers/components/customers-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
 
 export const Route = createFileRoute("/_app/customers")({

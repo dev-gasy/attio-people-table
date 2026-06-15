@@ -1,7 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
-import { fetchJson } from "@/features/shared/fetch-json";
-import { lookupSeed, type LookupDto } from "@/features/lookups/lookup-dtos";
-import { createSlug } from "@/features/shared/slugs";
+import type { LookupDto } from "@/features/lookups/lookup-dtos";
+import {
+  getLookupNameServer,
+  getLookupNamesServer,
+  getLookupsServer,
+  getStaticLookupNamesPayload,
+} from "@/features/lookups/lookup-server";
 
 export type LookupNameDto = {
   name: string;
@@ -33,27 +37,17 @@ export const lookupNameQueryOptions = (lookupName: string) =>
   });
 
 export function getLookups() {
-  return fetchJson<LookupDto[]>("/api/lookups");
+  return getLookupsServer();
 }
 
 export function getLookupNames() {
-  return fetchJson<LookupNameDto[]>("/api/lookups/names");
+  return getLookupNamesServer();
 }
 
 export function getLookupName(lookupName: string) {
-  return fetchJson<LookupNameResponseDto>(`/api/lookups/names/${lookupName}`);
+  return getLookupNameServer({ data: { lookupName } });
 }
 
 export function getStaticLookupNames(): LookupNameDto[] {
-  const names = Array.from(
-    new Set(lookupSeed.map((lookup) => lookup.lookupName)),
-  );
-
-  return names.map((lookupName) => ({
-    name: lookupName,
-    slug: createSlug(lookupName),
-    lookupsCount: lookupSeed.filter(
-      (lookup) => lookup.lookupName === lookupName,
-    ).length,
-  }));
+  return getStaticLookupNamesPayload();
 }

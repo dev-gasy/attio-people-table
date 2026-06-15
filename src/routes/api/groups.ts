@@ -1,16 +1,23 @@
-import { groupsSeed } from "@/features/groups/group-dtos";
-import { simulateServiceResponse } from "@/features/shared/service-latency";
 import { createFileRoute } from "@tanstack/react-router";
+import { getGroupsServer } from "@/features/groups/group-server";
+import {
+  ServiceResponseError,
+  serviceErrorResponse,
+} from "@/features/shared/service-latency";
 
 export const Route = createFileRoute("/api/groups")({
   server: {
     handlers: {
       GET: async () => {
-        const simulatedResponse = await simulateServiceResponse("groupsList");
+        try {
+          return Response.json(await getGroupsServer());
+        } catch (error) {
+          if (error instanceof ServiceResponseError) {
+            return serviceErrorResponse(error);
+          }
 
-        if (simulatedResponse) return simulatedResponse;
-
-        return Response.json(groupsSeed);
+          throw error;
+        }
       },
     },
   },

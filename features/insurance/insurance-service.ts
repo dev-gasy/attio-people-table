@@ -1,9 +1,9 @@
 import { queryOptions } from "@tanstack/react-query";
-import { fetchJson } from "@/features/shared/fetch-json";
 import type {
   InsuranceRecordDto,
   InsuranceRecordKindDto,
 } from "@/features/insurance/insurance-dtos";
+import { getInsuranceRecordServer } from "@/features/insurance/insurance-server";
 
 export type InsuranceRecordResponseDto = {
   record: InsuranceRecordDto | undefined;
@@ -22,9 +22,5 @@ export function getInsuranceRecord(
   kind: InsuranceRecordKindDto,
   businessKey: string,
 ) {
-  const collection = kind === "policy" ? "policies" : "quotes";
-
-  return fetchJson<InsuranceRecordResponseDto>(
-    `/api/${collection}/${businessKey}`,
-  );
+  return getInsuranceRecordServer({ data: { kind, businessKey } });
 }

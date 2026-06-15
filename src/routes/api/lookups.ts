@@ -1,16 +1,23 @@
-import { lookupSeed } from "@/features/lookups/lookup-dtos";
-import { simulateServiceResponse } from "@/features/shared/service-latency";
 import { createFileRoute } from "@tanstack/react-router";
+import { getLookupsServer } from "@/features/lookups/lookup-server";
+import {
+  ServiceResponseError,
+  serviceErrorResponse,
+} from "@/features/shared/service-latency";
 
 export const Route = createFileRoute("/api/lookups")({
   server: {
     handlers: {
       GET: async () => {
-        const simulatedResponse = await simulateServiceResponse("lookupsList");
+        try {
+          return Response.json(await getLookupsServer());
+        } catch (error) {
+          if (error instanceof ServiceResponseError) {
+            return serviceErrorResponse(error);
+          }
 
-        if (simulatedResponse) return simulatedResponse;
-
-        return Response.json(lookupSeed);
+          throw error;
+        }
       },
     },
   },

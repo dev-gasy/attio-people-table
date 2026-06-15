@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DrivingLicencePage } from "@/components/driving-licence/driving-licence-page";
+import { DrivingLicencePage } from "@/features/driving-licence/components/driving-licence-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
 
 export const Route = createFileRoute("/_app/driving-licence")({

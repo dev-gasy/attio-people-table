@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { entrypoints, rules } from "@/lib/workspace-data";
-import { createSlug } from "@/features/shared/slugs";
-import { simulateServiceResponse } from "@/features/shared/service-latency";
+import { getKrakenEntrypointRulesServer } from "@/features/kraken/kraken-server";
+import {
+  ServiceResponseError,
+  serviceErrorResponse,
+} from "@/features/shared/service-latency";
 
 export const Route = createFileRoute(
   "/api/kraken/entrypoints/$entrypointName/rules",
@@ -9,35 +11,19 @@ export const Route = createFileRoute(
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const simulatedResponse = await simulateServiceResponse(
-          "krakenEntrypointRules",
-        );
-
-        if (simulatedResponse) return simulatedResponse;
-
-        const entrypoint = entrypoints.find(
-          (item) => createSlug(item.name) === params.entrypointName,
-        );
-
-        if (!entrypoint) {
+        try {
           return Response.json(
-            { message: "Entrypoint not found" },
-            { status: 404 },
+            await getKrakenEntrypointRulesServer({
+              data: { entrypointName: params.entrypointName },
+            }),
           );
+        } catch (error) {
+          if (error instanceof ServiceResponseError) {
+            return serviceErrorResponse(error);
+          }
+
+          throw error;
         }
-
-        const entrypointRules = rules.filter(
-          (rule) => rule.entrypointId === entrypoint.id,
-        );
-
-        return Response.json({
-          entrypoint: {
-            ...entrypoint,
-            slug: createSlug(entrypoint.name),
-            rulesCount: entrypointRules.length,
-          },
-          rules: entrypointRules,
-        });
       },
     },
   },

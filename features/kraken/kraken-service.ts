@@ -3,9 +3,11 @@ import type {
   KrakenEntrypointDto,
   KrakenEntrypointRulesResponseDto,
 } from "@/features/kraken/kraken-dtos";
-import { fetchJson } from "@/features/shared/fetch-json";
-import { createSlug } from "@/features/shared/slugs";
-import { entrypoints, rules } from "@/lib/workspace-data";
+import {
+  getKrakenEntrypointRulesServer,
+  getKrakenEntrypointsServer,
+  getStaticKrakenEntrypointsPayload,
+} from "@/features/kraken/kraken-server";
 
 export const krakenEntrypointsQueryOptions = () =>
   queryOptions({
@@ -20,20 +22,13 @@ export const krakenEntrypointRulesQueryOptions = (entrypointName: string) =>
   });
 
 export function getKrakenEntrypoints() {
-  return fetchJson<KrakenEntrypointDto[]>("/api/kraken/entrypoints");
+  return getKrakenEntrypointsServer();
 }
 
 export function getKrakenEntrypointRules(entrypointName: string) {
-  return fetchJson<KrakenEntrypointRulesResponseDto>(
-    `/api/kraken/entrypoints/${entrypointName}/rules`,
-  );
+  return getKrakenEntrypointRulesServer({ data: { entrypointName } });
 }
 
 export function getStaticKrakenEntrypoints(): KrakenEntrypointDto[] {
-  return entrypoints.map((entrypoint) => ({
-    ...entrypoint,
-    slug: createSlug(entrypoint.name),
-    rulesCount: rules.filter((rule) => rule.entrypointId === entrypoint.id)
-      .length,
-  }));
+  return getStaticKrakenEntrypointsPayload();
 }

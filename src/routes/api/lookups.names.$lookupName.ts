@@ -1,40 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { lookupSeed } from "@/features/lookups/lookup-dtos";
-import { createSlug } from "@/features/shared/slugs";
-import { simulateServiceResponse } from "@/features/shared/service-latency";
+import { getLookupNameServer } from "@/features/lookups/lookup-server";
+import {
+  ServiceResponseError,
+  serviceErrorResponse,
+} from "@/features/shared/service-latency";
 
 export const Route = createFileRoute("/api/lookups/names/$lookupName")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const simulatedResponse =
-          await simulateServiceResponse("lookupNameDetail");
-
-        if (simulatedResponse) return simulatedResponse;
-
-        const lookupName = Array.from(
-          new Set(lookupSeed.map((lookup) => lookup.lookupName)),
-        ).find((name) => createSlug(name) === params.lookupName);
-
-        if (!lookupName) {
+        try {
           return Response.json(
-            { message: "Lookup name not found" },
-            { status: 404 },
+            await getLookupNameServer({
+              data: { lookupName: params.lookupName },
+            }),
           );
+        } catch (error) {
+          if (error instanceof ServiceResponseError) {
+            return serviceErrorResponse(error);
+          }
+
+          throw error;
         }
-
-        const lookups = lookupSeed.filter(
-          (lookup) => lookup.lookupName === lookupName,
-        );
-
-        return Response.json({
-          lookupName: {
-            name: lookupName,
-            slug: createSlug(lookupName),
-            lookupsCount: lookups.length,
-          },
-          lookups,
-        });
       },
     },
   },

@@ -1,10 +1,13 @@
-import { fetchJson } from "@/features/shared/fetch-json";
 import type {
   CustomerContactDto,
   CustomerDto,
   CustomerProductDto,
 } from "@/features/customers/customer-dtos";
 import { queryOptions } from "@tanstack/react-query";
+import {
+  getCustomerServer,
+  getCustomersServer,
+} from "@/features/customers/customer-server";
 
 export type CustomersResponseDto = {
   customers: CustomerDto[];
@@ -31,9 +34,9 @@ export const customerQueryOptions = (customerId: number) =>
   });
 
 export function getCustomers() {
-  return fetchJson<CustomersResponseDto>("/api/customers");
+  return getCustomersServer();
 }
 
 export function getCustomerById(customerId: number) {
-  return fetchJson<CustomerResponseDto>(`/api/customers/${customerId}`);
+  return getCustomerServer({ data: { customerId } });
 }

@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CustomerDetailPage } from "@/components/customers/customer-detail-page";
+import { CustomerDetailPage } from "@/features/customers/components/customer-detail-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
+import { customerQueryOptions } from "@/features/customers/customer-service";
 
 export const Route = createFileRoute("/_app/customers_/$customerId")({
+  loader: ({ context, params }) =>
+    context.queryClient.ensureQueryData(
+      customerQueryOptions(Number(params.customerId)),
+    ),
   errorComponent: (props) => <RouteErrorFallback title="Customer" {...props} />,
   component: CustomerRoute,
 });

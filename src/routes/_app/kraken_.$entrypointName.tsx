@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { KrakenPage } from "@/components/kraken/kraken-page";
+import { KrakenPage } from "@/features/kraken/components/kraken-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
+import { krakenEntrypointRulesQueryOptions } from "@/features/kraken/kraken-service";
 
 export const Route = createFileRoute("/_app/kraken_/$entrypointName")({
+  loader: ({ context, params }) =>
+    context.queryClient.ensureQueryData(
+      krakenEntrypointRulesQueryOptions(params.entrypointName),
+    ),
   errorComponent: (props) => <RouteErrorFallback title="Kraken" {...props} />,
   component: KrakenRoute,
 });

@@ -39,7 +39,7 @@ export function SortableTableHeader<SortKey extends string>({
   );
   const baseClassName = `flex w-full min-w-0 max-w-full items-center gap-2 text-sm font-medium text-muted-foreground ${className}`;
 
-  if (!isSortable || !sortKey) {
+  if (!isSortable || !sortKey || !onSort) {
     return <div className={baseClassName}>{content}</div>;
   }
 

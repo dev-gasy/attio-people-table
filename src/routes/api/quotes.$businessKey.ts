@@ -1,21 +1,27 @@
-import {
-  getInsuranceRecordByBusinessKey,
-  type InsuranceRecordDto,
-} from "@/features/insurance/insurance-dtos";
-import { simulateServiceResponse } from "@/features/shared/service-latency";
 import { createFileRoute } from "@tanstack/react-router";
+import { getInsuranceRecordServer } from "@/features/insurance/insurance-server";
+import {
+  ServiceResponseError,
+  serviceErrorResponse,
+} from "@/features/shared/service-latency";
 
 export const Route = createFileRoute("/api/quotes/$businessKey")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const simulatedResponse = await simulateServiceResponse("quoteDetail");
+        try {
+          return Response.json(
+            await getInsuranceRecordServer({
+              data: { kind: "quote", businessKey: params.businessKey },
+            }),
+          );
+        } catch (error) {
+          if (error instanceof ServiceResponseError) {
+            return serviceErrorResponse(error);
+          }
 
-        if (simulatedResponse) return simulatedResponse;
-
-        return Response.json({
-          record: getInsuranceRecordByBusinessKey("quote", params.businessKey),
-        } satisfies { record: InsuranceRecordDto | undefined });
+          throw error;
+        }
       },
     },
   },
