@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
+import { APP_NAME } from "@/src/lib/page-meta";
 import appCss from "@/src/styles/globals.css?url";
 
 export const Route = createRootRouteWithContext<{
@@ -18,7 +19,7 @@ export const Route = createRootRouteWithContext<{
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Attio CRM" },
+      { title: APP_NAME },
       {
         name: "description",
         content: "The CRM for the next generation of groups",
