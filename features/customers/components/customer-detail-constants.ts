@@ -24,13 +24,6 @@ export const contactIcons: Record<
   address: Home,
 };
 
-export const productTypeStyles: Record<string, string> = {
-  Policy: "text-emerald-700 dark:text-emerald-300",
-  Quote: "text-sky-700 dark:text-sky-300",
-  Claim: "text-amber-700 dark:text-amber-300",
-  Renewal: "text-purple-700 dark:text-purple-300",
-};
-
 export const productFilterOptions: Array<{
   value: CustomerProductActivityFilter;
   label: string;
