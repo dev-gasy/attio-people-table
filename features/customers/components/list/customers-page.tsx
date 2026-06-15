@@ -40,6 +40,7 @@ export function CustomersPage({
 
   const table = useCustomerTable({
     customers: visibleCustomers,
+    scope: mode,
   });
 
   const showPagination =

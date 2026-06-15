@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -41,12 +41,6 @@ export function useCustomersPage({ mode }: { mode: CustomersPageMode }) {
 
     return filterCustomers(customers, searchValues);
   }, [customers, favorites.favoriteIdSet, mode, searchValues]);
-
-  useEffect(() => {
-    if (mode === "search") return;
-
-    resetCustomerSearch();
-  }, [mode, resetCustomerSearch]);
 
   async function runSyntheticCustomerSearch(applySearch: () => void) {
     if (query.isLoading || searchInFlightRef.current) return;

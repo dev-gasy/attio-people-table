@@ -3,36 +3,71 @@ import type {
   Customer,
   CustomerContactKind,
 } from "@/features/customers/data/customer-mappers";
-import { usePagination } from "@/hooks/use-pagination";
-import { useSortCycle } from "@/hooks/use-sort-cycle";
-
-type CustomerSortKey = "name" | "phone" | "email" | "address" | "dateOfBirth";
+import {
+  type CustomerSortKey,
+  type CustomerTableScope,
+  useCustomerTableStore,
+} from "@/features/customers/stores/customer-table-store";
 
 export type CustomerTableState = ReturnType<typeof useCustomerTable>;
 
-export function useCustomerTable({ customers }: { customers: Customer[] }) {
-  const sort = useSortCycle<CustomerSortKey>();
+export function useCustomerTable({
+  customers,
+  scope,
+}: {
+  customers: Customer[];
+  scope: CustomerTableScope;
+}) {
+  const tableSettings = useCustomerTableStore((state) => state.tables[scope]);
+  const resetPage = useCustomerTableStore((state) => state.resetPage);
+  const resetSort = useCustomerTableStore((state) => state.resetSort);
+  const setPage = useCustomerTableStore((state) => state.setPage);
+  const setPageSize = useCustomerTableStore((state) => state.setPageSize);
+  const sortBy = useCustomerTableStore((state) => state.sortBy);
   const orderedCustomers = useMemo(
     () =>
-      sort.sortKey
-        ? sortCustomers(customers, sort.sortKey, sort.direction)
+      tableSettings.sortKey
+        ? sortCustomers(
+            customers,
+            tableSettings.sortKey,
+            tableSettings.direction,
+          )
         : customers,
-    [customers, sort.direction, sort.sortKey],
+    [customers, tableSettings.direction, tableSettings.sortKey],
   );
-  const pagination = usePagination({
-    items: orderedCustomers,
-  });
-
-  function handleSort(key: CustomerSortKey) {
-    sort.handleSort(key);
-    pagination.resetPage();
-  }
+  const total = orderedCustomers.length;
+  const pageCount = Math.max(1, Math.ceil(total / tableSettings.pageSize));
+  const currentPage = Math.min(tableSettings.page, pageCount);
+  const pageItems = useMemo(
+    () =>
+      orderedCustomers.slice(
+        (currentPage - 1) * tableSettings.pageSize,
+        currentPage * tableSettings.pageSize,
+      ),
+    [currentPage, orderedCustomers, tableSettings.pageSize],
+  );
+  const handleSort = (key: CustomerSortKey) => sortBy(scope, key);
 
   return {
     handleSort,
     orderedCustomers,
-    pagination,
-    sort,
+    pagination: {
+      currentPage,
+      page: tableSettings.page,
+      pageCount,
+      pageItems,
+      pageSize: tableSettings.pageSize,
+      resetPage: () => resetPage(scope),
+      setPage: (page: number) => setPage(scope, page),
+      setPageSize: (pageSize: number) => setPageSize(scope, pageSize),
+      total,
+    },
+    sort: {
+      direction: tableSettings.direction,
+      handleSort,
+      resetSort: () => resetSort(scope),
+      sortKey: tableSettings.sortKey,
+    },
   };
 }
 
