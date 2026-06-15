@@ -1,6 +1,7 @@
-import { ListFilter, Search } from "lucide-react";
+import { ListFilter } from "lucide-react";
 import { ColumnVisibilityControl } from "@/components/ui/column-visibility-control";
 import { Combobox, type ComboOption } from "@/components/ui/combobox";
+import { SearchBar } from "@/components/ui/search-bar";
 import {
   ruleColumns,
   type KrakenRulesTableState,
@@ -19,24 +20,13 @@ export function KrakenControls({
 }) {
   return (
     <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
-      <label
-        className={`flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground focus-within:border-ring hover:bg-muted sm:min-w-[260px] ${
-          !hasEntrypoint || disabled
-            ? "cursor-not-allowed opacity-60 hover:bg-muted/40"
-            : ""
-        }`}
-      >
-        <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-        <input
-          value={table.query}
-          disabled={!hasEntrypoint || disabled}
-          onChange={(event) => {
-            table.setQuery(event.target.value);
-          }}
-          placeholder="Search rules..."
-          className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
-        />
-      </label>
+      <SearchBar
+        value={table.query}
+        disabled={!hasEntrypoint || disabled}
+        onValueChange={table.setQuery}
+        placeholder="Search rules..."
+        className="flex-1 sm:min-w-[260px]"
+      />
       <Combobox
         options={ruleTypeOptions}
         value={table.typeFilter}

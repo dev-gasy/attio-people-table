@@ -1,8 +1,9 @@
-import { Search, Plus, FileText } from "lucide-react";
+import { Plus, FileText } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import { PageHeader } from "@/components/page-header";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { Button } from "@/components/ui/button";
+import { SearchBar } from "@/components/ui/search-bar";
 import { useNotesPage } from "@/features/notes/use-notes-page";
 
 export function NotesPage() {
@@ -14,15 +15,12 @@ export function NotesPage() {
         title="Notes"
         actions={
           <>
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search notes..."
-                className="w-44 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-              />
-            </div>
+            <SearchBar
+              value={query}
+              onValueChange={setQuery}
+              placeholder="Search notes..."
+              className="w-56"
+            />
             <Button>
               <Plus className="h-4 w-4" />
               New note
