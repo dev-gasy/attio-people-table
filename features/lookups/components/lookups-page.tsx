@@ -13,7 +13,6 @@ import { Combobox, type ComboOption } from "@/components/ui/combobox";
 import { Pagination } from "@/components/ui/pagination";
 import { LookupsControls } from "@/features/lookups/components/lookups-controls";
 import { LookupsTable } from "@/features/lookups/components/lookups-table";
-import { mapLookupDtosToLookups } from "@/features/lookups/lookup-mappers";
 import {
   getStaticLookupNames,
   lookupNameQueryOptions,
@@ -34,12 +33,8 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
     ...lookupNameQueryOptions(lookupName ?? ""),
     enabled: Boolean(lookupName),
   });
-  const lookupsData = data?.lookups ?? [];
   const selectedLookupName = data?.lookupName ?? null;
-  const lookups = useMemo(
-    () => mapLookupDtosToLookups(lookupsData),
-    [lookupsData],
-  );
+  const lookups = useMemo(() => data?.lookups ?? [], [data?.lookups]);
   const table = useLookupsTable(lookups);
   const lookupNameOptions = useMemo<ComboOption[]>(
     () =>

@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_app/lookups_/$lookupName")({
     return {
       meta: buildPageMeta({
         title: lookupName,
-        description: `Browse lookup values for ${lookupName} in Attio CRM.`,
+        description: `Browse lookup values for ${lookupName} in CRM Demo.`,
       }),
     };
   },

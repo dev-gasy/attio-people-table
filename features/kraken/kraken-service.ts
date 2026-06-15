@@ -1,8 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import type {
-  KrakenEntrypointDto,
-  KrakenEntrypointRulesResponseDto,
-} from "@/features/kraken/kraken-dtos";
+import type { KrakenEntrypointDto } from "@/features/kraken/kraken-dtos";
 import {
   getKrakenEntrypointRulesServer,
   getKrakenEntrypointsServer,

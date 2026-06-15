@@ -1,5 +1,3 @@
-import type { MetaDescriptor } from "@tanstack/react-router";
-
 export const APP_NAME = "CRM Demo";
 
 export type PageMetaOptions = {
@@ -11,10 +9,7 @@ export function buildPageTitle(pageTitle: string) {
   return `${pageTitle} | ${APP_NAME}`;
 }
 
-export function buildPageMeta({
-  title,
-  description,
-}: PageMetaOptions): MetaDescriptor[] {
+export function buildPageMeta({ title, description }: PageMetaOptions) {
   const pageTitle = buildPageTitle(title);
 
   return [

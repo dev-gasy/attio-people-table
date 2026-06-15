@@ -1,5 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { LookupDto } from "@/features/lookups/lookup-dtos";
+import {
+  mapLookupDtosToLookups,
+  type Lookup,
+} from "@/features/lookups/lookup-mappers";
 import {
   getLookupNameServer,
   getLookupNamesServer,
@@ -13,9 +16,9 @@ export type LookupNameDto = {
   lookupsCount: number;
 };
 
-export type LookupNameResponseDto = {
+export type LookupNameResponse = {
   lookupName: LookupNameDto;
-  lookups: LookupDto[];
+  lookups: Lookup[];
 };
 
 export const lookupsQueryOptions = () =>
@@ -37,15 +40,22 @@ export const lookupNameQueryOptions = (lookupName: string) =>
   });
 
 export function getLookups() {
-  return getLookupsServer();
+  return getLookupsServer().then(mapLookupDtosToLookups);
 }
 
 export function getLookupNames() {
   return getLookupNamesServer();
 }
 
-export function getLookupName(lookupName: string) {
-  return getLookupNameServer({ data: { lookupName } });
+export async function getLookupName(
+  lookupName: string,
+): Promise<LookupNameResponse> {
+  const response = await getLookupNameServer({ data: { lookupName } });
+
+  return {
+    ...response,
+    lookups: mapLookupDtosToLookups(response.lookups),
+  };
 }
 
 export function getStaticLookupNames(): LookupNameDto[] {

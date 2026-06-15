@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getErrorMessage } from "@/components/data-error-view";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
@@ -15,7 +15,6 @@ import { CustomerProductsTab } from "@/features/customers/components/customer-pr
 import type { CustomerTab } from "@/features/customers/components/customer-detail-constants";
 import { customerQueryOptions } from "@/features/customers/customer-service";
 import { useCustomerFavorites } from "@/features/customers/use-customer-favorites";
-import { mapCustomerDtoToCustomer } from "@/features/customers/customer-mappers";
 
 export function CustomerDetailPage({ customerId }: { customerId: string }) {
   const [activeTab, setActiveTab] = useState<CustomerTab>("details");
@@ -26,13 +25,7 @@ export function CustomerDetailPage({ customerId }: { customerId: string }) {
     ...customerQueryOptions(numericCustomerId),
     enabled: hasValidCustomerId,
   });
-  const customer = useMemo(
-    () =>
-      data?.customer
-        ? mapCustomerDtoToCustomer(data.customer, data.contacts, data.products)
-        : null,
-    [data],
-  );
+  const customer = data ?? null;
 
   if (!hasValidCustomerId) {
     return <CustomerNotFound />;

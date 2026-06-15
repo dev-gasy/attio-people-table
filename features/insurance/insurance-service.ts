@@ -1,12 +1,13 @@
 import { queryOptions } from "@tanstack/react-query";
-import type {
-  InsuranceRecordDto,
-  InsuranceRecordKindDto,
-} from "@/features/insurance/insurance-dtos";
+import type { InsuranceRecordKindDto } from "@/features/insurance/insurance-dtos";
 import { getInsuranceRecordServer } from "@/features/insurance/insurance-server";
+import {
+  mapInsuranceRecordDtoToRecord,
+  type InsuranceRecord,
+} from "@/features/insurance/insurance-mappers";
 
-export type InsuranceRecordResponseDto = {
-  record: InsuranceRecordDto | undefined;
+export type InsuranceRecordResponse = {
+  record: InsuranceRecord | undefined;
 };
 
 export const insuranceRecordQueryOptions = (
@@ -22,5 +23,9 @@ export function getInsuranceRecord(
   kind: InsuranceRecordKindDto,
   businessKey: string,
 ) {
-  return getInsuranceRecordServer({ data: { kind, businessKey } });
+  return getInsuranceRecordServer({ data: { kind, businessKey } }).then(
+    ({ record }) => ({
+      record: record ? mapInsuranceRecordDtoToRecord(record) : undefined,
+    }),
+  );
 }

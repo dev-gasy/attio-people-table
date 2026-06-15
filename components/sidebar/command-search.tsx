@@ -1,15 +1,11 @@
 import {
   ArrowLeft,
-  ContactRound,
-  FileText,
-  ListTree,
   Moon,
   PanelLeftClose,
   PanelLeftOpen,
   Search,
   Star,
   Sun,
-  Zap,
 } from "lucide-react";
 import {
   useEffect,
@@ -20,7 +16,7 @@ import {
 } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useTheme } from "@/components/theme-provider";
-import { navSections } from "@/components/sidebar/nav-items";
+import { navIcons, navSections } from "@/components/sidebar/nav-items";
 import type { PagePath } from "@/components/sidebar/types";
 import type { CustomerSearchValues } from "@/features/customers/customer-domain/customers-list";
 import { useCustomerSearchStore } from "@/features/customers/customer-domain/customer-search-store";
@@ -161,7 +157,7 @@ export function CommandSearch({
         group: "Workflows",
         keywords:
           "customer search crm find group policy quote email phone address",
-        icon: ContactRound,
+        icon: navIcons.customers,
         run: () => {
           setStep({ id: "customer-field" });
           setQuery("");
@@ -184,7 +180,7 @@ export function CommandSearch({
         label: "Load Kraken entrypoint",
         group: "Workflows",
         keywords: "kraken entrypoint load rules",
-        icon: Zap,
+        icon: navIcons.kraken,
         run: () => {
           setStep({ id: "kraken" });
           setQuery("");
@@ -196,7 +192,7 @@ export function CommandSearch({
         label: "Load policy",
         group: "Workflows",
         keywords: "policy load business key policy number",
-        icon: FileText,
+        icon: navIcons.load,
         run: () => {
           setStep({ id: "insurance-record", kind: "policy" });
           setQuery("");
@@ -208,7 +204,7 @@ export function CommandSearch({
         label: "Load quote",
         group: "Workflows",
         keywords: "quote load business key quote number",
-        icon: FileText,
+        icon: navIcons.load,
         run: () => {
           setStep({ id: "insurance-record", kind: "quote" });
           setQuery("");
@@ -220,7 +216,7 @@ export function CommandSearch({
         label: "Load lookup name",
         group: "Workflows",
         keywords: "lookup lookup name load lookups",
-        icon: ListTree,
+        icon: navIcons.lookups,
         run: () => {
           setStep({ id: "lookups" });
           setQuery("");
@@ -263,7 +259,7 @@ export function CommandSearch({
           label: field.label,
           group: "Customer field",
           keywords: `${field.label} ${field.id}`,
-          icon: ContactRound,
+          icon: navIcons.customers,
           run: () => {
             setStep({ id: "customer-value", field });
             setQuery("");
@@ -312,7 +308,7 @@ export function CommandSearch({
               : `Continue with quote "${businessKey}"`,
           group: step.kind === "policy" ? "Policies" : "Quotes",
           keywords: `${step.kind} ${businessKey}`,
-          icon: FileText,
+          icon: navIcons.load,
           run: () => {
             if (step.kind === "policy") {
               loadPolicyRecord(businessKey);
@@ -337,7 +333,7 @@ export function CommandSearch({
           label: `Load quote "${step.businessKey}" revision "${revisionNumber}"`,
           group: "Quotes",
           keywords: `quote ${step.businessKey} revision ${revisionNumber}`,
-          icon: FileText,
+          icon: navIcons.load,
           run: () => {
             loadQuoteRecord(step.businessKey, revisionNumber);
           },
@@ -352,7 +348,7 @@ export function CommandSearch({
           label: entrypoint.name,
           group: `${entrypoint.rulesCount} rules`,
           keywords: `${entrypoint.name} ${entrypoint.slug}`,
-          icon: Zap,
+          icon: navIcons.kraken,
           run: () => {
             navigate({
               to: "/kraken/$entrypointName",
@@ -378,7 +374,7 @@ export function CommandSearch({
         label: lookupName.name,
         group: `${lookupName.lookupsCount} lookups`,
         keywords: `${lookupName.name} ${lookupName.slug}`,
-        icon: ListTree,
+        icon: navIcons.lookups,
         run: () => {
           navigate({
             to: "/lookups/$lookupName",

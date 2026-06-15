@@ -2,9 +2,10 @@ import {
   Building2,
   CheckSquare,
   ContactRound,
-  FileText,
   IdCard,
   ListTree,
+  ShieldCheck,
+  StickyNote,
   Zap,
 } from "lucide-react";
 import type {
@@ -31,7 +32,7 @@ export const navSections: SidebarNavSection[] = [
       {
         id: "load",
         to: "/load",
-        icon: FileText,
+        icon: ShieldCheck,
         label: "Policy/Quote",
       },
     ],
@@ -40,7 +41,7 @@ export const navSections: SidebarNavSection[] = [
     label: "Work",
     items: [
       { id: "tasks", to: "/tasks", icon: CheckSquare, label: "Tasks" },
-      { id: "notes", to: "/notes", icon: FileText, label: "Notes" },
+      { id: "notes", to: "/notes", icon: StickyNote, label: "Notes" },
     ],
   },
   {
@@ -61,3 +62,9 @@ export const navSections: SidebarNavSection[] = [
 export const navItems: SidebarNavItem[] = navSections.flatMap(
   (section) => section.items,
 );
+
+export const navIcons: Record<SidebarNavItem["id"], SidebarNavItem["icon"]> =
+  Object.fromEntries(navItems.map((item) => [item.id, item.icon])) as Record<
+    SidebarNavItem["id"],
+    SidebarNavItem["icon"]
+  >;

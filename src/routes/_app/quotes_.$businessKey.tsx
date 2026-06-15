@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_app/quotes_/$businessKey")({
         title: `Quote ${businessKey}`,
         description: loaderData?.record
           ? `View quote ${businessKey} for ${loaderData.record.customerName}.`
-          : `View quote ${businessKey} in Attio CRM.`,
+          : `View quote ${businessKey} in CRM Demo.`,
       }),
     };
   },

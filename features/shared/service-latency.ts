@@ -1,3 +1,4 @@
+import { createMiddleware } from "@tanstack/react-start";
 import {
   serviceSimulationConfig,
   type ServiceSimulationRoute,
@@ -38,6 +39,19 @@ export async function simulateServiceResponse(
 
     throw error;
   }
+}
+
+export function createServiceSimulationMiddleware(
+  routeKey:
+    | ServiceSimulationRoute
+    | ((data: unknown) => ServiceSimulationRoute),
+) {
+  return createMiddleware({ type: "function" }).server(async ({ next, data }) => {
+    await simulateServiceCall(
+      typeof routeKey === "function" ? routeKey(data) : routeKey,
+    );
+    return next();
+  });
 }
 
 export async function simulateServiceCall(routeKey: ServiceSimulationRoute) {

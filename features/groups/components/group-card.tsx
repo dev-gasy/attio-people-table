@@ -1,7 +1,6 @@
 import { DollarSign, Users } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import type { Group } from "@/features/groups/group-mappers";
-import { StatusBadge } from "@/features/groups/components/status-badge";
 
 export function GroupCard({ group }: { group: Group }) {
   return (

@@ -8,16 +8,16 @@ export const Route = createFileRoute("/_app/customers_/$customerId")({
   loader: ({ context, params }) =>
     context.queryClient.ensureQueryData(
       customerQueryOptions(Number(params.customerId)),
-    ),
+  ),
   head: ({ loaderData }) => {
-    const customerName = loaderData?.customer?.name ?? "Customer";
+    const customerName = loaderData?.name ?? "Customer";
 
     return {
       meta: buildPageMeta({
         title: customerName,
-        description: loaderData?.customer
+        description: loaderData
           ? `View ${customerName}'s account profile, contacts, and products.`
-          : "View customer account details in Attio CRM.",
+          : "View customer account details in CRM Demo.",
       }),
     };
   },

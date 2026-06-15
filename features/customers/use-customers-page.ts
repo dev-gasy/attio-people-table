@@ -11,7 +11,6 @@ import {
   formatCustomerFavoriteIdsJson,
   parseCustomerFavoriteIdsJson,
 } from "@/features/customers/customer-domain/favorites";
-import { mapCustomerDtosToCustomers } from "@/features/customers/customer-mappers";
 import { customersQueryOptions } from "@/features/customers/customer-service";
 import { useCustomerFavorites } from "@/features/customers/use-customer-favorites";
 import { waitForServiceLatency } from "@/features/shared/service-latency";
@@ -40,17 +39,7 @@ export function useCustomersPage({ mode }: { mode: CustomersPageMode }) {
   >(null);
   const searchInFlightRef = useRef(false);
   const [isSearching, setIsSearching] = useState(false);
-  const customers = useMemo(
-    () =>
-      query.data
-        ? mapCustomerDtosToCustomers(
-            query.data.customers,
-            query.data.contacts,
-            query.data.products,
-          )
-        : [],
-    [query.data],
-  );
+  const customers = useMemo(() => query.data ?? [], [query.data]);
   const visibleCustomers = useMemo(() => {
     if (mode === "favorites") {
       return customers.filter((customer) =>

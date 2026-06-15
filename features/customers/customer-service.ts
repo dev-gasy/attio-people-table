@@ -1,25 +1,16 @@
-import type {
-  CustomerContactDto,
-  CustomerDto,
-  CustomerProductDto,
-} from "@/features/customers/customer-dtos";
 import { queryOptions } from "@tanstack/react-query";
 import {
   getCustomerServer,
   getCustomersServer,
 } from "@/features/customers/customer-server";
+import {
+  mapCustomerDtoToCustomer,
+  mapCustomerDtosToCustomers,
+  type Customer,
+} from "@/features/customers/customer-mappers";
 
-export type CustomersResponseDto = {
-  customers: CustomerDto[];
-  contacts: CustomerContactDto[];
-  products: CustomerProductDto[];
-};
-
-export type CustomerResponseDto = {
-  customer: CustomerDto | undefined;
-  contacts: CustomerContactDto[];
-  products: CustomerProductDto[];
-};
+export type CustomersResponse = Customer[];
+export type CustomerResponse = Customer | undefined;
 
 export const customersQueryOptions = () =>
   queryOptions({
@@ -34,9 +25,19 @@ export const customerQueryOptions = (customerId: number) =>
   });
 
 export function getCustomers() {
-  return getCustomersServer();
+  return getCustomersServer().then(({ customers, contacts, products }) =>
+    mapCustomerDtosToCustomers(customers, contacts, products),
+  );
 }
 
-export function getCustomerById(customerId: number) {
-  return getCustomerServer({ data: { customerId } });
+export async function getCustomerById(
+  customerId: number,
+): Promise<Customer | undefined> {
+  const { customer, contacts, products } = await getCustomerServer({
+    data: { customerId },
+  });
+
+  return customer
+    ? mapCustomerDtoToCustomer(customer, contacts, products)
+    : undefined;
 }

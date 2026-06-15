@@ -1,6 +1,7 @@
 import type { GroupDto, CreateGroupDto } from "@/features/groups/group-dtos";
 import { queryOptions } from "@tanstack/react-query";
 import { getGroupsServer } from "@/features/groups/group-server";
+import { mapGroupDtosToGroups } from "@/features/groups/group-mappers";
 
 export const groupsQueryOptions = () =>
   queryOptions({
@@ -9,7 +10,7 @@ export const groupsQueryOptions = () =>
   });
 
 export function getGroups() {
-  return getGroupsServer();
+  return getGroupsServer().then(mapGroupDtosToGroups);
 }
 
 export function createGroup(

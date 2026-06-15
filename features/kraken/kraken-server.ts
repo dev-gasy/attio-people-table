@@ -2,23 +2,22 @@ import { createServerFn } from "@tanstack/react-start";
 import { entrypoints, rules } from "@/lib/workspace-data";
 import { createSlug } from "@/features/shared/slugs";
 import {
+  createServiceSimulationMiddleware,
   ServiceResponseError,
-  simulateServiceCall,
 } from "@/features/shared/service-latency";
 
 export const getKrakenEntrypointsServer = createServerFn({
   method: "GET",
-}).handler(async () => {
-  await simulateServiceCall("krakenEntrypointsList");
-
-  return getStaticKrakenEntrypointsPayload();
-});
+})
+  .middleware([createServiceSimulationMiddleware("krakenEntrypointsList")])
+  .handler(async () => {
+    return getStaticKrakenEntrypointsPayload();
+  });
 
 export const getKrakenEntrypointRulesServer = createServerFn({ method: "GET" })
+  .middleware([createServiceSimulationMiddleware("krakenEntrypointRules")])
   .validator((data: { entrypointName: string }) => data)
   .handler(async ({ data }) => {
-    await simulateServiceCall("krakenEntrypointRules");
-
     const entrypoint = entrypoints.find(
       (item) => createSlug(item.name) === data.entrypointName,
     );

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getErrorMessage } from "@/components/data-error-view";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
@@ -18,10 +18,7 @@ import { InsurancePartiesSection } from "@/features/insurance/components/insuran
 import { InsuranceSummarySection } from "@/features/insurance/components/insurance-summary-section";
 import { InsuranceVehiclesSection } from "@/features/insurance/components/insurance-vehicles-section";
 import { insuranceRecordQueryOptions } from "@/features/insurance/insurance-service";
-import {
-  mapInsuranceRecordDtoToRecord,
-  type InsuranceRecordKind,
-} from "@/features/insurance/insurance-mappers";
+import type { InsuranceRecordKind } from "@/features/insurance/insurance-mappers";
 
 export function InsuranceDetailPage({
   businessKey,
@@ -34,11 +31,7 @@ export function InsuranceDetailPage({
   const { data, error, isError, isFetching, isPending, refetch } = useQuery(
     insuranceRecordQueryOptions(kind, businessKey),
   );
-  const record = useMemo(
-    () =>
-      data?.record ? mapInsuranceRecordDtoToRecord(data.record) : undefined,
-    [data],
-  );
+  const record = data?.record;
   const label = insuranceRouteLabels[kind];
 
   if (isPending) {

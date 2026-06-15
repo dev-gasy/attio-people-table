@@ -68,7 +68,7 @@ export function CustomerTable({
   }
 
   return (
-    <>
+    <div className="flex min-h-0 flex-1 flex-col">
       <div className="overflow-auto rounded-xl border border-border bg-muted/10">
         <div className="w-full min-w-0">
           <div
@@ -198,11 +198,10 @@ export function CustomerTable({
             onPageChange={pagination.setPage}
             onPageSizeChange={pagination.setPageSize}
             bordered={false}
-            padded={false}
-            className="sticky bottom-0 z-20 mt-0 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
+            className="sticky bottom-0 z-20 -mx-6 mt-auto border-t border-border bg-background/85 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70"
           />
         )}
-    </>
+    </div>
   );
 }
 

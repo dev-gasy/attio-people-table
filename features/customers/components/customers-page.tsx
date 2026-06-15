@@ -79,7 +79,7 @@ export function CustomersPage({
         }
       />
 
-      <PageFrameBody className="space-y-6">
+      <PageFrameBody className="flex min-h-[calc(100%-var(--page-frame-header-height))] flex-col gap-6 pb-0">
         {mode === "search" && (
           <CustomerSearchForm
             values={searchValues}

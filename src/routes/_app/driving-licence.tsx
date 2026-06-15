@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_app/driving-licence")({
   head: () => ({
     meta: buildPageMeta({
       title: "Driving Licence",
-      description: "Preview and validate driving licence details in Attio CRM.",
+      description: "Preview and validate driving licence details in CRM Demo.",
     }),
   }),
   errorComponent: (props) => (

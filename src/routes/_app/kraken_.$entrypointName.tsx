@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_app/kraken_/$entrypointName")({
     return {
       meta: buildPageMeta({
         title: entrypointName,
-        description: `Inspect Kraken rules for ${entrypointName} in Attio CRM.`,
+        description: `Inspect Kraken rules for ${entrypointName} in CRM Demo.`,
       }),
     };
   },

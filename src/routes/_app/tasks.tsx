@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_app/tasks")({
   head: () => ({
     meta: buildPageMeta({
       title: "Tasks",
-      description: "Track follow-ups and account tasks in Attio CRM.",
+      description: "Track follow-ups and account tasks in CRM Demo.",
     }),
   }),
   errorComponent: (props) => <RouteErrorFallback title="Tasks" {...props} />,

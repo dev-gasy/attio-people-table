@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_app/customers_/favorites")({
   head: () => ({
     meta: buildPageMeta({
       title: "Favorite Customers",
-      description: "Review favorite customer records in Attio CRM.",
+      description: "Review favorite customer records in CRM Demo.",
     }),
   }),
   errorComponent: (props) => (

@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_app/groups")({
   head: () => ({
     meta: buildPageMeta({
       title: "Groups",
-      description: "Browse company groups and account ownership in Attio CRM.",
+      description: "Browse company groups and account ownership in CRM Demo.",
     }),
   }),
   errorComponent: (props) => <RouteErrorFallback title="Groups" {...props} />,

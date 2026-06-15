@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_app/lookups")({
   head: () => ({
     meta: buildPageMeta({
       title: "Lookups",
-      description: "Explore lookup names and lookup values in Attio CRM.",
+      description: "Explore lookup names and lookup values in CRM Demo.",
     }),
   }),
   errorComponent: (props) => <RouteErrorFallback title="Lookups" {...props} />,

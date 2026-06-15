@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_app/customers")({
   head: () => ({
     meta: buildPageMeta({
       title: "Customers",
-      description: "Browse and manage customer records in Attio CRM.",
+      description: "Browse and manage customer records in CRM Demo.",
     }),
   }),
   errorComponent: (props) => (

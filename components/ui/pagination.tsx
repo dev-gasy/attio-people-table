@@ -4,7 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  Rows3,
 } from "lucide-react";
 
 export function Pagination({

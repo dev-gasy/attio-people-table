@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_app/kraken")({
   head: () => ({
     meta: buildPageMeta({
       title: "Kraken",
-      description: "Inspect Kraken entrypoints and rules in Attio CRM.",
+      description: "Inspect Kraken entrypoints and rules in CRM Demo.",
     }),
   }),
   errorComponent: (props) => <RouteErrorFallback title="Kraken" {...props} />,

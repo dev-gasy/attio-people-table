@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_app/policies_/$businessKey")({
         title: `Policy ${businessKey}`,
         description: loaderData?.record
           ? `View policy ${businessKey} for ${loaderData.record.customerName}.`
-          : `View policy ${businessKey} in Attio CRM.`,
+          : `View policy ${businessKey} in CRM Demo.`,
       }),
     };
   },

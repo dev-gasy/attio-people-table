@@ -24,17 +24,13 @@ import {
 import {
   type Group,
   type GroupStatus,
-  mapGroupDtosToGroups,
   mapGroupDtoToGroup,
 } from "@/features/groups/group-mappers";
 import { usePagination } from "@/hooks/use-pagination";
 
 export function useGroupsPage() {
   const query = useQuery(groupsQueryOptions());
-  const seedGroups = useMemo(
-    () => mapGroupDtosToGroups(query.data ?? []),
-    [query.data],
-  );
+  const seedGroups = useMemo(() => query.data ?? [], [query.data]);
   const [localGroups, setLocalGroups] = useState<Group[] | null>(null);
   const groups = localGroups ?? seedGroups;
   const [statusFilter, setStatusFilterState] = useState<GroupStatus>();
