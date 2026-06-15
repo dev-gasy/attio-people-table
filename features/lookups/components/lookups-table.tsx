@@ -138,6 +138,14 @@ function LookupRow({
 }
 
 function renderLookupCell(lookup: Lookup, column: LookupColumnKey) {
+  if (column === "orderNo") {
+    return (
+      <span className="min-w-0 truncate text-muted-foreground">
+        {lookup.orderNo}
+      </span>
+    );
+  }
+
   if (column === "code") {
     return (
       <code

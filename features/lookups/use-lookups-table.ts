@@ -1,5 +1,5 @@
 import { useMemo, useState, type ComponentType } from "react";
-import { CalendarDays, Hash, Languages } from "lucide-react";
+import { CalendarDays, Hash, Languages, ListOrdered } from "lucide-react";
 import type { ColumnVisibilityOption } from "@/components/ui/column-visibility-control";
 import {
   filterLookups,
@@ -60,9 +60,17 @@ export const lookupColumns: LookupColumnConfig[] = [
     minWidth: 160,
     width: "minmax(140px, 180px)",
   },
+  {
+    id: "orderNo",
+    label: "Order No.",
+    icon: ListOrdered,
+    minWidth: 120,
+    width: "minmax(110px, 130px)",
+  },
 ];
 
 const defaultLookupColumnVisibility: Record<LookupColumnKey, boolean> = {
+  orderNo: true,
   code: true,
   displayValueEn: true,
   displayValueFr: true,

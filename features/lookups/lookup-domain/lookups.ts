@@ -2,6 +2,7 @@ import type { Lookup } from "@/features/lookups/lookup-mappers";
 
 export type LookupSortKey =
   | "code"
+  | "orderNo"
   | "displayValueEn"
   | "displayValueFr"
   | "effectiveDate";
@@ -23,9 +24,12 @@ export function filterLookups({
   if (!normalizedQuery) return lookups;
 
   return lookups.filter((lookup) =>
-    [lookup.code, lookup.displayValueEn, lookup.displayValueFr].some((value) =>
-      value.toLowerCase().includes(normalizedQuery),
-    ),
+    [
+      lookup.code,
+      lookup.orderNo.toString(),
+      lookup.displayValueEn,
+      lookup.displayValueFr,
+    ].some((value) => value.toLowerCase().includes(normalizedQuery)),
   );
 }
 
@@ -50,6 +54,7 @@ export function sortLookups(
 
 function getLookupSortValue(lookup: Lookup, sortKey: LookupSortKey) {
   if (sortKey === "effectiveDate") return lookup.effectiveDateValue;
+  if (sortKey === "orderNo") return lookup.orderNo.toString();
 
   return lookup[sortKey];
 }

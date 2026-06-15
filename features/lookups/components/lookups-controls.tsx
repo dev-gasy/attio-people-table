@@ -20,7 +20,7 @@ export function LookupsControls({
         value={table.query}
         disabled={!hasLookupName || disabled}
         onValueChange={table.setQuery}
-        placeholder="Search code, English, or French..."
+        placeholder="Search order, code, English, or French..."
         className="flex-1 sm:min-w-[280px]"
       />
       <ColumnVisibilityControl

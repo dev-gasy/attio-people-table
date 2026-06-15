@@ -4,6 +4,7 @@ export type Lookup = {
   id: number;
   lookupName: string;
   code: string;
+  orderNo: number;
   displayValueEn: string;
   displayValueFr: string;
   effectiveDate: string;
