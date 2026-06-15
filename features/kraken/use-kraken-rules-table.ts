@@ -2,13 +2,17 @@ import { useMemo, useState, type ComponentType } from "react";
 import { FileText, Hash, MessageSquareText, Tags } from "lucide-react";
 import type { ColumnVisibilityOption } from "@/components/ui/column-visibility-control";
 import { type Rule, type RuleType } from "@/lib/workspace-data";
+import {
+  filterRules,
+  sortRules,
+  type RuleSortKey,
+} from "@/features/kraken/kraken-domain/rules";
 import { useColumnVisibility } from "@/hooks/use-column-visibility";
 import { usePagination } from "@/hooks/use-pagination";
-import { useSortCycle, type SortDirection } from "@/hooks/use-sort-cycle";
+import { useSortCycle } from "@/hooks/use-sort-cycle";
 
 const RULES_PAGE_SIZE = 16;
 
-export type RuleSortKey = "name" | "code" | "message" | "type";
 export type RuleColumnKey = RuleSortKey;
 
 export type RuleColumnConfig = ColumnVisibilityOption<RuleColumnKey> & {
@@ -64,7 +68,7 @@ const defaultRuleColumnVisibility: Record<RuleColumnKey, boolean> = {
 };
 
 export function useKrakenRulesTable(rules: Rule[]) {
-  const [typeFilter, setTypeFilterState] = useState<string | null>(null);
+  const [typeFilter, setTypeFilterState] = useState<RuleType | null>(null);
   const [query, setQueryState] = useState("");
   const sort = useSortCycle<RuleSortKey>();
   const columnVisibility = useColumnVisibility({
@@ -91,19 +95,9 @@ export function useKrakenRulesTable(rules: Rule[]) {
     (total, column) => total + column.minWidth,
     0,
   );
-  const normalizedQuery = query.trim().toLowerCase();
   const filteredRules = useMemo(() => {
-    return rules.filter((rule) => {
-      const matchesType = !typeFilter || rule.type === typeFilter;
-      const matchesQuery =
-        !normalizedQuery ||
-        [rule.name, rule.code, rule.message].some((value) =>
-          value.toLowerCase().includes(normalizedQuery),
-        );
-
-      return matchesType && matchesQuery;
-    });
-  }, [normalizedQuery, rules, typeFilter]);
+    return filterRules({ rules, query, typeFilter });
+  }, [query, rules, typeFilter]);
   const sortedRules = useMemo(
     () => sortRules(filteredRules, sort.sortKey, sort.direction),
     [filteredRules, sort.direction, sort.sortKey],
@@ -119,7 +113,7 @@ export function useKrakenRulesTable(rules: Rule[]) {
   }
 
   function setTypeFilter(value: string | null) {
-    setTypeFilterState(value);
+    setTypeFilterState(value as RuleType | null);
     pagination.resetPage();
   }
 
@@ -151,25 +145,4 @@ export function useKrakenRulesTable(rules: Rule[]) {
   };
 }
 
-function sortRules(
-  ruleList: Rule[],
-  sortKey: RuleSortKey | null,
-  direction: SortDirection,
-) {
-  if (!sortKey) return ruleList;
-
-  return [...ruleList].sort((a, b) => {
-    const result =
-      getRuleSortValue(a, sortKey).localeCompare(
-        getRuleSortValue(b, sortKey),
-        undefined,
-        { numeric: true, sensitivity: "base" },
-      ) || a.id - b.id;
-
-    return direction === "asc" ? result : -result;
-  });
-}
-
-function getRuleSortValue(rule: Rule, sortKey: RuleSortKey) {
-  return rule[sortKey];
-}
+export type KrakenRulesTableState = ReturnType<typeof useKrakenRulesTable>;

@@ -1,18 +1,18 @@
 import { useMemo, useState, type ComponentType } from "react";
 import { CalendarDays, Hash, Languages } from "lucide-react";
 import type { ColumnVisibilityOption } from "@/components/ui/column-visibility-control";
+import {
+  filterLookups,
+  sortLookups,
+  type LookupSortKey,
+} from "@/features/lookups/lookup-domain/lookups";
 import type { Lookup } from "@/features/lookups/lookup-mappers";
 import { useColumnVisibility } from "@/hooks/use-column-visibility";
 import { usePagination } from "@/hooks/use-pagination";
-import { useSortCycle, type SortDirection } from "@/hooks/use-sort-cycle";
+import { useSortCycle } from "@/hooks/use-sort-cycle";
 
 const LOOKUPS_PAGE_SIZE = 16;
 
-export type LookupSortKey =
-  | "code"
-  | "displayValueEn"
-  | "displayValueFr"
-  | "effectiveDate";
 export type LookupColumnKey = LookupSortKey;
 
 export type LookupColumnConfig = ColumnVisibilityOption<LookupColumnKey> & {
@@ -98,16 +98,9 @@ export function useLookupsTable(lookups: Lookup[]) {
     (total, column) => total + column.minWidth,
     0,
   );
-  const normalizedQuery = query.trim().toLowerCase();
   const filteredLookups = useMemo(() => {
-    if (!normalizedQuery) return lookups;
-
-    return lookups.filter((lookup) =>
-      [lookup.code, lookup.displayValueEn, lookup.displayValueFr].some(
-        (value) => value.toLowerCase().includes(normalizedQuery),
-      ),
-    );
-  }, [lookups, normalizedQuery]);
+    return filterLookups({ lookups, query });
+  }, [lookups, query]);
   const sortedLookups = useMemo(
     () => sortLookups(filteredLookups, sort.sortKey, sort.direction),
     [filteredLookups, sort.direction, sort.sortKey],
@@ -148,27 +141,4 @@ export function useLookupsTable(lookups: Lookup[]) {
   };
 }
 
-function sortLookups(
-  lookupList: Lookup[],
-  sortKey: LookupSortKey | null,
-  direction: SortDirection,
-) {
-  if (!sortKey) return lookupList;
-
-  return [...lookupList].sort((a, b) => {
-    const result =
-      getLookupSortValue(a, sortKey).localeCompare(
-        getLookupSortValue(b, sortKey),
-        undefined,
-        { numeric: true, sensitivity: "base" },
-      ) || a.id - b.id;
-
-    return direction === "asc" ? result : -result;
-  });
-}
-
-function getLookupSortValue(lookup: Lookup, sortKey: LookupSortKey) {
-  if (sortKey === "effectiveDate") return lookup.effectiveDateValue;
-
-  return lookup[sortKey];
-}
+export type LookupsTableState = ReturnType<typeof useLookupsTable>;
