@@ -1,5 +1,3 @@
-"use client";
-
 import { type ReactNode } from "react";
 
 export function PageFrame({ children }: { children: ReactNode }) {

@@ -1,5 +1,3 @@
-"use client";
-
 import { useForm } from "@tanstack/react-form";
 import { RotateCcw, Search } from "lucide-react";
 import { useEffect, useState, type ElementType, type ReactNode } from "react";
@@ -10,6 +8,7 @@ import {
   trimCustomerSearchValues,
   type CustomerSearchValues,
 } from "@/features/customers/customer-domain/customers-list";
+import { Input } from "../ui/input";
 
 const fieldGroups: Array<
   Array<{
@@ -81,20 +80,18 @@ function SearchField({
           <span className="text-xs font-medium text-muted-foreground">
             {searchField.label}
           </span>
-          <input
+          <Input
             name={field.name}
             value={field.state.value}
             onBlur={field.handleBlur}
             onChange={(event) => {
               const value = event.target.value;
-
               onValueChange(searchField.name, value);
               field.handleChange(value);
             }}
             type={searchField.type ?? "text"}
             placeholder={searchField.placeholder}
             disabled={disabled}
-            className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-3 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
       )}
@@ -177,6 +174,10 @@ export function CustomerSearchForm({
             </p>
           )}
           <div className="flex items-center gap-2">
+            <Button type="submit" disabled={disabled || !canSearch}>
+              <Search className="h-4 w-4" />
+              Search
+            </Button>
             <Button
               type="button"
               disabled={disabled}
@@ -188,10 +189,6 @@ export function CustomerSearchForm({
             >
               <RotateCcw className="h-4 w-4" />
               Clear
-            </Button>
-            <Button type="submit" disabled={disabled || !canSearch}>
-              <Search className="h-4 w-4" />
-              Search
             </Button>
           </div>
         </div>

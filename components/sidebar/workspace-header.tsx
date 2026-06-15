@@ -1,5 +1,3 @@
-"use client";
-
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 export function WorkspaceHeader({

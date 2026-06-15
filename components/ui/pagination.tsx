@@ -1,5 +1,3 @@
-"use client";
-
 import {
   ChevronFirst,
   ChevronLast,

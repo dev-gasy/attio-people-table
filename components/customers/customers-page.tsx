@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Download, Star, Upload, User } from "lucide-react";
@@ -22,6 +20,8 @@ import { customersQueryOptions } from "@/features/customers/customer-service";
 import { mapCustomerDtosToCustomers } from "@/features/customers/customer-mappers";
 import { useCustomerFavorites } from "@/features/customers/use-customer-favorites";
 import { waitForServiceLatency } from "@/features/shared/service-latency";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 type CustomersPageMode = "search" | "favorites";
 
@@ -174,22 +174,14 @@ export function CustomersPage({
                   onChange={handleLoadFavorites}
                   className="hidden"
                 />
-                <button
-                  type="button"
-                  onClick={() => importInputRef.current?.click()}
-                  className="flex h-8 items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 text-sm font-medium text-foreground hover:bg-muted"
-                >
+                <Button onClick={() => importInputRef.current?.click()}>
                   <Upload className="h-4 w-4" />
                   Load favorites
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveFavorites}
-                  className="flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-                >
+                </Button>
+                <Button onClick={handleSaveFavorites}>
                   <Download className="h-4 w-4" />
                   Save favorites
-                </button>
+                </Button>
               </>
             ) : (
               <Link

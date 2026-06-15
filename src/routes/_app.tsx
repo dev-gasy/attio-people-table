@@ -3,9 +3,26 @@ import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { AppSidebar, type PageId } from "@/components/app-sidebar";
 import { navItems } from "@/components/sidebar/nav-items";
 
-const routePageMap = Object.fromEntries(
+const routePageMap = new Map<string, PageId>(
   navItems.map((item) => [item.to, item.id]),
-) as Record<string, PageId>;
+);
+
+const prefixPageMap = new Map<string, PageId>([
+  ["/customers/", "customers"],
+  ["/policies/", "load"],
+  ["/quotes/", "load"],
+  ["/kraken/", "kraken"],
+  ["/lookups/", "lookups"],
+]);
+
+function getActivePage(pathname: string): PageId {
+  for (const [prefix, page] of prefixPageMap) {
+    if (pathname.startsWith(prefix)) {
+      return page;
+    }
+  }
+  return routePageMap.get(pathname) ?? "customers";
+}
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -13,22 +30,8 @@ export const Route = createFileRoute("/_app")({
 
 function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
-  const location = useLocation();
-  const activePage = useMemo(
-    () =>
-      location.pathname.startsWith("/customers/")
-        ? "customers"
-        : location.pathname.startsWith("/policies/")
-          ? "load"
-          : location.pathname.startsWith("/quotes/")
-            ? "load"
-            : location.pathname.startsWith("/kraken/")
-              ? "kraken"
-              : location.pathname.startsWith("/lookups/")
-                ? "lookups"
-                : (routePageMap[location.pathname] ?? "customers"),
-    [location.pathname],
-  );
+  const { pathname } = useLocation();
+  const activePage = useMemo(() => getActivePage(pathname), [pathname]);
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden bg-background">

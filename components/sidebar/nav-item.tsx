@@ -1,5 +1,3 @@
-"use client";
-
 import type { ComponentType } from "react";
 import { Link } from "@tanstack/react-router";
 import type { PagePath } from "@/components/sidebar/types";

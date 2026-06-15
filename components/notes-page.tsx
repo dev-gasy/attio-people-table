@@ -1,11 +1,11 @@
-"use client";
-
 import { useMemo, useState } from "react";
 import { Search, Plus, FileText } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import { PageHeader } from "@/components/page-header";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { notes } from "@/lib/workspace-data";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 export function NotesPage() {
   const [query, setQuery] = useState("");
@@ -35,10 +35,10 @@ export function NotesPage() {
                 className="w-44 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
               />
             </div>
-            <button className="flex items-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
+            <Button>
               <Plus className="h-4 w-4" />
               New note
-            </button>
+            </Button>
           </>
         }
       />

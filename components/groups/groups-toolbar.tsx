@@ -1,5 +1,3 @@
-"use client";
-
 import { Filter, LayoutGrid, List, Plus } from "lucide-react";
 import type { GroupStatus } from "@/features/groups/group-mappers";
 import { statusOptions } from "@/components/groups/constants";

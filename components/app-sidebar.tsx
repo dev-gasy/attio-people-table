@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { PrimaryNav } from "@/components/sidebar/primary-nav";
 import { CommandSearch } from "@/components/sidebar/command-search";

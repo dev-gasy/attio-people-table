@@ -1,5 +1,3 @@
-"use client";
-
 import type { Row } from "@tanstack/react-table";
 import {
   BadgeCheck,

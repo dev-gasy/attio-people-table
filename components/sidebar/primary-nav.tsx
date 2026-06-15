@@ -1,5 +1,3 @@
-"use client";
-
 import { NavItem } from "@/components/sidebar/nav-item";
 import { navSections } from "@/components/sidebar/nav-items";
 import type { PageId } from "@/components/sidebar/types";

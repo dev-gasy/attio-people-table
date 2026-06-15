@@ -1,10 +1,9 @@
-"use client";
-
 import { useMemo, useState, type FormEvent } from "react";
 import { BadgeCheck, IdCard, RotateCcw } from "lucide-react";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { Input } from "../ui/input";
 
 type Gender = "Male" | "Female";
 
@@ -149,28 +148,45 @@ export function DrivingLicencePage() {
                 <legend className="text-xs font-medium text-muted-foreground">
                   Gender
                 </legend>
-                <div className="grid grid-cols-2 gap-2">
-                  {(["Male", "Female"] as const).map((gender) => (
-                    <label
-                      key={gender}
-                      className={`flex h-9 cursor-pointer items-center justify-center rounded-lg border px-3 text-sm font-medium transition-colors ${
-                        form.gender === gender
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-background text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <input
-                        required
-                        type="radio"
-                        name="gender"
-                        value={gender}
-                        checked={form.gender === gender}
-                        onChange={() => setForm({ ...form, gender })}
-                        className="sr-only"
-                      />
-                      {gender}
-                    </label>
-                  ))}
+                <div className="grid grid-cols-2 gap-2 pt-2">
+                  {(["Male", "Female"] as const).map((option) => {
+                    const id = `gender-${option.toLowerCase()}`;
+                    const isSelected = form.gender === option;
+                    return (
+                      <label
+                        key={option}
+                        htmlFor={id}
+                        className={`flex cursor-pointer items-center gap-3 rounded-lg border px-2.5 py-2 text-sm transition-colors ${
+                          isSelected
+                            ? "border-blue-400 text-blue-900 dark:border-blue-500 dark:text-blue-100"
+                            : "border-border bg-background text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <span
+                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-[1.5px] transition-colors ${
+                            isSelected
+                              ? "border-blue-500 bg-blue-500"
+                              : "border-muted-foreground"
+                          }`}
+                        >
+                          {isSelected && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                          )}
+                        </span>
+                        <input
+                          required
+                          type="radio"
+                          id={id}
+                          name="gender"
+                          value={option}
+                          checked={isSelected}
+                          onChange={() => setForm({ ...form, gender: option })}
+                          className="sr-only"
+                        />
+                        {option}
+                      </label>
+                    );
+                  })}
                 </div>
               </fieldset>
 
@@ -220,14 +236,13 @@ function TextField({
   return (
     <label className="flex min-w-0 flex-col gap-1.5">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
-      <input
+      <Input
         autoFocus={autoFocus}
         required
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-3 focus:ring-ring/20"
       />
     </label>
   );
@@ -236,7 +251,7 @@ function TextField({
 function LicencePreview({ result }: { result: LicenceResult | null }) {
   if (!result) {
     return (
-      <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/10 p-6 text-center">
+      <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-border bg-muted/10 p-6 text-center">
         <div className="max-w-sm">
           <IdCard className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
           <p className="text-sm font-medium text-foreground">
@@ -274,25 +289,6 @@ function LicencePreview({ result }: { result: LicenceResult | null }) {
         </div>
       </div>
     </section>
-  );
-}
-
-function PreviewField({
-  label,
-  value,
-  wide,
-}: {
-  label: string;
-  value: string;
-  wide?: boolean;
-}) {
-  return (
-    <div className={wide ? "sm:col-span-2" : ""}>
-      <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 break-words font-medium text-foreground">
-        {value}
-      </dd>
-    </div>
   );
 }
 

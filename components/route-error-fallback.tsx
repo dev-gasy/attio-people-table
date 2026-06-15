@@ -1,5 +1,3 @@
-"use client";
-
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, RotateCcw } from "lucide-react";

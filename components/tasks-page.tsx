@@ -1,17 +1,8 @@
-"use client";
-
 import { useMemo, useState } from "react";
 import { Check, Plus } from "lucide-react";
-import { Avatar } from "@/components/avatar";
 import { PageHeader } from "@/components/page-header";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { tasksSeed, type Task } from "@/lib/workspace-data";
-
-const priorityStyles: Record<Task["priority"], string> = {
-  High: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
-  Medium: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-  Low: "bg-muted/60 text-muted-foreground",
-};
 
 export function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>(tasksSeed);
@@ -57,10 +48,6 @@ export function TasksPage() {
                 </button>
               ))}
             </div>
-            <button className="flex items-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
-              <Plus className="h-4 w-4" />
-              New task
-            </button>
           </>
         }
       />
@@ -91,15 +78,6 @@ export function TasksPage() {
               >
                 {t.title}
               </span>
-              <span
-                className={`rounded-md px-2 py-0.5 text-xs font-medium ${priorityStyles[t.priority]}`}
-              >
-                {t.priority}
-              </span>
-              <span className="w-20 text-right text-xs text-muted-foreground">
-                {t.due}
-              </span>
-              <Avatar initial={t.initial} color={t.color} />
             </div>
           ))}
           {visible.length === 0 && (

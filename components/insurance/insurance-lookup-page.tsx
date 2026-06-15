@@ -1,135 +1,161 @@
-"use client";
-
-import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useForm } from "@tanstack/react-form";
 import { FileText, Search } from "lucide-react";
+import { z } from "zod";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { Input } from "../ui/input";
+
+const policySchema = z.object({
+  businessKey: z.string().min(1),
+});
+
+const quoteSchema = z.object({
+  businessKey: z.string().min(1),
+  revisionNumber: z.string().min(1),
+});
+
+function LookupForm({
+  title,
+  fields,
+  canSubmit,
+  onSubmit,
+}: {
+  title: string;
+  fields: React.ReactNode;
+  canSubmit: boolean;
+  onSubmit: (e: React.FormEvent) => void;
+}) {
+  return (
+    <form
+      onSubmit={onSubmit}
+      className="overflow-hidden rounded-xl border border-border"
+    >
+      <div className="flex items-center gap-2.5 bg-muted/30 px-4 py-3">
+        <FileText className="h-4 w-4 text-muted-foreground" />
+        <span className="text-sm font-medium text-foreground">{title}</span>
+      </div>
+      <div className="flex flex-col gap-4 bg-muted/10 px-4 py-4">{fields}</div>
+      <div className="flex items-center border-t border-border bg-background/40 px-4 py-3">
+        <Button type="submit" disabled={!canSubmit}>
+          <Search className="h-4 w-4" />
+          Load
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function FormField({
+  label,
+  placeholder,
+  ...inputProps
+}: {
+  label: string;
+  placeholder: string;
+} & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <label className="flex min-w-0 flex-col gap-1.5">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <Input placeholder={placeholder} {...inputProps} />
+    </label>
+  );
+}
+
+function normalize(value: string) {
+  return value.trim().toUpperCase();
+}
 
 export function InsuranceLookupPage() {
   const navigate = useNavigate();
-  const [policyBusinessKey, setPolicyBusinessKey] = useState("");
-  const [quoteBusinessKey, setQuoteBusinessKey] = useState("");
-  const [quoteRevisionNumber, setQuoteRevisionNumber] = useState("");
-  const normalizedPolicyBusinessKey = policyBusinessKey.trim().toUpperCase();
-  const normalizedQuoteBusinessKey = quoteBusinessKey.trim().toUpperCase();
-  const normalizedQuoteRevisionNumber = quoteRevisionNumber.trim();
-  const canLoadPolicy = Boolean(normalizedPolicyBusinessKey);
-  const canLoadQuote =
-    Boolean(normalizedQuoteBusinessKey) &&
-    Boolean(normalizedQuoteRevisionNumber);
 
-  function handlePolicySubmit(event: FormEvent) {
-    event.preventDefault();
+  const policyForm = useForm({
+    defaultValues: { businessKey: "" },
+    validators: { onSubmit: policySchema },
+    onSubmit: ({ value }) =>
+      navigate({
+        to: "/policies/$businessKey",
+        params: { businessKey: normalize(value.businessKey) },
+      }),
+  });
 
-    if (!canLoadPolicy) return;
-
-    navigate({
-      to: "/policies/$businessKey",
-      params: { businessKey: normalizedPolicyBusinessKey },
-    });
-  }
-
-  function handleQuoteSubmit(event: FormEvent) {
-    event.preventDefault();
-
-    if (!canLoadQuote) return;
-
-    navigate({
-      to: "/quotes/$businessKey",
-      params: { businessKey: normalizedQuoteBusinessKey },
-      search: { revisionNumber: normalizedQuoteRevisionNumber },
-    });
-  }
+  const quoteForm = useForm({
+    defaultValues: { businessKey: "", revisionNumber: "" },
+    validators: { onSubmit: quoteSchema },
+    onSubmit: ({ value }) =>
+      navigate({
+        to: "/quotes/$businessKey",
+        params: { businessKey: normalize(value.businessKey) },
+        search: { revisionNumber: normalize(value.revisionNumber) },
+      }),
+  });
 
   return (
     <PageFrame>
       <PageHeader title="Policy/Quote" />
-
       <PageFrameBody className="pb-8">
         <div className="flex flex-col gap-4">
-          <form
-            onSubmit={handlePolicySubmit}
-            className="overflow-hidden rounded-xl border border-border"
-          >
-            <LoadFormHeader title="Load policy" />
-            <div className="flex flex-col gap-4 bg-muted/10 px-4 py-4">
-              <label className="flex min-w-0 flex-col gap-1.5">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Policy business key
-                </span>
-                <input
-                  autoFocus
-                  required
-                  value={policyBusinessKey}
-                  onChange={(event) => setPolicyBusinessKey(event.target.value)}
-                  placeholder="POL-001496"
-                  className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-3 focus:ring-ring/20"
-                />
-              </label>
-            </div>
-            <LoadFormActions disabled={!canLoadPolicy} />
-          </form>
+          <LookupForm
+            title="Load policy"
+            canSubmit={policyForm.state.canSubmit}
+            onSubmit={(e) => {
+              e.preventDefault();
+              policyForm.handleSubmit();
+            }}
+            fields={
+              <policyForm.Field name="businessKey">
+                {(field) => (
+                  <FormField
+                    label="Policy business key"
+                    placeholder="POL-001496"
+                    autoFocus
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                  />
+                )}
+              </policyForm.Field>
+            }
+          />
 
-          <form
-            onSubmit={handleQuoteSubmit}
-            className="overflow-hidden rounded-xl border border-border"
-          >
-            <LoadFormHeader title="Load quote" />
-            <div className="flex flex-col gap-4 bg-muted/10 px-4 py-4">
-              <label className="flex min-w-0 flex-col gap-1.5">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Quote business key
-                </span>
-                <input
-                  required
-                  value={quoteBusinessKey}
-                  onChange={(event) => setQuoteBusinessKey(event.target.value)}
-                  placeholder="QUO-001500"
-                  className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-3 focus:ring-ring/20"
-                />
-              </label>
-
-              <label className="flex min-w-0 flex-col gap-1.5">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Revision number
-                </span>
-                <input
-                  required
-                  value={quoteRevisionNumber}
-                  onChange={(event) =>
-                    setQuoteRevisionNumber(event.target.value)
-                  }
-                  placeholder="1"
-                  className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-3 focus:ring-ring/20"
-                />
-              </label>
-            </div>
-            <LoadFormActions disabled={!canLoadQuote} />
-          </form>
+          <LookupForm
+            title="Load quote"
+            canSubmit={quoteForm.state.canSubmit}
+            onSubmit={(e) => {
+              e.preventDefault();
+              quoteForm.handleSubmit();
+            }}
+            fields={
+              <>
+                <quoteForm.Field name="businessKey">
+                  {(field) => (
+                    <FormField
+                      label="Quote business key"
+                      placeholder="QUO-001500"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                    />
+                  )}
+                </quoteForm.Field>
+                <quoteForm.Field name="revisionNumber">
+                  {(field) => (
+                    <FormField
+                      label="Revision number"
+                      placeholder="1"
+                      type="number"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                    />
+                  )}
+                </quoteForm.Field>
+              </>
+            }
+          />
         </div>
       </PageFrameBody>
     </PageFrame>
-  );
-}
-
-function LoadFormHeader({ title }: { title: string }) {
-  return (
-    <div className="flex items-center gap-2.5 bg-muted/30 px-4 py-3">
-      <FileText className="h-4 w-4 text-muted-foreground" />
-      <span className="text-sm font-medium text-foreground">{title}</span>
-    </div>
-  );
-}
-
-function LoadFormActions({ disabled }: { disabled: boolean }) {
-  return (
-    <div className="flex items-center border-t border-border bg-background/40 px-4 py-3">
-      <Button type="submit" disabled={disabled}>
-        <Search className="h-4 w-4" />
-        Load
-      </Button>
-    </div>
   );
 }

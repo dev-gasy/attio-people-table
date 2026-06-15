@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useMemo, useState } from "react";
 
 import { toggleCustomerFavoriteId } from "@/features/customers/customer-domain/favorites";

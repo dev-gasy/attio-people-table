@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { CalendarDays, Mail, MapPin, Phone, User } from "lucide-react";
