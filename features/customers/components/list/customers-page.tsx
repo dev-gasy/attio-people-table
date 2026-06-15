@@ -51,68 +51,70 @@ export function CustomersPage({
 
   return (
     <PageFrame>
-      <PageHeader
-        title={mode === "favorites" ? "Favorite Customers" : "Customers"}
-        actions={
-          mode === "favorites" ? (
-            <CustomerFavoritesActions />
-          ) : (
-            <Link
-              to="/customers/favorites"
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 text-sm font-medium text-foreground hover:bg-muted"
-            >
-              <Star className="h-4 w-4" />
-              View favorites
-            </Link>
-          )
-        }
-      ></PageHeader>
-
-      <PageFrameBody className="flex min-h-[calc(100%-var(--page-frame-header-height))] flex-col gap-6 pb-8">
-        {mode === "search" && (
-          <CustomerSearchForm
-            values={searchValues}
-            disabled={isLoading || isSearching}
-            onSearch={handleSearch}
-            onReset={handleResetSearch}
-          />
-        )}
-
-        <CustomerTable
-          customers={visibleCustomers}
-          isFavorite={isFavorite}
-          toggleFavorite={toggleFavorite}
-          shouldLoadCustomers={shouldLoadCustomers}
-          isLoading={isLoading}
-          isError={isError}
-          error={error}
-          isRetrying={isFetching}
-          idleMessage="Enter customer search criteria to load matching customers."
-          emptyMessage={
-            mode === "favorites"
-              ? "No favorite customers saved yet."
-              : "No customers match your search."
+      <div className="flex h-full min-h-0 flex-col">
+        <PageHeader
+          title={mode === "favorites" ? "Favorite Customers" : "Customers"}
+          actions={
+            mode === "favorites" ? (
+              <CustomerFavoritesActions />
+            ) : (
+              <Link
+                to="/customers/favorites"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                <Star className="h-4 w-4" />
+                View favorites
+              </Link>
+            )
           }
-          onRetry={() => {
-            void refetch();
-          }}
-          table={table}
         />
-      </PageFrameBody>
 
-      {showPagination && (
-        <PageFrameFooter>
-          <Pagination
-            page={table.pagination.currentPage}
-            pageCount={table.pagination.pageCount}
-            total={table.orderedCustomers.length}
-            pageSize={table.pagination.pageSize}
-            onPageChange={table.pagination.setPage}
-            onPageSizeChange={table.pagination.setPageSize}
-            bordered={false}
+        <PageFrameBody className="flex min-h-0 flex-1 flex-col gap-6 overflow-auto">
+          {mode === "search" && (
+            <CustomerSearchForm
+              values={searchValues}
+              disabled={isLoading || isSearching}
+              onSearch={handleSearch}
+              onReset={handleResetSearch}
+            />
+          )}
+
+          <CustomerTable
+            customers={visibleCustomers}
+            isFavorite={isFavorite}
+            toggleFavorite={toggleFavorite}
+            shouldLoadCustomers={shouldLoadCustomers}
+            isLoading={isLoading}
+            isError={isError}
+            error={error}
+            isRetrying={isFetching}
+            idleMessage="Enter customer search criteria to load matching customers."
+            emptyMessage={
+              mode === "favorites"
+                ? "No favorite customers saved yet."
+                : "No customers match your search."
+            }
+            onRetry={() => {
+              void refetch();
+            }}
+            table={table}
           />
-        </PageFrameFooter>
-      )}
+        </PageFrameBody>
+
+        {showPagination && (
+          <PageFrameFooter>
+            <Pagination
+              page={table.pagination.currentPage}
+              pageCount={table.pagination.pageCount}
+              total={table.orderedCustomers.length}
+              pageSize={table.pagination.pageSize}
+              onPageChange={table.pagination.setPage}
+              onPageSizeChange={table.pagination.setPageSize}
+              bordered={false}
+            />
+          </PageFrameFooter>
+        )}
+      </div>
     </PageFrame>
   );
 }

@@ -45,8 +45,8 @@ export function CustomerTable({
   table: CustomerTableState;
 }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-border bg-muted/10">
+    <div className="min-h-0  pb-8">
+      <div className="overflow-auto rounded-xl border border-border bg-muted/10">
         <div className="w-full min-w-0">
           <div
             className={`sticky top-0 z-10 grid ${CUSTOMER_TABLE_COLUMNS} border-b border-border/60 bg-background`}
