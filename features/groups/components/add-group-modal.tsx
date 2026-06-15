@@ -2,7 +2,10 @@ import type { FormEvent } from "react";
 import type { GroupStatus } from "@/features/groups/group-mappers";
 import { Combobox } from "@/components/ui/combobox";
 import { Modal } from "@/components/ui/modal";
-import { statusOptions, type GroupForm } from "@/features/groups/components/constants";
+import {
+  statusOptions,
+  type GroupForm,
+} from "@/features/groups/components/constants";
 
 export function AddGroupModal({
   open,

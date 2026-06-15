@@ -16,6 +16,7 @@ import type {
 export const navSections: SidebarNavSection[] = [
   {
     label: "CRM",
+    iconColorClass: "text-sky-600 dark:text-sky-400",
     items: [
       {
         id: "customers",
@@ -39,6 +40,7 @@ export const navSections: SidebarNavSection[] = [
   },
   {
     label: "Work",
+    iconColorClass: "text-emerald-600 dark:text-emerald-400",
     items: [
       { id: "tasks", to: "/tasks", icon: CheckSquare, label: "Tasks" },
       { id: "notes", to: "/notes", icon: StickyNote, label: "Notes" },
@@ -46,6 +48,7 @@ export const navSections: SidebarNavSection[] = [
   },
   {
     label: "Tools",
+    iconColorClass: "text-amber-600 dark:text-amber-400",
     items: [
       { id: "lookups", to: "/lookups", icon: ListTree, label: "Lookups" },
       { id: "kraken", to: "/kraken", icon: Zap, label: "Kraken" },

@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
 
+export const DEFAULT_TABLE_PAGE_SIZE = 20;
+export const TABLE_PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50];
+
 export type PaginationState<TItem> = {
   currentPage: number;
   page: number;
@@ -14,10 +17,10 @@ export type PaginationState<TItem> = {
 
 export function usePagination<TItem>({
   items,
-  initialPageSize,
+  initialPageSize = DEFAULT_TABLE_PAGE_SIZE,
 }: {
   items: TItem[];
-  initialPageSize: number;
+  initialPageSize?: number;
 }): PaginationState<TItem> {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSizeState] = useState(initialPageSize);

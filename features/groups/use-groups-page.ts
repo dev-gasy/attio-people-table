@@ -9,10 +9,7 @@ import {
   type ColumnFiltersState,
   type SortingState,
 } from "@tanstack/react-table";
-import {
-  GROUPS_PAGE_SIZE,
-  emptyGroupForm,
-} from "@/features/groups/components/constants";
+import { emptyGroupForm } from "@/features/groups/components/constants";
 import type {
   GroupSortKey,
   GroupsView,
@@ -81,7 +78,6 @@ export function useGroupsPage() {
   const filteredRows = table.getRowModel().rows;
   const pagination = usePagination({
     items: filteredRows,
-    initialPageSize: GROUPS_PAGE_SIZE,
   });
   const sortKey = (sorting[0]?.id as GroupSortKey | undefined) ?? null;
   const direction: "asc" | "desc" = sorting[0]?.desc ? "desc" : "asc";

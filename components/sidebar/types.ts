@@ -20,5 +20,6 @@ export type SidebarNavItem = {
 
 export type SidebarNavSection = {
   label: string;
+  iconColorClass: string;
   items: SidebarNavItem[];
 };

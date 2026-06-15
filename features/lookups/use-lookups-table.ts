@@ -11,8 +11,6 @@ import { useColumnVisibility } from "@/hooks/use-column-visibility";
 import { usePagination } from "@/hooks/use-pagination";
 import { useSortCycle } from "@/hooks/use-sort-cycle";
 
-const LOOKUPS_PAGE_SIZE = 16;
-
 export type LookupColumnKey = LookupSortKey;
 
 export type LookupColumnConfig = ColumnVisibilityOption<LookupColumnKey> & {
@@ -107,7 +105,6 @@ export function useLookupsTable(lookups: Lookup[]) {
   );
   const pagination = usePagination({
     items: sortedLookups,
-    initialPageSize: LOOKUPS_PAGE_SIZE,
   });
 
   function setQuery(value: string) {

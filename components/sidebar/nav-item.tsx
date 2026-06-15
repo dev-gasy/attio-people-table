@@ -4,6 +4,7 @@ import type { PagePath } from "@/components/sidebar/types";
 
 export function NavItem({
   icon: Icon,
+  iconColorClass,
   label,
   active,
   collapsed,
@@ -11,6 +12,7 @@ export function NavItem({
   onClick,
 }: {
   icon: ComponentType<{ className?: string }>;
+  iconColorClass?: string;
   label: string;
   active?: boolean;
   collapsed?: boolean;
@@ -27,8 +29,8 @@ export function NavItem({
   const content = (
     <>
       <Icon
-        className={`h-[18px] w-[18px] shrink-0 ${
-          active ? "text-foreground" : "text-muted-foreground"
+        className={`h-[18px] w-[18px] shrink-0 ${iconColorClass ?? "text-muted-foreground"} ${
+          active ? "opacity-100" : "opacity-80"
         }`}
       />
       {!collapsed && <span className="truncate">{label}</span>}

@@ -22,6 +22,7 @@ export function PrimaryNav({
             <NavItem
               key={item.id}
               icon={item.icon}
+              iconColorClass={section.iconColorClass}
               label={item.label}
               active={activePage === item.id}
               collapsed={collapsed}

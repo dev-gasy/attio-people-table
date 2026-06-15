@@ -1,27 +1,24 @@
-import { useMemo, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { CalendarDays, Mail, MapPin, Phone, User } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import { CustomerFavoriteButton } from "@/features/customers/components/customer-favorite-button";
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
-import { Pagination } from "@/components/ui/pagination";
 import { SortableTableHeader } from "@/components/ui/sortable-table-header";
 import type {
   Customer,
   CustomerContactKind,
 } from "@/features/customers/customer-mappers";
-import { usePagination } from "@/hooks/use-pagination";
-import { useSortCycle } from "@/hooks/use-sort-cycle";
+import {
+  getPreferredContact,
+  type CustomerTableState,
+} from "@/features/customers/use-customer-table";
 
-const CUSTOMERS_PAGE_SIZE = 25;
 const CUSTOMER_TABLE_COLUMNS =
   "grid-cols-[minmax(220px,1.35fr)_minmax(120px,170px)_minmax(140px,210px)_minmax(160px,260px)_minmax(100px,140px)]";
 
-type CustomerSortKey = "name" | "phone" | "email" | "address" | "dateOfBirth";
-
 export function CustomerTable({
   customers,
-  favoriteIdSet,
   isFavorite,
   toggleFavorite,
   shouldLoadCustomers,
@@ -32,9 +29,9 @@ export function CustomerTable({
   idleMessage,
   emptyMessage,
   onRetry,
+  table,
 }: {
   customers: Customer[];
-  favoriteIdSet: Set<number>;
   isFavorite: (customerId: number) => boolean;
   toggleFavorite: (customerId: number) => void;
   shouldLoadCustomers: boolean;
@@ -45,31 +42,11 @@ export function CustomerTable({
   idleMessage: string;
   emptyMessage: string;
   onRetry: () => void;
+  table: CustomerTableState;
 }) {
-  const sort = useSortCycle<CustomerSortKey>();
-  const orderedCustomers = useMemo(
-    () =>
-      sortCustomersWithFavoritesFirst(
-        customers,
-        favoriteIdSet,
-        sort.sortKey,
-        sort.direction,
-      ),
-    [customers, favoriteIdSet, sort.direction, sort.sortKey],
-  );
-  const pagination = usePagination({
-    items: orderedCustomers,
-    initialPageSize: CUSTOMERS_PAGE_SIZE,
-  });
-
-  function handleSort(key: CustomerSortKey) {
-    sort.handleSort(key);
-    pagination.resetPage();
-  }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="overflow-auto rounded-xl border border-border bg-muted/10">
+      <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-border bg-muted/10">
         <div className="w-full min-w-0">
           <div
             className={`sticky top-0 z-10 grid ${CUSTOMER_TABLE_COLUMNS} border-b border-border/60 bg-background`}
@@ -79,9 +56,9 @@ export function CustomerTable({
                 icon={User}
                 label="Customer"
                 sortKey="name"
-                activeSort={sort.sortKey}
-                direction={sort.direction}
-                onSort={handleSort}
+                activeSort={table.sort.sortKey}
+                direction={table.sort.direction}
+                onSort={table.handleSort}
               />
             </CustomerTableHeaderCell>
             <CustomerTableHeaderCell>
@@ -89,9 +66,9 @@ export function CustomerTable({
                 icon={Phone}
                 label="Phone"
                 sortKey="phone"
-                activeSort={sort.sortKey}
-                direction={sort.direction}
-                onSort={handleSort}
+                activeSort={table.sort.sortKey}
+                direction={table.sort.direction}
+                onSort={table.handleSort}
               />
             </CustomerTableHeaderCell>
             <CustomerTableHeaderCell>
@@ -99,9 +76,9 @@ export function CustomerTable({
                 icon={Mail}
                 label="Email"
                 sortKey="email"
-                activeSort={sort.sortKey}
-                direction={sort.direction}
-                onSort={handleSort}
+                activeSort={table.sort.sortKey}
+                direction={table.sort.direction}
+                onSort={table.handleSort}
               />
             </CustomerTableHeaderCell>
             <CustomerTableHeaderCell>
@@ -109,9 +86,9 @@ export function CustomerTable({
                 icon={MapPin}
                 label="Address"
                 sortKey="address"
-                activeSort={sort.sortKey}
-                direction={sort.direction}
-                onSort={handleSort}
+                activeSort={table.sort.sortKey}
+                direction={table.sort.direction}
+                onSort={table.handleSort}
               />
             </CustomerTableHeaderCell>
             <CustomerTableHeaderCell last>
@@ -119,9 +96,9 @@ export function CustomerTable({
                 icon={CalendarDays}
                 label="DOB"
                 sortKey="dateOfBirth"
-                activeSort={sort.sortKey}
-                direction={sort.direction}
-                onSort={handleSort}
+                activeSort={table.sort.sortKey}
+                direction={table.sort.direction}
+                onSort={table.handleSort}
               />
             </CustomerTableHeaderCell>
           </div>
@@ -138,7 +115,7 @@ export function CustomerTable({
               isRetrying={isRetrying}
             />
           ) : (
-            pagination.pageItems.map((customer) => (
+            table.pagination.pageItems.map((customer) => (
               <div
                 key={customer.id}
                 className={`group grid ${CUSTOMER_TABLE_COLUMNS} border-b border-border/60 text-left hover:bg-muted/30`}
@@ -185,22 +162,6 @@ export function CustomerTable({
             )}
         </div>
       </div>
-
-      {shouldLoadCustomers &&
-        !isLoading &&
-        !isError &&
-        orderedCustomers.length > 0 && (
-          <Pagination
-            page={pagination.currentPage}
-            pageCount={pagination.pageCount}
-            total={orderedCustomers.length}
-            pageSize={pagination.pageSize}
-            onPageChange={pagination.setPage}
-            onPageSizeChange={pagination.setPageSize}
-            bordered={false}
-            className="sticky bottom-0 z-20 -mx-6 mt-auto border-t border-border bg-background/85 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70"
-          />
-        )}
     </div>
   );
 }
@@ -273,66 +234,6 @@ function PreferredContactValue({
     </span>
   );
 }
-
-function sortCustomersWithFavoritesFirst(
-  customers: Customer[],
-  favoriteIdSet: Set<number>,
-  sortKey: CustomerSortKey | null,
-  direction: "asc" | "desc",
-) {
-  if (!sortKey) {
-    return [
-      ...customers.filter((customer) => favoriteIdSet.has(customer.id)),
-      ...customers.filter((customer) => !favoriteIdSet.has(customer.id)),
-    ];
-  }
-
-  const favorites = customers.filter((customer) =>
-    favoriteIdSet.has(customer.id),
-  );
-  const others = customers.filter(
-    (customer) => !favoriteIdSet.has(customer.id),
-  );
-
-  return [
-    ...sortCustomers(favorites, sortKey, direction),
-    ...sortCustomers(others, sortKey, direction),
-  ];
-}
-
-function sortCustomers(
-  customers: Customer[],
-  sortKey: CustomerSortKey,
-  direction: "asc" | "desc",
-) {
-  return [...customers].sort((a, b) => {
-    const result =
-      sortKey === "dateOfBirth"
-        ? Date.parse(a.dateOfBirth) - Date.parse(b.dateOfBirth)
-        : stringCollator.compare(
-            getCustomerSortValue(a, sortKey),
-            getCustomerSortValue(b, sortKey),
-          );
-
-    return direction === "asc" ? result : -result;
-  });
-}
-
-function getCustomerSortValue(customer: Customer, sortKey: CustomerSortKey) {
-  if (sortKey === "name") return customer.name;
-  if (sortKey === "dateOfBirth") return customer.dateOfBirth;
-
-  return getPreferredContact(customer, sortKey)?.value ?? "";
-}
-
-function getPreferredContact(customer: Customer, kind: CustomerContactKind) {
-  return customer.contacts.find((item) => item.kind === kind && item.preferred);
-}
-
-const stringCollator = new Intl.Collator(undefined, {
-  numeric: true,
-  sensitivity: "base",
-});
 
 function CustomerLoadingCell({
   widths,

@@ -3,12 +3,18 @@ import { Download, Star, Upload, User } from "lucide-react";
 import { CustomerSearchForm } from "@/features/customers/components/customer-search-form";
 import { CustomerTable } from "@/features/customers/components/customer-table";
 import { PageHeader } from "@/components/page-header";
-import { PageFrame, PageFrameBody } from "@/components/page-frame";
+import {
+  PageFrame,
+  PageFrameBody,
+  PageFrameFooter,
+} from "@/components/page-frame";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import {
   type CustomersPageMode,
   useCustomersPage,
 } from "@/features/customers/use-customers-page";
+import { useCustomerTable } from "@/features/customers/use-customer-table";
 
 export function CustomersPage({
   mode = "search",
@@ -29,6 +35,15 @@ export function CustomersPage({
     shouldLoadCustomers,
     visibleCustomers,
   } = useCustomersPage({ mode });
+  const table = useCustomerTable({
+    customers: visibleCustomers,
+    favoriteIdSet,
+  });
+  const showPagination =
+    shouldLoadCustomers &&
+    !isLoading &&
+    !isError &&
+    table.orderedCustomers.length > 0;
 
   return (
     <PageFrame>
@@ -79,7 +94,7 @@ export function CustomersPage({
         }
       />
 
-      <PageFrameBody className="flex min-h-[calc(100%-var(--page-frame-header-height))] flex-col gap-6 pb-0">
+      <PageFrameBody className="flex min-h-[calc(100%-var(--page-frame-header-height))] flex-col gap-6 pb-8">
         {mode === "search" && (
           <CustomerSearchForm
             values={searchValues}
@@ -91,7 +106,6 @@ export function CustomersPage({
 
         <CustomerTable
           customers={visibleCustomers}
-          favoriteIdSet={favoriteIdSet}
           isFavorite={isFavorite}
           toggleFavorite={toggleFavorite}
           shouldLoadCustomers={shouldLoadCustomers}
@@ -108,8 +122,23 @@ export function CustomersPage({
           onRetry={() => {
             void refetch();
           }}
+          table={table}
         />
       </PageFrameBody>
+
+      {showPagination && (
+        <PageFrameFooter>
+          <Pagination
+            page={table.pagination.currentPage}
+            pageCount={table.pagination.pageCount}
+            total={table.orderedCustomers.length}
+            pageSize={table.pagination.pageSize}
+            onPageChange={table.pagination.setPage}
+            onPageSizeChange={table.pagination.setPageSize}
+            bordered={false}
+          />
+        </PageFrameFooter>
+      )}
     </PageFrame>
   );
 }

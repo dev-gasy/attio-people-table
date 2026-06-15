@@ -5,7 +5,6 @@ import {
   statusOptions,
 } from "@/features/groups/group-mappers";
 
-export const GROUPS_PAGE_SIZE = 16;
 export { groupColors, statusList, statusOptions };
 
 export const emptyGroupForm = {

@@ -46,12 +46,14 @@ export function createServiceSimulationMiddleware(
     | ServiceSimulationRoute
     | ((data: unknown) => ServiceSimulationRoute),
 ) {
-  return createMiddleware({ type: "function" }).server(async ({ next, data }) => {
-    await simulateServiceCall(
-      typeof routeKey === "function" ? routeKey(data) : routeKey,
-    );
-    return next();
-  });
+  return createMiddleware({ type: "function" }).server(
+    async ({ next, data }) => {
+      await simulateServiceCall(
+        typeof routeKey === "function" ? routeKey(data) : routeKey,
+      );
+      return next();
+    },
+  );
 }
 
 export async function simulateServiceCall(routeKey: ServiceSimulationRoute) {

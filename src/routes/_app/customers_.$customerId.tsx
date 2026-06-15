@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_app/customers_/$customerId")({
   loader: ({ context, params }) =>
     context.queryClient.ensureQueryData(
       customerQueryOptions(Number(params.customerId)),
-  ),
+    ),
   head: ({ loaderData }) => {
     const customerName = loaderData?.name ?? "Customer";
 

@@ -5,6 +5,7 @@ import {
   ChevronRight,
   ChevronDown,
 } from "lucide-react";
+import { TABLE_PAGE_SIZE_OPTIONS } from "@/hooks/use-pagination";
 
 export function Pagination({
   page,
@@ -13,7 +14,7 @@ export function Pagination({
   pageSize,
   onPageChange,
   onPageSizeChange,
-  pageSizeOptions = [8, 16, 25, 50],
+  pageSizeOptions = TABLE_PAGE_SIZE_OPTIONS,
   className = "",
   bordered = true,
   padded = true,
