@@ -1,11 +1,9 @@
 import type { Row } from "@tanstack/react-table";
 import {
-  BadgeCheck,
   Building2,
-  DollarSign,
-  Globe,
+  Hash,
+  Languages,
   MapPin,
-  Users,
 } from "lucide-react";
 import { GroupCard } from "@/features/groups/components/group-card";
 import { GroupRow } from "@/features/groups/components/group-row";
@@ -17,12 +15,13 @@ import { SortableTableHeader } from "@/components/ui/sortable-table-header";
 import type { Group } from "@/features/groups/group-mappers";
 
 const GROUP_TABLE_COLUMNS =
-  "grid-cols-[minmax(180px,1.5fr)_minmax(140px,1.2fr)_120px_minmax(96px,0.7fr)_minmax(80px,0.6fr)_minmax(140px,1fr)]";
+  "grid-cols-[minmax(220px,1.4fr)_minmax(140px,0.9fr)_minmax(140px,0.9fr)_minmax(160px,1fr)_minmax(120px,0.8fr)]";
 
 export function GroupsContent({
   activeSort,
   direction,
   filteredTotal,
+  idle,
   isLoading = false,
   onSort,
   rows,
@@ -31,6 +30,7 @@ export function GroupsContent({
   activeSort: GroupSortKey | null;
   direction: "asc" | "desc";
   filteredTotal: number;
+  idle: boolean;
   isLoading?: boolean;
   onSort: (key: GroupSortKey) => void;
   rows: Row<Group>[];
@@ -40,6 +40,11 @@ export function GroupsContent({
     <div>
       {isLoading ? (
         <GroupsLoadingContent view={view} />
+      ) : idle ? (
+        <div className="py-10 text-center text-sm text-muted-foreground">
+          Select a province or enter at least 3 search characters to load
+          groups.
+        </div>
       ) : filteredTotal === 0 ? (
         <div className="py-10 text-center text-sm text-muted-foreground">
           No groups match your filters
@@ -57,44 +62,35 @@ export function GroupsContent({
           >
             <SortableTableHeader
               icon={Building2}
-              label="Group"
-              sortKey="name"
+              label="Organization"
+              sortKey="organization"
               activeSort={activeSort}
               direction={direction}
               onSort={onSort}
               className="text-xs"
             />
             <SortableTableHeader
-              icon={Globe}
-              label="Web address"
-              sortKey="domain"
+              icon={Languages}
+              label="Short name FR"
+              sortKey="groupShortNameFr"
               activeSort={activeSort}
               direction={direction}
               onSort={onSort}
               className="text-xs"
             />
             <SortableTableHeader
-              icon={BadgeCheck}
-              label="Status"
-              sortKey="status"
+              icon={Languages}
+              label="Short name EN"
+              sortKey="groupShortNameEn"
               activeSort={activeSort}
               direction={direction}
               onSort={onSort}
               className="text-xs"
             />
             <SortableTableHeader
-              icon={Users}
-              label="Employees"
-              sortKey="employees"
-              activeSort={activeSort}
-              direction={direction}
-              onSort={onSort}
-              className="text-xs"
-            />
-            <SortableTableHeader
-              icon={DollarSign}
-              label="ARR"
-              sortKey="arr"
+              icon={Hash}
+              label="Online identifier"
+              sortKey="onlineIdentifier"
               activeSort={activeSort}
               direction={direction}
               onSort={onSort}
@@ -102,8 +98,8 @@ export function GroupsContent({
             />
             <SortableTableHeader
               icon={MapPin}
-              label="Location"
-              sortKey="location"
+              label="Province"
+              sortKey="province"
               activeSort={activeSort}
               direction={direction}
               onSort={onSort}
@@ -154,12 +150,11 @@ function GroupsLoadingContent({ view }: { view: GroupsView }) {
       <div
         className={`sticky top-0 z-10 grid ${GROUP_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 bg-background px-4 py-2 text-xs font-medium text-muted-foreground`}
       >
-        <span className="truncate">Group</span>
-        <span className="truncate">Web address</span>
-        <span className="truncate">Status</span>
-        <span className="truncate">Employees</span>
-        <span className="truncate">ARR</span>
-        <span className="truncate">Location</span>
+        <span className="truncate">Organization</span>
+        <span className="truncate">Short name FR</span>
+        <span className="truncate">Short name EN</span>
+        <span className="truncate">Online identifier</span>
+        <span className="truncate">Province</span>
       </div>
       {Array.from({ length: 10 }).map((_, index) => (
         <div
@@ -168,10 +163,9 @@ function GroupsLoadingContent({ view }: { view: GroupsView }) {
         >
           <div className="h-3 w-32 animate-pulse rounded bg-muted" />
           <div className="h-3 w-28 animate-pulse rounded bg-muted" />
-          <div className="h-5 w-20 animate-pulse rounded-full bg-muted" />
-          <div className="h-3 w-12 animate-pulse rounded bg-muted" />
-          <div className="h-3 w-14 animate-pulse rounded bg-muted" />
+          <div className="h-3 w-28 animate-pulse rounded bg-muted" />
           <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+          <div className="h-3 w-20 animate-pulse rounded bg-muted" />
         </div>
       ))}
     </div>

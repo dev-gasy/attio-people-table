@@ -1,99 +1,76 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import {
   getCoreRowModel,
-  getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
-  type ColumnFiltersState,
   type SortingState,
 } from "@tanstack/react-table";
-import { emptyGroupForm } from "@/features/groups/components/constants";
 import type {
   GroupSortKey,
   GroupsView,
 } from "@/features/groups/components/types";
-import {
-  createGroup,
-  groupsQueryOptions,
-} from "@/features/groups/group-service";
-import {
-  type Group,
-  type GroupStatus,
-  mapGroupDtoToGroup,
-} from "@/features/groups/group-mappers";
+import { groupsQueryOptions } from "@/features/groups/group-service";
+import type { Group } from "@/features/groups/group-mappers";
 import { usePagination } from "@/hooks/use-pagination";
 
-export function useGroupsPage() {
-  const query = useQuery(groupsQueryOptions());
-  const seedGroups = useMemo(() => query.data ?? [], [query.data]);
-  const [localGroups, setLocalGroups] = useState<Group[] | null>(null);
-  const groups = localGroups ?? seedGroups;
-  const [statusFilter, setStatusFilterState] = useState<GroupStatus>();
+export type GroupsSearch = {
+  province?: string;
+  search?: string;
+};
+
+export function shouldFetchGroups(filters: GroupsSearch | undefined) {
+  return Boolean(filters?.province || hasSearchQuery(filters?.search));
+}
+
+export function hasSearchQuery(search: string | undefined) {
+  return Boolean(search && search.trim().length >= 3);
+}
+
+export function useGroupsPage(filters: GroupsSearch = {}) {
+  const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [view, setView] = useState<GroupsView>("grid");
-  const [addOpen, setAddOpen] = useState(false);
-  const [form, setForm] = useState(emptyGroupForm);
-  const columnFilters = useMemo<ColumnFiltersState>(
-    () => (statusFilter ? [{ id: "status", value: statusFilter }] : []),
-    [statusFilter],
-  );
-  const tablePagination = useMemo(
-    () => ({
-      pageIndex: 0,
-      pageSize: Math.max(1, groups.length),
-    }),
-    [groups.length],
-  );
+  const [draftSearch, setDraftSearch] = useState(filters.search ?? "");
+  const shouldLoadGroups = shouldFetchGroups(filters);
+  const query = useQuery({
+    ...groupsQueryOptions(filters),
+    enabled: shouldLoadGroups,
+  });
+  const groups = useMemo(() => query.data ?? [], [query.data]);
   const columns = useMemo<ColumnDef<Group>[]>(
     () => [
-      { accessorKey: "name", id: "name" },
-      { accessorKey: "domain", id: "domain" },
-      {
-        accessorKey: "status",
-        id: "status",
-        filterFn: (row, columnId, value) => row.getValue(columnId) === value,
-      },
-      { accessorKey: "employees", id: "employees" },
-      { accessorKey: "arr", id: "arr" },
-      { accessorKey: "location", id: "location" },
+      { accessorKey: "organization", id: "organization" },
+      { accessorKey: "groupShortNameFr", id: "groupShortNameFr" },
+      { accessorKey: "groupShortNameEn", id: "groupShortNameEn" },
+      { accessorKey: "onlineIdentifier", id: "onlineIdentifier" },
+      { accessorKey: "province", id: "province" },
     ],
     [],
   );
   const table = useReactTable({
     data: groups,
     columns,
-    state: {
-      columnFilters,
-      pagination: tablePagination,
-      sorting,
-    },
+    state: { sorting },
     getRowId: (row) => String(row.id),
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
-  const filteredRows = table.getRowModel().rows;
+  const sortedRows = table.getRowModel().rows;
   const pagination = usePagination({
-    items: filteredRows,
+    items: sortedRows,
   });
   const sortKey = (sorting[0]?.id as GroupSortKey | undefined) ?? null;
   const direction: "asc" | "desc" = sorting[0]?.desc ? "desc" : "asc";
 
-  function handleAdd(event: FormEvent) {
-    event.preventDefault();
-    if (!form.name.trim()) return;
-
-    setLocalGroups((prev) => [
-      mapGroupDtoToGroup(createGroup(form, prev ?? seedGroups)),
-      ...(prev ?? seedGroups),
-    ]);
-    setForm(emptyGroupForm);
-    setAddOpen(false);
-    pagination.resetPage();
-  }
+  useEffect(() => {
+    if (filters.search !== undefined) {
+      setDraftSearch(filters.search);
+    }
+  }, [filters.search]);
 
   function handleSort(key: GroupSortKey) {
     setSorting((prev) => {
@@ -105,27 +82,44 @@ export function useGroupsPage() {
     pagination.resetPage();
   }
 
-  function setStatusFilter(status: GroupStatus | undefined) {
-    setStatusFilterState(status);
+  function setProvince(province: string | null) {
     pagination.resetPage();
+    void navigate({
+      to: "/groups",
+      search: {
+        province: province ?? undefined,
+        search: filters.search,
+      },
+    });
+  }
+
+  function setSearch(value: string) {
+    const trimmedValue = value.trim();
+
+    setDraftSearch(value);
+    pagination.resetPage();
+    void navigate({
+      to: "/groups",
+      search: {
+        province: filters.province,
+        search: trimmedValue.length >= 3 ? value : undefined,
+      },
+    });
   }
 
   return {
-    addOpen,
     direction,
-    filteredTotal: filteredRows.length,
-    form,
-    handleAdd,
+    draftSearch,
+    filteredTotal: sortedRows.length,
     handleSort,
     pageRows: pagination.pageItems,
     pagination,
     query,
-    setAddOpen,
-    setForm,
-    setStatusFilter,
+    setProvince,
+    setSearch,
     setView,
+    shouldLoadGroups,
     sortKey,
-    statusFilter,
     view,
   };
 }

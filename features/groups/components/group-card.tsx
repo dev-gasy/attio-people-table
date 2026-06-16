@@ -1,29 +1,34 @@
-import { DollarSign, Users } from "lucide-react";
+import { Languages, MapPin } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import type { Group } from "@/features/groups/group-mappers";
 
 export function GroupCard({ group }: { group: Group }) {
   return (
-    <button className="flex flex-col gap-4 rounded-xl border border-border bg-muted/20 p-4 text-left transition-colors hover:border-border hover:bg-muted/40">
+    <button
+      type="button"
+      className="flex flex-col gap-4 rounded-lg border border-border bg-muted/20 p-4 text-left transition-colors hover:border-border hover:bg-muted/40"
+    >
       <div className="flex items-center gap-3">
         <Avatar initial={group.initial} color={group.color} size="md" />
         <div className="min-w-0">
           <div className="truncate text-[15px] font-medium text-foreground">
-            {group.name}
+            {group.organization}
           </div>
-          <div className="truncate text-xs text-muted-foreground">
-            {group.domain}
+          <div className="truncate font-mono text-xs text-muted-foreground">
+            {group.onlineIdentifier}
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between border-t border-border/60 pt-3 text-sm text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <Users className="h-3.5 w-3.5" />
-          {group.employees.toLocaleString()}
+      <div className="grid gap-2 border-t border-border/60 pt-3 text-sm text-muted-foreground">
+        <span className="flex min-w-0 items-center gap-1.5">
+          <Languages className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">{group.groupShortNameFr}</span>
+          <span className="text-border">/</span>
+          <span className="truncate">{group.groupShortNameEn}</span>
         </span>
-        <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
-          <DollarSign className="h-3.5 w-3.5" />
-          {group.arr}
+        <span className="flex min-w-0 items-center gap-1.5">
+          <MapPin className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">{group.provinceLabel}</span>
         </span>
       </div>
     </button>

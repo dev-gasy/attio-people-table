@@ -1,7 +1,5 @@
-import { AddGroupModal } from "@/features/groups/components/add-group-modal";
 import { GroupsContent } from "@/features/groups/components/groups-content";
 import { GroupsToolbar } from "@/features/groups/components/groups-toolbar";
-import type { GroupsView } from "@/features/groups/components/types";
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { PageHeader } from "@/components/page-header";
 import {
@@ -9,34 +7,27 @@ import {
   PageFrameBody,
   PageFrameFooter,
 } from "@/components/page-frame";
-import type { GroupStatus } from "@/features/groups/group-mappers";
-import { useGroupsPage } from "@/features/groups/use-groups-page";
+import {
+  useGroupsPage,
+  type GroupsSearch,
+} from "@/features/groups/use-groups-page";
 import { Pagination } from "@/components/ui/pagination";
 
-export type GroupsPageSearch = {
-  status?: GroupStatus;
-  view: GroupsView;
-  page: number;
-};
-
-export function GroupsPage() {
+export function GroupsPage({ filters = {} }: { filters?: GroupsSearch }) {
   const {
-    addOpen,
     direction,
+    draftSearch,
     filteredTotal,
-    form,
-    handleAdd,
     handleSort,
     pagination,
-    setAddOpen,
-    setForm,
-    setStatusFilter,
+    setProvince,
+    setSearch,
     setView,
+    shouldLoadGroups,
     sortKey,
-    statusFilter,
     view,
     query: { error, isError, isFetching, isPending, refetch },
-  } = useGroupsPage();
+  } = useGroupsPage(filters);
 
   return (
     <PageFrame>
@@ -44,10 +35,11 @@ export function GroupsPage() {
         title="Groups"
         actions={
           <GroupsToolbar
-            statusFilter={statusFilter}
+            province={filters.province}
+            search={draftSearch}
             view={view}
-            onAdd={() => setAddOpen(true)}
-            onStatusFilterChange={setStatusFilter}
+            onProvinceChange={setProvince}
+            onSearchChange={setSearch}
             onViewChange={setView}
           />
         }
@@ -68,7 +60,8 @@ export function GroupsPage() {
             filteredTotal={filteredTotal}
             activeSort={sortKey}
             direction={direction}
-            isLoading={isPending}
+            idle={!shouldLoadGroups}
+            isLoading={shouldLoadGroups && isPending}
             onSort={handleSort}
             rows={pagination.pageItems}
             view={view}
@@ -76,7 +69,7 @@ export function GroupsPage() {
         </PageFrameBody>
       )}
 
-      {!isPending && !isError && filteredTotal > 0 && (
+      {shouldLoadGroups && !isPending && !isError && filteredTotal > 0 && (
         <PageFrameFooter>
           <Pagination
             page={pagination.currentPage}
@@ -89,14 +82,6 @@ export function GroupsPage() {
           />
         </PageFrameFooter>
       )}
-
-      <AddGroupModal
-        open={addOpen}
-        form={form}
-        onClose={() => setAddOpen(false)}
-        onSubmit={handleAdd}
-        onFormChange={setForm}
-      />
     </PageFrame>
   );
 }

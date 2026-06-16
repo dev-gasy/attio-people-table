@@ -1,30 +1,20 @@
-import type { GroupDto, GroupStatusDto } from "@/features/groups/group-dtos";
-
-export type GroupStatus = GroupStatusDto;
+import {
+  provinceOptions,
+  type GroupDto,
+  type ProvinceCode,
+} from "@/features/groups/group-dtos";
 
 export type Group = {
   id: number;
-  name: string;
+  organization: string;
   initial: string;
   color: string;
-  domain: string;
-  employees: number;
-  arr: string;
-  status: GroupStatus;
-  location: string;
+  groupShortNameFr: string;
+  groupShortNameEn: string;
+  onlineIdentifier: string;
+  province: ProvinceCode;
+  provinceLabel: string;
 };
-
-export const statusList: GroupStatus[] = [
-  "Customer",
-  "Prospect",
-  "Lead",
-  "Churned",
-];
-
-export const statusOptions = statusList.map((status) => ({
-  value: status,
-  label: status,
-}));
 
 export const groupColors = [
   "bg-indigo-500",
@@ -34,19 +24,6 @@ export const groupColors = [
   "bg-amber-500",
   "bg-blue-500",
 ];
-
-export const groupStatusStyles: Record<
-  GroupStatus,
-  { dot: string; text: string }
-> = {
-  Customer: {
-    dot: "bg-emerald-500",
-    text: "text-emerald-700 dark:text-emerald-300",
-  },
-  Prospect: { dot: "bg-sky-500", text: "text-sky-700 dark:text-sky-300" },
-  Lead: { dot: "bg-amber-500", text: "text-amber-700 dark:text-amber-300" },
-  Churned: { dot: "bg-rose-500", text: "text-rose-700 dark:text-rose-300" },
-};
 
 const groupColorById: Record<number, string> = {
   1: "bg-indigo-500",
@@ -63,11 +40,16 @@ const groupColorById: Record<number, string> = {
   12: "bg-rose-600",
 };
 
+const provinceLabelByCode = new Map(
+  provinceOptions.map((province) => [province.value, province.label]),
+);
+
 export function mapGroupDtoToGroup(dto: GroupDto): Group {
   return {
     ...dto,
-    initial: dto.name[0]?.toUpperCase() ?? "?",
+    initial: dto.organization[0]?.toUpperCase() ?? "?",
     color: groupColorById[dto.id] ?? groupColors[dto.id % groupColors.length],
+    provinceLabel: provinceLabelByCode.get(dto.province) ?? dto.province,
   };
 }
 

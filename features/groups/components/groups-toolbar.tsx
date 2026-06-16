@@ -1,34 +1,41 @@
-import { Filter, LayoutGrid, List, Plus } from "lucide-react";
-import type { GroupStatus } from "@/features/groups/group-mappers";
-import { statusOptions } from "@/features/groups/components/constants";
+import { LayoutGrid, List, MapPin } from "lucide-react";
+import { provinceOptions } from "@/features/groups/components/constants";
 import type { GroupsView } from "@/features/groups/components/types";
 import { Combobox } from "@/components/ui/combobox";
+import { SearchBar } from "@/components/ui/search-bar";
 
 export function GroupsToolbar({
-  statusFilter,
+  province,
+  search,
   view,
-  onAdd,
-  onStatusFilterChange,
+  onProvinceChange,
+  onSearchChange,
   onViewChange,
 }: {
-  statusFilter?: GroupStatus;
+  province?: string;
+  search: string;
   view: GroupsView;
-  onAdd: () => void;
-  onStatusFilterChange: (status?: GroupStatus) => void;
+  onProvinceChange: (province: string | null) => void;
+  onSearchChange: (search: string) => void;
   onViewChange: (view: GroupsView) => void;
 }) {
   return (
     <>
+      <SearchBar
+        value={search}
+        onValueChange={onSearchChange}
+        placeholder="Search groups..."
+        ariaLabel="Search groups"
+        className="min-w-lg"
+      />
       <Combobox
-        icon={Filter}
-        options={statusOptions}
-        value={statusFilter as string | null}
-        onChange={(v) =>
-          onStatusFilterChange((v as GroupStatus | null) ?? undefined)
-        }
-        placeholder="All statuses"
-        searchPlaceholder="Filter status..."
-        className="w-44"
+        icon={MapPin}
+        options={provinceOptions}
+        value={province ?? null}
+        onChange={onProvinceChange}
+        placeholder="All provinces"
+        searchPlaceholder="Filter province..."
+        className="min-w-0 flex-1 sm:w-56 sm:flex-none"
       />
       <div className="flex items-center rounded-lg border border-border bg-muted/40 p-0.5">
         <button
@@ -54,13 +61,6 @@ export function GroupsToolbar({
           <List className="h-4 w-4" />
         </button>
       </div>
-      <button
-        onClick={onAdd}
-        className="flex items-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-      >
-        <Plus className="h-4 w-4" />
-        Add
-      </button>
     </>
   );
 }
