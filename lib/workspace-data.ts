@@ -30,6 +30,8 @@ export const ruleTypes = [
   "Set",
 ] satisfies RuleType[];
 
+const RULES_PER_ENTRYPOINT = 100;
+
 const ruleTemplates = [
   {
     name: "Primary contact",
@@ -74,13 +76,17 @@ const ruleTemplates = [
 ];
 
 export const rules: Rule[] = entrypoints.flatMap((entrypoint) =>
-  ruleTemplates.map((template, index) => {
-    const id = (entrypoint.id - 1) * ruleTemplates.length + index + 1;
+  Array.from({ length: RULES_PER_ENTRYPOINT }, (_, index) => {
+    const template = ruleTemplates[index % ruleTemplates.length];
+    const id = (entrypoint.id - 1) * RULES_PER_ENTRYPOINT + index + 1;
+    const cycle = Math.floor(index / ruleTemplates.length);
+    const nameSuffix =
+      cycle === 0 ? "" : ` ${String(cycle + 1).padStart(2, "0")}`;
 
     return {
       id,
       entrypointId: entrypoint.id,
-      name: `${entrypoint.name} ${template.name}`,
+      name: `${entrypoint.name} ${template.name}${nameSuffix}`,
       code: formatRuleCode(entrypoint.name, template.name, id),
       message: template.message,
       type: ruleTypes[(entrypoint.id + index) % ruleTypes.length],

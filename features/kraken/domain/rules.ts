@@ -6,21 +6,6 @@ export function normalizeRuleQuery(query: string) {
   return query.trim().toLowerCase();
 }
 
-export function getRuleTypeCounts(rules: Rule[]) {
-  return rules.reduce(
-    (counts, rule) => {
-      counts[rule.type] += 1;
-      return counts;
-    },
-    {
-      Required: 0,
-      Validation: 0,
-      Reset: 0,
-      Set: 0,
-    } satisfies Record<RuleType, number>,
-  );
-}
-
 export function filterRules({
   rules,
   query,

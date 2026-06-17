@@ -1,3 +1,6 @@
+import { faker } from "@faker-js/faker";
+import { canadianProvinces } from "@/features/driving-licence/domain/provinces";
+
 export type Gender = "Male" | "Female";
 
 export type LicenceForm = {
@@ -42,6 +45,25 @@ export function normalizeLicenceForm(form: LicenceForm): LicenceForm {
     province: form.province,
     gender: form.gender,
     email: form.email.trim(),
+  };
+}
+
+export function createRandomLicenceForm(): LicenceForm {
+  const sex = faker.person.sexType();
+  const gender: Gender = sex === "female" ? "Female" : "Male";
+  const firstName = faker.person.firstName(sex);
+  const lastName = faker.person.lastName();
+
+  return {
+    firstName,
+    lastName,
+    dateOfBirth: faker.date
+      .birthdate({ min: 16, max: 85, mode: "age" })
+      .toISOString()
+      .slice(0, 10),
+    province: faker.helpers.arrayElement(canadianProvinces),
+    gender,
+    email: faker.internet.email({ firstName, lastName }).toLowerCase(),
   };
 }
 

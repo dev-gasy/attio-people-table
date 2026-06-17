@@ -158,7 +158,6 @@ export function useGroupsPage(filters: GroupsSearch = {}) {
   }, [filters.search]);
 
   function setProvince(province: string | null) {
-    table.pagination.resetPage();
     void navigate({
       to: "/groups",
       search: {
@@ -172,7 +171,6 @@ export function useGroupsPage(filters: GroupsSearch = {}) {
     const trimmedValue = value.trim();
 
     setDraftSearch(value);
-    table.pagination.resetPage();
     void navigate({
       to: "/groups",
       search: {

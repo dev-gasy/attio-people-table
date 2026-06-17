@@ -41,7 +41,6 @@ export function CustomersPage({
   const table = useCustomerTable({
     customers: visibleCustomers,
     isFavorite,
-    scope: mode,
     toggleFavorite,
   });
 

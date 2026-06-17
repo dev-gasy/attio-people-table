@@ -2,6 +2,7 @@ import type { ComponentType, CSSProperties, ReactNode } from "react";
 import {
   flexRender,
   type Column,
+  type RowData,
   type Row,
   type Table as TanStackTable,
 } from "@tanstack/react-table";
@@ -11,7 +12,8 @@ import { cn } from "@/lib/utils";
 export type TableSortDirection = "asc" | "desc";
 
 declare module "@tanstack/react-table" {
-  interface ColumnMeta<TData, TValue> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ColumnMeta<TData extends RowData, TValue> {
     alwaysVisible?: boolean;
     cellClassName?: string;
     icon?: ComponentType<{ className?: string }>;

@@ -8,212 +8,120 @@ export type LookupDto = {
   effectiveDate: string;
 };
 
-export const lookupSeed: LookupDto[] = [
+const LOOKUPS_PER_NAME = 100;
+
+type LookupDefinition = {
+  lookupName: string;
+  codePrefix: string;
+  effectiveDate: string;
+  values: {
+    displayValueEn: string;
+    displayValueFr: string;
+  }[];
+};
+
+const lookupDefinitions: LookupDefinition[] = [
   {
-    id: 1,
     lookupName: "Customer status",
-    code: "CUSTOMER_STATUS_ACTIVE",
-    orderNo: 1,
-    displayValueEn: "Active",
-    displayValueFr: "Actif",
+    codePrefix: "CUSTOMER_STATUS",
     effectiveDate: "2026-01-01",
+    values: [
+      { displayValueEn: "Active", displayValueFr: "Actif" },
+      {
+        displayValueEn: "Pending review",
+        displayValueFr: "En attente de revision",
+      },
+      { displayValueEn: "Inactive", displayValueFr: "Inactif" },
+    ],
   },
   {
-    id: 2,
-    lookupName: "Customer status",
-    code: "CUSTOMER_STATUS_PENDING",
-    orderNo: 2,
-    displayValueEn: "Pending review",
-    displayValueFr: "En attente de revision",
-    effectiveDate: "2026-01-01",
-  },
-  {
-    id: 3,
-    lookupName: "Customer status",
-    code: "CUSTOMER_STATUS_INACTIVE",
-    orderNo: 3,
-    displayValueEn: "Inactive",
-    displayValueFr: "Inactif",
-    effectiveDate: "2026-01-01",
-  },
-  {
-    id: 4,
     lookupName: "Region",
-    code: "REGION_NORTH_AMERICA",
-    orderNo: 1,
-    displayValueEn: "North America",
-    displayValueFr: "Amerique du Nord",
+    codePrefix: "REGION",
     effectiveDate: "2026-02-15",
+    values: [
+      { displayValueEn: "North America", displayValueFr: "Amerique du Nord" },
+      { displayValueEn: "Europe", displayValueFr: "Europe" },
+      { displayValueEn: "Asia Pacific", displayValueFr: "Asie-Pacifique" },
+    ],
   },
   {
-    id: 5,
-    lookupName: "Region",
-    code: "REGION_EUROPE",
-    orderNo: 2,
-    displayValueEn: "Europe",
-    displayValueFr: "Europe",
-    effectiveDate: "2026-02-15",
-  },
-  {
-    id: 6,
-    lookupName: "Region",
-    code: "REGION_APAC",
-    orderNo: 3,
-    displayValueEn: "Asia Pacific",
-    displayValueFr: "Asie-Pacifique",
-    effectiveDate: "2026-02-15",
-  },
-  {
-    id: 7,
     lookupName: "Priority",
-    code: "PRIORITY_HIGH",
-    orderNo: 1,
-    displayValueEn: "High",
-    displayValueFr: "Elevee",
+    codePrefix: "PRIORITY",
     effectiveDate: "2026-03-01",
+    values: [
+      { displayValueEn: "High", displayValueFr: "Elevee" },
+      { displayValueEn: "Medium", displayValueFr: "Moyenne" },
+      { displayValueEn: "Low", displayValueFr: "Faible" },
+    ],
   },
   {
-    id: 8,
-    lookupName: "Priority",
-    code: "PRIORITY_MEDIUM",
-    orderNo: 2,
-    displayValueEn: "Medium",
-    displayValueFr: "Moyenne",
-    effectiveDate: "2026-03-01",
-  },
-  {
-    id: 9,
-    lookupName: "Priority",
-    code: "PRIORITY_LOW",
-    orderNo: 3,
-    displayValueEn: "Low",
-    displayValueFr: "Faible",
-    effectiveDate: "2026-03-01",
-  },
-  {
-    id: 10,
     lookupName: "Language",
-    code: "LANGUAGE_EN",
-    orderNo: 1,
-    displayValueEn: "English",
-    displayValueFr: "Anglais",
+    codePrefix: "LANGUAGE",
     effectiveDate: "2026-04-01",
+    values: [
+      { displayValueEn: "English", displayValueFr: "Anglais" },
+      { displayValueEn: "French", displayValueFr: "Francais" },
+    ],
   },
   {
-    id: 11,
-    lookupName: "Language",
-    code: "LANGUAGE_FR",
-    orderNo: 2,
-    displayValueEn: "French",
-    displayValueFr: "Francais",
-    effectiveDate: "2026-04-01",
-  },
-  {
-    id: 12,
     lookupName: "Contact method",
-    code: "CONTACT_METHOD_EMAIL",
-    orderNo: 1,
-    displayValueEn: "Email",
-    displayValueFr: "Courriel",
+    codePrefix: "CONTACT_METHOD",
     effectiveDate: "2026-05-01",
+    values: [
+      { displayValueEn: "Email", displayValueFr: "Courriel" },
+      { displayValueEn: "Phone", displayValueFr: "Telephone" },
+      { displayValueEn: "Text message", displayValueFr: "Message texte" },
+    ],
   },
   {
-    id: 13,
-    lookupName: "Contact method",
-    code: "CONTACT_METHOD_PHONE",
-    orderNo: 2,
-    displayValueEn: "Phone",
-    displayValueFr: "Telephone",
-    effectiveDate: "2026-05-01",
-  },
-  {
-    id: 14,
-    lookupName: "Contact method",
-    code: "CONTACT_METHOD_SMS",
-    orderNo: 3,
-    displayValueEn: "Text message",
-    displayValueFr: "Message texte",
-    effectiveDate: "2026-05-01",
-  },
-  {
-    id: 15,
     lookupName: "Billing cycle",
-    code: "BILLING_CYCLE_MONTHLY",
-    orderNo: 1,
-    displayValueEn: "Monthly",
-    displayValueFr: "Mensuel",
+    codePrefix: "BILLING_CYCLE",
     effectiveDate: "2026-06-01",
+    values: [
+      { displayValueEn: "Monthly", displayValueFr: "Mensuel" },
+      { displayValueEn: "Annual", displayValueFr: "Annuel" },
+    ],
   },
   {
-    id: 16,
-    lookupName: "Billing cycle",
-    code: "BILLING_CYCLE_ANNUAL",
-    orderNo: 2,
-    displayValueEn: "Annual",
-    displayValueFr: "Annuel",
-    effectiveDate: "2026-06-01",
-  },
-  {
-    id: 17,
     lookupName: "Account tier",
-    code: "ACCOUNT_TIER_STANDARD",
-    orderNo: 1,
-    displayValueEn: "Standard",
-    displayValueFr: "Standard",
+    codePrefix: "ACCOUNT_TIER",
     effectiveDate: "2026-06-15",
+    values: [
+      { displayValueEn: "Standard", displayValueFr: "Standard" },
+      { displayValueEn: "Enterprise", displayValueFr: "Entreprise" },
+    ],
   },
   {
-    id: 18,
-    lookupName: "Account tier",
-    code: "ACCOUNT_TIER_ENTERPRISE",
-    orderNo: 2,
-    displayValueEn: "Enterprise",
-    displayValueFr: "Entreprise",
-    effectiveDate: "2026-06-15",
-  },
-  {
-    id: 19,
     lookupName: "Age",
-    code: "AGE_18_24",
-    orderNo: 1,
-    displayValueEn: "18 to 24",
-    displayValueFr: "18 a 24",
+    codePrefix: "AGE",
     effectiveDate: "2026-01-01",
-  },
-  {
-    id: 20,
-    lookupName: "Age",
-    code: "AGE_25_34",
-    orderNo: 2,
-    displayValueEn: "25 to 34",
-    displayValueFr: "25 a 34",
-    effectiveDate: "2026-01-01",
-  },
-  {
-    id: 21,
-    lookupName: "Age",
-    code: "AGE_35_44",
-    orderNo: 3,
-    displayValueEn: "35 to 44",
-    displayValueFr: "35 a 44",
-    effectiveDate: "2026-01-01",
-  },
-  {
-    id: 22,
-    lookupName: "Age",
-    code: "AGE_45_54",
-    orderNo: 4,
-    displayValueEn: "45 to 54",
-    displayValueFr: "45 a 54",
-    effectiveDate: "2026-01-01",
-  },
-  {
-    id: 23,
-    lookupName: "Age",
-    code: "AGE_55_PLUS",
-    orderNo: 5,
-    displayValueEn: "55 plus",
-    displayValueFr: "55 et plus",
-    effectiveDate: "2026-01-01",
+    values: [
+      { displayValueEn: "18 to 24", displayValueFr: "18 a 24" },
+      { displayValueEn: "25 to 34", displayValueFr: "25 a 34" },
+      { displayValueEn: "35 to 44", displayValueFr: "35 a 44" },
+      { displayValueEn: "45 to 54", displayValueFr: "45 a 54" },
+      { displayValueEn: "55 plus", displayValueFr: "55 et plus" },
+    ],
   },
 ];
+
+export const lookupSeed: LookupDto[] = lookupDefinitions.flatMap(
+  (definition, definitionIndex) =>
+    Array.from({ length: LOOKUPS_PER_NAME }, (_, index) => {
+      const orderNo = index + 1;
+      const value = definition.values[index % definition.values.length];
+      const cycle = Math.floor(index / definition.values.length);
+      const suffix =
+        cycle === 0 ? "" : ` ${String(cycle + 1).padStart(2, "0")}`;
+
+      return {
+        id: definitionIndex * LOOKUPS_PER_NAME + orderNo,
+        lookupName: definition.lookupName,
+        code: `${definition.codePrefix}_${String(orderNo).padStart(3, "0")}`,
+        orderNo,
+        displayValueEn: `${value.displayValueEn}${suffix}`,
+        displayValueFr: `${value.displayValueFr}${suffix}`,
+        effectiveDate: definition.effectiveDate,
+      };
+    }),
+);

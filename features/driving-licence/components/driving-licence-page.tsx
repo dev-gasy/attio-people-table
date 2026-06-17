@@ -5,7 +5,7 @@ import { LicencePreview } from "@/features/driving-licence/components/licence-pr
 import { useDrivingLicencePage } from "@/features/driving-licence/use-driving-licence-page";
 
 export function DrivingLicencePage() {
-  const { canGenerate, form, handleReset, handleSubmit, result, updateForm } =
+  const { form, handleRandomize, handleReset, result, updateForm } =
     useDrivingLicencePage();
 
   return (
@@ -15,11 +15,10 @@ export function DrivingLicencePage() {
       <PageFrameBody className="pb-8">
         <div className="flex flex-col gap-6">
           <LicenceDetailsForm
-            canGenerate={canGenerate}
             form={form}
             onFieldChange={updateForm}
+            onRandomize={handleRandomize}
             onReset={handleReset}
-            onSubmit={handleSubmit}
           />
 
           <LicencePreview result={result} />

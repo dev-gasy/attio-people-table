@@ -1,4 +1,5 @@
-import { BadgeCheck, IdCard, RotateCcw } from "lucide-react";
+import { useId, useState } from "react";
+import { ChevronRight, IdCard, RotateCcw, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { canadianProvinces } from "@/features/driving-licence/domain/provinces";
@@ -10,96 +11,117 @@ import type {
 const genderOptions: Gender[] = ["Male", "Female"];
 
 export function LicenceDetailsForm({
-  canGenerate,
   form,
   onFieldChange,
+  onRandomize,
   onReset,
-  onSubmit,
 }: {
-  canGenerate: boolean;
   form: LicenceForm;
   onFieldChange: (values: Partial<LicenceForm>) => void;
+  onRandomize: () => void;
   onReset: () => void;
-  onSubmit: React.FormEventHandler<HTMLFormElement>;
 }) {
+  const [open, setOpen] = useState(true);
+  const contentId = useId();
+
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={(event) => event.preventDefault()}
       className="overflow-hidden rounded-xl border border-border"
     >
-      <div className="flex items-center gap-2.5 bg-muted/30 px-4 py-3">
+      <button
+        type="button"
+        aria-controls={contentId}
+        aria-expanded={open}
+        onClick={() => setOpen((currentOpen) => !currentOpen)}
+        className="flex w-full items-center gap-2.5 bg-muted/30 px-4 py-3 text-left hover:bg-muted/50"
+      >
         <IdCard className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium text-foreground">
           Licence details
         </span>
-      </div>
-
-      <div className="grid gap-4 bg-muted/10 px-4 py-4 sm:grid-cols-2">
-        <TextField
-          autoFocus
-          label="First Name"
-          value={form.firstName}
-          placeholder="Enter first name"
-          onChange={(firstName) => onFieldChange({ firstName })}
+        <ChevronRight
+          className={`ml-auto h-4 w-4 text-muted-foreground transition-transform ${
+            open ? "rotate-90" : ""
+          }`}
         />
-        <TextField
-          label="Last Name"
-          value={form.lastName}
-          placeholder="Enter last name"
-          onChange={(lastName) => onFieldChange({ lastName })}
-        />
-        <TextField
-          label="Date of Birth"
-          type="date"
-          value={form.dateOfBirth}
-          placeholder="yyyy-mm-dd"
-          onChange={(dateOfBirth) => onFieldChange({ dateOfBirth })}
-        />
+      </button>
 
-        <label className="flex min-w-0 flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted-foreground">
-            Province
-          </span>
-          <select
-            required
-            value={form.province}
-            onChange={(event) =>
-              onFieldChange({ province: event.target.value })
-            }
-            className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-ring focus:ring-3 focus:ring-ring/20"
-          >
-            <option value="">Select province</option>
-            {canadianProvinces.map((province) => (
-              <option key={province} value={province}>
-                {province}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div
+        id={contentId}
+        className={`grid transition-all duration-200 ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="grid gap-4 border-t border-border bg-muted/10 px-4 py-4 sm:grid-cols-2">
+            <TextField
+              autoFocus
+              label="First Name"
+              value={form.firstName}
+              placeholder="Enter first name"
+              onChange={(firstName) => onFieldChange({ firstName })}
+            />
+            <TextField
+              label="Last Name"
+              value={form.lastName}
+              placeholder="Enter last name"
+              onChange={(lastName) => onFieldChange({ lastName })}
+            />
+            <TextField
+              label="Date of Birth"
+              type="date"
+              value={form.dateOfBirth}
+              placeholder="yyyy-mm-dd"
+              onChange={(dateOfBirth) => onFieldChange({ dateOfBirth })}
+            />
 
-        <GenderFieldset
-          value={form.gender}
-          onChange={(gender) => onFieldChange({ gender })}
-        />
+            <label className="flex min-w-0 flex-col gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground">
+                Province
+              </span>
+              <select
+                required
+                value={form.province}
+                onChange={(event) =>
+                  onFieldChange({ province: event.target.value })
+                }
+                className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-ring focus:ring-3 focus:ring-ring/20"
+              >
+                <option value="">Select province</option>
+                {canadianProvinces.map((province) => (
+                  <option key={province} value={province}>
+                    {province}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-        <TextField
-          label="Email"
-          type="email"
-          value={form.email}
-          placeholder="name@example.com"
-          onChange={(email) => onFieldChange({ email })}
-        />
-      </div>
+            <GenderFieldset
+              value={form.gender}
+              onChange={(gender) => onFieldChange({ gender })}
+            />
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-border bg-background/40 px-4 py-3">
-        <Button type="submit" disabled={!canGenerate}>
-          <BadgeCheck className="h-4 w-4" />
-          Generate
-        </Button>
-        <Button type="button" variant="outline" onClick={onReset}>
-          <RotateCcw className="h-4 w-4" />
-          Reset
-        </Button>
+            <TextField
+              label="Email"
+              type="email"
+              value={form.email}
+              placeholder="name@example.com"
+              onChange={(email) => onFieldChange({ email })}
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 border-t border-border bg-background/40 px-4 py-3">
+            <Button type="button" variant="outline" onClick={onRandomize}>
+              <Shuffle className="h-4 w-4" />
+              Randomize
+            </Button>
+            <Button type="button" variant="outline" onClick={onReset}>
+              <RotateCcw className="h-4 w-4" />
+              Reset
+            </Button>
+          </div>
+        </div>
       </div>
     </form>
   );

@@ -13,7 +13,6 @@ import { Combobox, type ComboOption } from "@/components/ui/combobox";
 import { Pagination } from "@/components/ui/pagination";
 import { KrakenControls } from "@/features/kraken/components/kraken-controls";
 import { KrakenRulesTable } from "@/features/kraken/components/kraken-rules-table";
-import { getRuleTypeCounts } from "@/features/kraken/domain/rules";
 import {
   krakenEntrypointRulesQueryOptions,
   getStaticKrakenEntrypoints,
@@ -35,7 +34,7 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
     ...krakenEntrypointRulesQueryOptions(entrypointName ?? ""),
     enabled: Boolean(entrypointName),
   });
-  const rules = data?.rules ?? [];
+  const rules = useMemo(() => data?.rules ?? [], [data?.rules]);
   const entrypoint = data?.entrypoint ?? null;
   const table = useKrakenRulesTable(rules);
   const entrypointOptions = useMemo<ComboOption[]>(
@@ -43,30 +42,28 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
       entrypoints.map((entrypoint) => ({
         value: entrypoint.slug,
         label: entrypoint.name,
-        hint: `${entrypoint.rulesCount} rules`,
       })),
     [entrypoints],
   );
-  const ruleTypeCounts = useMemo(() => getRuleTypeCounts(rules), [rules]);
   const ruleTypeOptions = useMemo<ComboOption[]>(
     () =>
       ruleTypes.map((type) => ({
         value: type,
         label: type,
-        hint: `${ruleTypeCounts[type]} rules`,
       })),
-    [ruleTypeCounts],
+    [],
   );
 
   function handleEntrypointChange(value: string | null) {
     if (!value || value === entrypointName) return;
 
-    table.pagination.resetPage();
     void navigate({
       to: "/kraken/$entrypointName",
       params: { entrypointName: value },
     });
   }
+
+  const { pagination } = table;
 
   return (
     <PageFrame>
@@ -117,15 +114,15 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
         />
       </PageFrameBody>
 
-      {!isLoadingRules && !isRulesError && table.sortedRows.length > 0 && (
+      {!isLoadingRules && !isRulesError && pagination.total > 0 && (
         <PageFrameFooter>
           <Pagination
-            page={table.pagination.currentPage}
-            pageCount={table.pagination.pageCount}
-            total={table.sortedRows.length}
-            pageSize={table.pagination.pageSize}
-            onPageChange={table.pagination.setPage}
-            onPageSizeChange={table.pagination.setPageSize}
+            page={pagination.currentPage}
+            pageCount={pagination.pageCount}
+            total={pagination.total}
+            pageSize={pagination.pageSize}
+            onPageChange={pagination.setPage}
+            onPageSizeChange={pagination.setPageSize}
             bordered={false}
           />
         </PageFrameFooter>

@@ -1,4 +1,4 @@
-import { createElement, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { CalendarDays, Hash, Languages, ListOrdered } from "lucide-react";
 import {
@@ -27,17 +27,16 @@ const lookupTableColumns = [
     accessorKey: "code",
     id: "code",
     sortingFn: "alphanumeric",
-    cell: ({ row, getValue }) =>
-      createElement(
-        "code",
-        {
-          className: `min-w-0 truncate rounded-md px-2 py-0.5 text-xs ${
-            lookupNameCodeStyles[row.original.lookupName] ??
-            "bg-muted text-muted-foreground"
-          }`,
-        },
-        getValue<string>(),
-      ),
+    cell: ({ row, getValue }) => (
+      <code
+        className={`min-w-0 truncate rounded-md px-2 py-0.5 text-xs ${
+          lookupNameCodeStyles[row.original.lookupName] ??
+          "bg-muted text-muted-foreground"
+        }`}
+      >
+        {getValue<string>()}
+      </code>
+    ),
     meta: {
       alwaysVisible: true,
       icon: Hash,
@@ -51,12 +50,11 @@ const lookupTableColumns = [
     accessorKey: "displayValueEn",
     id: "displayValueEn",
     sortingFn: "alphanumeric",
-    cell: ({ getValue }) =>
-      createElement(
-        "span",
-        { className: "min-w-0 truncate text-foreground" },
-        getValue<string>(),
-      ),
+    cell: ({ getValue }) => (
+      <span className="min-w-0 truncate text-foreground">
+        {getValue<string>()}
+      </span>
+    ),
     meta: {
       icon: Languages,
       label: "Display value EN",
@@ -69,12 +67,11 @@ const lookupTableColumns = [
     accessorKey: "displayValueFr",
     id: "displayValueFr",
     sortingFn: "alphanumeric",
-    cell: ({ getValue }) =>
-      createElement(
-        "span",
-        { className: "min-w-0 truncate text-muted-foreground" },
-        getValue<string>(),
-      ),
+    cell: ({ getValue }) => (
+      <span className="min-w-0 truncate text-muted-foreground">
+        {getValue<string>()}
+      </span>
+    ),
     meta: {
       icon: Languages,
       label: "Display value FR",
@@ -87,12 +84,11 @@ const lookupTableColumns = [
     accessorKey: "effectiveDateValue",
     id: "effectiveDate",
     sortingFn: "alphanumeric",
-    cell: ({ row }) =>
-      createElement(
-        "span",
-        { className: "min-w-0 truncate text-muted-foreground" },
-        row.original.effectiveDate,
-      ),
+    cell: ({ row }) => (
+      <span className="min-w-0 truncate text-muted-foreground">
+        {row.original.effectiveDate}
+      </span>
+    ),
     meta: {
       icon: CalendarDays,
       label: "Effective date",
@@ -104,12 +100,11 @@ const lookupTableColumns = [
   {
     accessorKey: "orderNo",
     id: "orderNo",
-    cell: ({ getValue }) =>
-      createElement(
-        "span",
-        { className: "min-w-0 truncate text-muted-foreground" },
-        getValue<number>(),
-      ),
+    cell: ({ getValue }) => (
+      <span className="min-w-0 truncate text-muted-foreground">
+        {getValue<number>()}
+      </span>
+    ),
     meta: {
       icon: ListOrdered,
       label: "Order No.",
@@ -164,14 +159,12 @@ export function useLookupsTable(lookups: Lookup[]) {
 
   function setQuery(value: string) {
     setQueryState(value);
-    table.pagination.resetPage();
   }
 
   function handleColumnToggle(column: LookupColumnKey) {
     columnVisibility.toggleColumn(column);
     if (table.sort.sortKey === column) {
       table.sort.resetSort();
-      table.pagination.resetPage();
     }
   }
 

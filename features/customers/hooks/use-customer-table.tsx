@@ -1,4 +1,4 @@
-import { createElement, type ReactNode, useMemo } from "react";
+import { type ReactNode, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { CalendarDays, Mail, MapPin, Phone, User } from "lucide-react";
@@ -8,10 +8,6 @@ import type {
   Customer,
   CustomerContactKind,
 } from "@/features/customers/data/customer-mappers";
-import {
-  type CustomerTableScope,
-  useCustomerTableStore,
-} from "@/features/customers/stores/customer-table-store";
 import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
 
 export type CustomerTableState = ReturnType<typeof useCustomerTable>;
@@ -19,17 +15,12 @@ export type CustomerTableState = ReturnType<typeof useCustomerTable>;
 export function useCustomerTable({
   customers,
   isFavorite,
-  scope,
   toggleFavorite,
 }: {
   customers: Customer[];
   isFavorite: (customerId: number) => boolean;
-  scope: CustomerTableScope;
   toggleFavorite: (customerId: number) => void;
 }) {
-  const tableSettings = useCustomerTableStore((state) => state.tables[scope]);
-  const setPage = useCustomerTableStore((state) => state.setPage);
-  const setPageSize = useCustomerTableStore((state) => state.setPageSize);
   const columns = useMemo<ColumnDef<Customer>[]>(
     () => [
       {
@@ -38,33 +29,23 @@ export function useCustomerTable({
         cell: ({ row }) => {
           const customer = row.original;
 
-          return createElement(
-            "span",
-            { className: "flex min-w-0 flex-1 items-center gap-2.5" },
-            createElement(CustomerFavoriteButton, {
-              favorite: isFavorite(customer.id),
-              onClick: () => toggleFavorite(customer.id),
-            }),
-            createElement(
-              Link,
-              {
-                to: "/customers/$customerId",
-                params: { customerId: String(customer.id) },
-                className: "flex min-w-0 flex-1 items-center gap-2.5",
-              },
-              createElement(Avatar, {
-                initial: customer.initial,
-                color: customer.color,
-              }),
-              createElement(
-                "span",
-                {
-                  className:
-                    "min-w-0 max-w-full truncate text-base font-semibold text-foreground",
-                },
-                customer.name,
-              ),
-            ),
+          return (
+            <span className="flex min-w-0 flex-1 items-center gap-2.5">
+              <CustomerFavoriteButton
+                favorite={isFavorite(customer.id)}
+                onClick={() => toggleFavorite(customer.id)}
+              />
+              <Link
+                to="/customers/$customerId"
+                params={{ customerId: String(customer.id) }}
+                className="flex min-w-0 flex-1 items-center gap-2.5"
+              >
+                <Avatar initial={customer.initial} color={customer.color} />
+                <span className="min-w-0 max-w-full truncate text-base font-semibold text-foreground">
+                  {customer.name}
+                </span>
+              </Link>
+            </span>
           );
         },
         meta: {
@@ -131,14 +112,9 @@ export function useCustomerTable({
         cell: ({ row }) =>
           createCustomerDetailLink(
             row.original,
-            createElement(
-              "span",
-              {
-                className:
-                  "min-w-0 max-w-full truncate text-sm text-muted-foreground",
-              },
-              row.original.dateOfBirth,
-            ),
+            <span className="min-w-0 max-w-full truncate text-sm text-muted-foreground">
+              {row.original.dateOfBirth}
+            </span>,
           ),
         meta: {
           icon: CalendarDays,
@@ -153,10 +129,6 @@ export function useCustomerTable({
   const table = useTanStackClientTable({
     data: customers,
     columns,
-    page: tableSettings.page,
-    pageSize: tableSettings.pageSize,
-    onPageChange: (page) => setPage(scope, page),
-    onPageSizeChange: (pageSize) => setPageSize(scope, pageSize),
     getRowId: (row) => String(row.id),
   });
   const tableGridStyle = useMemo(
@@ -186,14 +158,14 @@ export function getPreferredContact(
 }
 
 function createCustomerDetailLink(customer: Customer, children: ReactNode) {
-  return createElement(
-    Link,
-    {
-      to: "/customers/$customerId",
-      params: { customerId: String(customer.id) },
-      className: "flex min-w-0 max-w-full items-center",
-    },
-    children,
+  return (
+    <Link
+      to="/customers/$customerId"
+      params={{ customerId: String(customer.id) }}
+      className="flex min-w-0 max-w-full items-center"
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -203,12 +175,12 @@ function createPreferredContactValue(
 ) {
   const contact = getPreferredContact(customer, kind);
 
-  return createElement(
-    "span",
-    {
-      className: "min-w-0 max-w-full truncate text-sm text-muted-foreground",
-      title: contact?.value ?? "Not provided",
-    },
-    contact?.value ?? "Not provided",
+  return (
+    <span
+      className="min-w-0 max-w-full truncate text-sm text-muted-foreground"
+      title={contact?.value ?? "Not provided"}
+    >
+      {contact?.value ?? "Not provided"}
+    </span>
   );
 }

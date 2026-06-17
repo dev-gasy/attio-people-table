@@ -41,14 +41,12 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
       lookupNames.map((lookupName) => ({
         value: lookupName.slug,
         label: lookupName.name,
-        hint: `${lookupName.lookupsCount} lookups`,
       })),
     [lookupNames],
   );
   function handleLookupNameChange(value: string | null) {
     if (!value || value === lookupName) return;
 
-    table.pagination.resetPage();
     void navigate({
       to: "/lookups/$lookupName",
       params: { lookupName: value },

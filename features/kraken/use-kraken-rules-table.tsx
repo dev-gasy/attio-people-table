@@ -1,4 +1,4 @@
-import { createElement, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { FileText, Hash, MessageSquareText, Tags } from "lucide-react";
 import { type Rule, type RuleType } from "@/lib/workspace-data";
@@ -20,15 +20,11 @@ const ruleTableColumns = [
     accessorKey: "name",
     id: "name",
     sortingFn: "alphanumeric",
-    cell: ({ getValue }) =>
-      createElement(
-        "span",
-        {
-          className:
-            "min-w-0 whitespace-normal break-words font-medium leading-5 text-foreground",
-        },
-        getValue<string>(),
-      ),
+    cell: ({ getValue }) => (
+      <span className="min-w-0 whitespace-normal break-words font-medium leading-5 text-foreground">
+        {getValue<string>()}
+      </span>
+    ),
     meta: {
       alwaysVisible: true,
       icon: FileText,
@@ -42,15 +38,11 @@ const ruleTableColumns = [
     accessorKey: "code",
     id: "code",
     sortingFn: "alphanumeric",
-    cell: ({ getValue }) =>
-      createElement(
-        "code",
-        {
-          className:
-            "min-w-0 truncate rounded-md bg-muted px-2 py-0.5 text-xs text-foreground",
-        },
-        getValue<string>(),
-      ),
+    cell: ({ getValue }) => (
+      <code className="min-w-0 truncate rounded-md bg-muted px-2 py-0.5 text-xs text-foreground">
+        {getValue<string>()}
+      </code>
+    ),
     meta: {
       icon: Hash,
       label: "Code",
@@ -63,12 +55,11 @@ const ruleTableColumns = [
     accessorKey: "message",
     id: "message",
     sortingFn: "alphanumeric",
-    cell: ({ getValue }) =>
-      createElement(
-        "span",
-        { className: "min-w-0 truncate text-muted-foreground" },
-        getValue<string>(),
-      ),
+    cell: ({ getValue }) => (
+      <span className="min-w-0 truncate text-muted-foreground">
+        {getValue<string>()}
+      </span>
+    ),
     meta: {
       icon: MessageSquareText,
       label: "Message",
@@ -84,12 +75,12 @@ const ruleTableColumns = [
     cell: ({ getValue }) => {
       const type = getValue<RuleType>();
 
-      return createElement(
-        "span",
-        {
-          className: `inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-medium ${ruleTypeStyles[type]}`,
-        },
-        type,
+      return (
+        <span
+          className={`inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-medium ${ruleTypeStyles[type]}`}
+        >
+          {type}
+        </span>
       );
     },
     meta: {
@@ -146,19 +137,16 @@ export function useKrakenRulesTable(rules: Rule[]) {
 
   function setQuery(value: string) {
     setQueryState(value);
-    table.pagination.resetPage();
   }
 
   function setTypeFilter(value: string | null) {
     setTypeFilterState(value as RuleType | null);
-    table.pagination.resetPage();
   }
 
   function handleColumnToggle(column: RuleColumnKey) {
     columnVisibility.toggleColumn(column);
     if (table.sort.sortKey === column) {
       table.sort.resetSort();
-      table.pagination.resetPage();
     }
   }
 
