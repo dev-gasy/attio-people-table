@@ -4,7 +4,11 @@ import { CalendarDays, Mail, MapPin, Phone, User } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import { CustomerFavoriteButton } from "@/features/customers/components/shared/customer-favorite-button";
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
-import { SortableTableHeader } from "@/components/ui/sortable-table-header";
+import {
+  SortableTableHeader,
+  TableHeaderCell,
+  TableLoadingRows,
+} from "@/components/ui/table";
 import type {
   Customer,
   CustomerContactKind,
@@ -16,6 +20,14 @@ import {
 
 const CUSTOMER_TABLE_COLUMNS =
   "grid-cols-[minmax(220px,1.35fr)_minmax(120px,170px)_minmax(140px,210px)_minmax(160px,260px)_minmax(100px,140px)]";
+
+const CUSTOMER_LOADING_COLUMNS = [
+  { widths: ["h-8 w-8 rounded-full", "h-3 w-32"] },
+  { widths: ["h-3 w-28"] },
+  { widths: ["h-3 w-44"] },
+  { widths: ["h-3 w-60"] },
+  { widths: ["h-3 w-28"] },
+];
 
 export function CustomerTable({
   customers,
@@ -51,7 +63,7 @@ export function CustomerTable({
           <div
             className={`sticky top-0 z-10 grid ${CUSTOMER_TABLE_COLUMNS} border-b border-border/60 bg-background`}
           >
-            <CustomerTableHeaderCell>
+            <TableHeaderCell>
               <SortableTableHeader
                 icon={User}
                 label="Customer"
@@ -60,8 +72,8 @@ export function CustomerTable({
                 direction={table.sort.direction}
                 onSort={table.handleSort}
               />
-            </CustomerTableHeaderCell>
-            <CustomerTableHeaderCell>
+            </TableHeaderCell>
+            <TableHeaderCell>
               <SortableTableHeader
                 icon={Phone}
                 label="Phone"
@@ -70,8 +82,8 @@ export function CustomerTable({
                 direction={table.sort.direction}
                 onSort={table.handleSort}
               />
-            </CustomerTableHeaderCell>
-            <CustomerTableHeaderCell>
+            </TableHeaderCell>
+            <TableHeaderCell>
               <SortableTableHeader
                 icon={Mail}
                 label="Email"
@@ -80,8 +92,8 @@ export function CustomerTable({
                 direction={table.sort.direction}
                 onSort={table.handleSort}
               />
-            </CustomerTableHeaderCell>
-            <CustomerTableHeaderCell>
+            </TableHeaderCell>
+            <TableHeaderCell>
               <SortableTableHeader
                 icon={MapPin}
                 label="Address"
@@ -90,8 +102,8 @@ export function CustomerTable({
                 direction={table.sort.direction}
                 onSort={table.handleSort}
               />
-            </CustomerTableHeaderCell>
-            <CustomerTableHeaderCell last>
+            </TableHeaderCell>
+            <TableHeaderCell last>
               <SortableTableHeader
                 icon={CalendarDays}
                 label="DOB"
@@ -100,13 +112,17 @@ export function CustomerTable({
                 direction={table.sort.direction}
                 onSort={table.handleSort}
               />
-            </CustomerTableHeaderCell>
+            </TableHeaderCell>
           </div>
 
           {!shouldLoadCustomers ? (
             <CustomerTableEmptyState message={idleMessage} />
           ) : isLoading ? (
-            <CustomerTableLoadingRows />
+            <TableLoadingRows
+              columns={CUSTOMER_LOADING_COLUMNS}
+              gridClassName={CUSTOMER_TABLE_COLUMNS}
+              rowCount={table.pagination.pageSize}
+            />
           ) : isError ? (
             <DataErrorView
               title="Could not load customers"
@@ -196,25 +212,6 @@ function CustomerDetailCellLink({
   );
 }
 
-function CustomerTableLoadingRows() {
-  return (
-    <>
-      {Array.from({ length: 10 }).map((_, index) => (
-        <div
-          key={index}
-          className={`grid ${CUSTOMER_TABLE_COLUMNS} border-b border-border/60`}
-        >
-          <CustomerLoadingCell widths={["h-8 w-8 rounded-full", "h-3 w-32"]} />
-          <CustomerLoadingCell widths={["h-3 w-28"]} />
-          <CustomerLoadingCell widths={["h-3 w-44"]} />
-          <CustomerLoadingCell widths={["h-3 w-60"]} />
-          <CustomerLoadingCell widths={["h-3 w-28"]} last />
-        </div>
-      ))}
-    </>
-  );
-}
-
 function PreferredContactValue({
   customer,
   kind,
@@ -232,44 +229,5 @@ function PreferredContactValue({
     >
       {contact?.value ?? "Not set"}
     </span>
-  );
-}
-
-function CustomerLoadingCell({
-  widths,
-  last,
-}: {
-  widths: string[];
-  last?: boolean;
-}) {
-  return (
-    <div
-      className={`flex min-w-0 max-w-full items-center gap-2.5 px-4 py-2.5 ${
-        last ? "" : "border-r border-border/60"
-      }`}
-    >
-      {widths.map((width) => (
-        <span
-          key={width}
-          className={`${width} block max-w-full animate-pulse bg-muted`}
-        />
-      ))}
-    </div>
-  );
-}
-
-function CustomerTableHeaderCell({
-  children,
-  last,
-}: {
-  children: ReactNode;
-  last?: boolean;
-}) {
-  return (
-    <div
-      className={`min-w-0 max-w-full ${last ? "" : "border-r border-border"} px-4 py-3`}
-    >
-      {children}
-    </div>
   );
 }

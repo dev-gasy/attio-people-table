@@ -63,6 +63,7 @@ export function GroupsPage({ filters = {} }: { filters?: GroupsSearch }) {
             idle={!shouldLoadGroups}
             isLoading={shouldLoadGroups && isPending}
             onSort={handleSort}
+            pageSize={pagination.pageSize}
             rows={pagination.pageItems}
             view={view}
           />

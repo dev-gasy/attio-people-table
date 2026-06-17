@@ -6,11 +6,23 @@ import type {
   GroupSortKey,
   GroupsView,
 } from "@/features/groups/components/types";
-import { SortableTableHeader } from "@/components/ui/sortable-table-header";
+import {
+  SortableTableHeader,
+  TableHeaderCell,
+  TableLoadingRows,
+} from "@/components/ui/table";
 import type { Group } from "@/features/groups/group-mappers";
 
 const GROUP_TABLE_COLUMNS =
   "grid-cols-[minmax(220px,1.4fr)_minmax(140px,0.9fr)_minmax(140px,0.9fr)_minmax(160px,1fr)_minmax(120px,0.8fr)]";
+
+const GROUP_LOADING_COLUMNS = [
+  { widths: ["h-3 w-32 rounded"] },
+  { widths: ["h-3 w-28 rounded"] },
+  { widths: ["h-3 w-28 rounded"] },
+  { widths: ["h-3 w-24 rounded"] },
+  { widths: ["h-3 w-20 rounded"] },
+];
 
 export function GroupsContent({
   activeSort,
@@ -19,6 +31,7 @@ export function GroupsContent({
   idle,
   isLoading = false,
   onSort,
+  pageSize,
   rows,
   view,
 }: {
@@ -28,13 +41,14 @@ export function GroupsContent({
   idle: boolean;
   isLoading?: boolean;
   onSort: (key: GroupSortKey) => void;
+  pageSize: number;
   rows: Row<Group>[];
   view: GroupsView;
 }) {
   return (
     <div>
       {isLoading ? (
-        <GroupsLoadingContent view={view} />
+        <GroupsLoadingContent pageSize={pageSize} view={view} />
       ) : idle ? (
         <div className="py-10 text-center text-sm text-muted-foreground">
           Select a province or enter at least 3 search characters to load
@@ -53,53 +67,58 @@ export function GroupsContent({
       ) : (
         <div className="overflow-auto rounded-xl border border-border bg-muted/10">
           <div
-            className={`sticky top-0 z-10 grid ${GROUP_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 bg-background px-4 py-2`}
+            className={`sticky top-0 z-10 grid ${GROUP_TABLE_COLUMNS} border-b border-border/60 bg-background`}
           >
-            <SortableTableHeader
-              icon={Building2}
-              label="Organization"
-              sortKey="organization"
-              activeSort={activeSort}
-              direction={direction}
-              onSort={onSort}
-              className="text-xs"
-            />
-            <SortableTableHeader
-              icon={Languages}
-              label="Short name FR"
-              sortKey="groupShortNameFr"
-              activeSort={activeSort}
-              direction={direction}
-              onSort={onSort}
-              className="text-xs"
-            />
-            <SortableTableHeader
-              icon={Languages}
-              label="Short name EN"
-              sortKey="groupShortNameEn"
-              activeSort={activeSort}
-              direction={direction}
-              onSort={onSort}
-              className="text-xs"
-            />
-            <SortableTableHeader
-              icon={Hash}
-              label="Online identifier"
-              sortKey="onlineIdentifier"
-              activeSort={activeSort}
-              direction={direction}
-              onSort={onSort}
-              className="text-xs"
-            />
-            <SortableTableHeader
-              icon={MapPin}
-              label="Province"
-              sortKey="province"
-              activeSort={activeSort}
-              direction={direction}
-              onSort={onSort}
-              className="text-xs"
-            />
+            <TableHeaderCell>
+              <SortableTableHeader
+                icon={Building2}
+                label="Organization"
+                sortKey="organization"
+                activeSort={activeSort}
+                direction={direction}
+                onSort={onSort}
+              />
+            </TableHeaderCell>
+            <TableHeaderCell>
+              <SortableTableHeader
+                icon={Languages}
+                label="Short name FR"
+                sortKey="groupShortNameFr"
+                activeSort={activeSort}
+                direction={direction}
+                onSort={onSort}
+              />
+            </TableHeaderCell>
+            <TableHeaderCell>
+              <SortableTableHeader
+                icon={Languages}
+                label="Short name EN"
+                sortKey="groupShortNameEn"
+                activeSort={activeSort}
+                direction={direction}
+                onSort={onSort}
+              />
+            </TableHeaderCell>
+            <TableHeaderCell>
+              <SortableTableHeader
+                icon={Hash}
+                label="Online identifier"
+                sortKey="onlineIdentifier"
+                activeSort={activeSort}
+                direction={direction}
+                onSort={onSort}
+              />
+            </TableHeaderCell>
+            <TableHeaderCell last>
+              <SortableTableHeader
+                icon={MapPin}
+                label="Province"
+                sortKey="province"
+                activeSort={activeSort}
+                direction={direction}
+                onSort={onSort}
+              />
+            </TableHeaderCell>
           </div>
           {rows.map((row) => (
             <GroupRow key={row.id} group={row.original} />
@@ -110,11 +129,17 @@ export function GroupsContent({
   );
 }
 
-function GroupsLoadingContent({ view }: { view: GroupsView }) {
+function GroupsLoadingContent({
+  pageSize,
+  view,
+}: {
+  pageSize: number;
+  view: GroupsView;
+}) {
   if (view === "grid") {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 9 }).map((_, index) => (
+        {Array.from({ length: pageSize }).map((_, index) => (
           <div
             key={index}
             className="rounded-xl border border-border bg-muted/10 p-4"
@@ -143,26 +168,29 @@ function GroupsLoadingContent({ view }: { view: GroupsView }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
       <div
-        className={`sticky top-0 z-10 grid ${GROUP_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 bg-background px-4 py-2 text-xs font-medium text-muted-foreground`}
+        className={`sticky top-0 z-10 grid ${GROUP_TABLE_COLUMNS} border-b border-border/60 bg-background`}
       >
-        <span className="truncate">Organization</span>
-        <span className="truncate">Short name FR</span>
-        <span className="truncate">Short name EN</span>
-        <span className="truncate">Online identifier</span>
-        <span className="truncate">Province</span>
+        <TableHeaderCell>
+          <SortableTableHeader icon={Building2} label="Organization" />
+        </TableHeaderCell>
+        <TableHeaderCell>
+          <SortableTableHeader icon={Languages} label="Short name FR" />
+        </TableHeaderCell>
+        <TableHeaderCell>
+          <SortableTableHeader icon={Languages} label="Short name EN" />
+        </TableHeaderCell>
+        <TableHeaderCell>
+          <SortableTableHeader icon={Hash} label="Online identifier" />
+        </TableHeaderCell>
+        <TableHeaderCell last>
+          <SortableTableHeader icon={MapPin} label="Province" />
+        </TableHeaderCell>
       </div>
-      {Array.from({ length: 10 }).map((_, index) => (
-        <div
-          key={index}
-          className={`grid ${GROUP_TABLE_COLUMNS} items-center gap-4 border-b border-border/60 px-4 py-3`}
-        >
-          <div className="h-3 w-32 animate-pulse rounded bg-muted" />
-          <div className="h-3 w-28 animate-pulse rounded bg-muted" />
-          <div className="h-3 w-28 animate-pulse rounded bg-muted" />
-          <div className="h-3 w-24 animate-pulse rounded bg-muted" />
-          <div className="h-3 w-20 animate-pulse rounded bg-muted" />
-        </div>
-      ))}
+      <TableLoadingRows
+        columns={GROUP_LOADING_COLUMNS}
+        gridClassName={GROUP_TABLE_COLUMNS}
+        rowCount={pageSize}
+      />
     </div>
   );
 }

@@ -1,5 +1,10 @@
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
-import { SortableTableHeader } from "@/components/ui/sortable-table-header";
+import {
+  SortableTableHeader,
+  TableBodyCell,
+  TableHeaderCell,
+  TableLoadingRows,
+} from "@/components/ui/table";
 import { type Rule } from "@/lib/workspace-data";
 import {
   ruleTypeStyles,
@@ -7,6 +12,13 @@ import {
   type RuleColumnConfig,
   type RuleColumnKey,
 } from "@/features/kraken/use-kraken-rules-table";
+
+const ruleLoadingWidths: Record<RuleColumnKey, string[]> = {
+  name: ["h-3 w-48"],
+  code: ["h-5 w-24 rounded-md"],
+  message: ["h-3 w-40"],
+  type: ["h-5 w-20 rounded-full"],
+};
 
 export function KrakenRulesTable({
   entrypointName,
@@ -30,10 +42,10 @@ export function KrakenRulesTable({
       <div style={{ minWidth: table.tableMinWidth }}>
         <div
           style={table.tableGridStyle}
-          className="sticky top-0 z-10 grid border-b border-border/60 bg-background text-xs font-medium text-muted-foreground"
+          className="sticky top-0 z-10 grid border-b border-border/60 bg-background"
         >
           {table.visibleColumns.map((column, index) => (
-            <RuleHeaderCell
+            <TableHeaderCell
               key={column.id}
               last={index === table.visibleColumns.length - 1}
             >
@@ -44,15 +56,22 @@ export function KrakenRulesTable({
                 activeSort={table.sort.sortKey}
                 direction={table.sort.direction}
                 onSort={table.handleSort}
-                className="text-xs"
               />
-            </RuleHeaderCell>
+            </TableHeaderCell>
           ))}
         </div>
 
         <div className="divide-y divide-border/60">
           {!entrypointName ? null : isLoading ? (
-            <RuleTablePending />
+            <TableLoadingRows
+              columns={table.visibleColumns.map((column) => ({
+                key: column.id,
+                widths: ruleLoadingWidths[column.id],
+              }))}
+              gridClassName="border-b-0"
+              gridStyle={table.tableGridStyle}
+              rowCount={table.pagination.pageSize}
+            />
           ) : isError ? (
             <DataErrorView
               title="Could not load rules"
@@ -91,32 +110,6 @@ export function KrakenRulesTable({
   );
 }
 
-function RuleTablePending() {
-  return (
-    <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-      Loading rules...
-    </div>
-  );
-}
-
-function RuleHeaderCell({
-  children,
-  last,
-}: {
-  children: React.ReactNode;
-  last?: boolean;
-}) {
-  return (
-    <div
-      className={`flex min-w-0 items-center px-4 py-2.5 ${
-        last ? "" : "border-r border-border/60"
-      }`}
-    >
-      {children}
-    </div>
-  );
-}
-
 function RuleRow({
   columns,
   gridStyle,
@@ -129,9 +122,9 @@ function RuleRow({
   return (
     <div style={gridStyle} className="grid text-sm hover:bg-muted/30">
       {columns.map((column, index) => (
-        <RuleCell key={column.id} last={index === columns.length - 1}>
+        <TableBodyCell key={column.id} last={index === columns.length - 1}>
           {renderRuleCell(rule, column.id)}
-        </RuleCell>
+        </TableBodyCell>
       ))}
     </div>
   );
@@ -170,23 +163,5 @@ function renderRuleCell(rule: Rule, column: RuleColumnKey) {
     >
       {rule.type}
     </span>
-  );
-}
-
-function RuleCell({
-  children,
-  last,
-}: {
-  children: React.ReactNode;
-  last?: boolean;
-}) {
-  return (
-    <div
-      className={`flex min-w-0 items-center px-4 py-2.5 ${
-        last ? "" : "border-r border-border/60"
-      }`}
-    >
-      {children}
-    </div>
   );
 }
