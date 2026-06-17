@@ -1,10 +1,5 @@
 import type { Row } from "@tanstack/react-table";
-import {
-  Building2,
-  Hash,
-  Languages,
-  MapPin,
-} from "lucide-react";
+import { Building2, Hash, Languages, MapPin } from "lucide-react";
 import { GroupCard } from "@/features/groups/components/group-card";
 import { GroupRow } from "@/features/groups/components/group-row";
 import type {
