@@ -103,21 +103,19 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
         />
       </PageFrameBody>
 
-      {!isLoadingLookups &&
-        !isLookupsError &&
-        table.filteredLookups.length > 0 && (
-          <PageFrameFooter>
-            <Pagination
-              page={table.pagination.currentPage}
-              pageCount={table.pagination.pageCount}
-              total={table.sortedLookups.length}
-              pageSize={table.pagination.pageSize}
-              onPageChange={table.pagination.setPage}
-              onPageSizeChange={table.pagination.setPageSize}
-              bordered={false}
-            />
-          </PageFrameFooter>
-        )}
+      {!isLoadingLookups && !isLookupsError && table.sortedRows.length > 0 && (
+        <PageFrameFooter>
+          <Pagination
+            page={table.pagination.currentPage}
+            pageCount={table.pagination.pageCount}
+            total={table.sortedRows.length}
+            pageSize={table.pagination.pageSize}
+            onPageChange={table.pagination.setPage}
+            onPageSizeChange={table.pagination.setPageSize}
+            bordered={false}
+          />
+        </PageFrameFooter>
+      )}
     </PageFrame>
   );
 }

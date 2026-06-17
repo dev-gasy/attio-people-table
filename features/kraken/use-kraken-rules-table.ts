@@ -1,23 +1,12 @@
-import { useMemo, useState, type ComponentType } from "react";
+import { createElement, useMemo, useState } from "react";
+import { type ColumnDef } from "@tanstack/react-table";
 import { FileText, Hash, MessageSquareText, Tags } from "lucide-react";
-import type { ColumnVisibilityOption } from "@/components/ui/column-visibility-control";
 import { type Rule, type RuleType } from "@/lib/workspace-data";
-import {
-  filterRules,
-  sortRules,
-  type RuleSortKey,
-} from "@/features/kraken/domain/rules";
+import { filterRules, type RuleSortKey } from "@/features/kraken/domain/rules";
 import { useColumnVisibility } from "@/hooks/use-column-visibility";
-import { usePagination } from "@/hooks/use-pagination";
-import { useSortCycle } from "@/hooks/use-sort-cycle";
+import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
 
 export type RuleColumnKey = RuleSortKey;
-
-export type RuleColumnConfig = ColumnVisibilityOption<RuleColumnKey> & {
-  icon: ComponentType<{ className?: string }>;
-  minWidth: number;
-  width: string;
-};
 
 export const ruleTypeStyles: Record<RuleType, string> = {
   Required: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
@@ -26,37 +15,98 @@ export const ruleTypeStyles: Record<RuleType, string> = {
   Set: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
 };
 
-export const ruleColumns: RuleColumnConfig[] = [
+const ruleTableColumns = [
   {
+    accessorKey: "name",
     id: "name",
-    label: "Name",
-    icon: FileText,
-    minWidth: 280,
-    width: "minmax(280px, 1.5fr)",
-    alwaysVisible: true,
+    sortingFn: "alphanumeric",
+    cell: ({ getValue }) =>
+      createElement(
+        "span",
+        {
+          className:
+            "min-w-0 whitespace-normal break-words font-medium leading-5 text-foreground",
+        },
+        getValue<string>(),
+      ),
+    meta: {
+      alwaysVisible: true,
+      icon: FileText,
+      label: "Name",
+      loadingWidths: ["h-3 w-48"],
+      minWidth: 280,
+      width: "minmax(280px, 1.5fr)",
+    },
   },
   {
+    accessorKey: "code",
     id: "code",
-    label: "Code",
-    icon: Hash,
-    minWidth: 150,
-    width: "minmax(130px, 170px)",
+    sortingFn: "alphanumeric",
+    cell: ({ getValue }) =>
+      createElement(
+        "code",
+        {
+          className:
+            "min-w-0 truncate rounded-md bg-muted px-2 py-0.5 text-xs text-foreground",
+        },
+        getValue<string>(),
+      ),
+    meta: {
+      icon: Hash,
+      label: "Code",
+      loadingWidths: ["h-5 w-24 rounded-md"],
+      minWidth: 150,
+      width: "minmax(130px, 170px)",
+    },
   },
   {
+    accessorKey: "message",
     id: "message",
-    label: "Message",
-    icon: MessageSquareText,
-    minWidth: 180,
-    width: "minmax(180px, 0.65fr)",
+    sortingFn: "alphanumeric",
+    cell: ({ getValue }) =>
+      createElement(
+        "span",
+        { className: "min-w-0 truncate text-muted-foreground" },
+        getValue<string>(),
+      ),
+    meta: {
+      icon: MessageSquareText,
+      label: "Message",
+      loadingWidths: ["h-3 w-40"],
+      minWidth: 180,
+      width: "minmax(180px, 0.65fr)",
+    },
   },
   {
+    accessorKey: "type",
     id: "type",
-    label: "Type",
-    icon: Tags,
-    minWidth: 150,
-    width: "minmax(120px, 150px)",
+    sortingFn: "alphanumeric",
+    cell: ({ getValue }) => {
+      const type = getValue<RuleType>();
+
+      return createElement(
+        "span",
+        {
+          className: `inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-medium ${ruleTypeStyles[type]}`,
+        },
+        type,
+      );
+    },
+    meta: {
+      icon: Tags,
+      label: "Type",
+      loadingWidths: ["h-5 w-20 rounded-full"],
+      minWidth: 150,
+      width: "minmax(120px, 150px)",
+    },
   },
-];
+] satisfies ColumnDef<Rule>[];
+
+export const ruleColumns = ruleTableColumns.map((column) => ({
+  id: column.id as RuleColumnKey,
+  label: column.meta?.label ?? column.id,
+  alwaysVisible: column.meta?.alwaysVisible,
+}));
 
 const defaultRuleColumnVisibility: Record<RuleColumnKey, boolean> = {
   name: true,
@@ -68,77 +118,64 @@ const defaultRuleColumnVisibility: Record<RuleColumnKey, boolean> = {
 export function useKrakenRulesTable(rules: Rule[]) {
   const [typeFilter, setTypeFilterState] = useState<RuleType | null>(null);
   const [query, setQueryState] = useState("");
-  const sort = useSortCycle<RuleSortKey>();
   const columnVisibility = useColumnVisibility({
     columns: ruleColumns,
     defaultVisibility: defaultRuleColumnVisibility,
   });
-  const visibleColumns = useMemo(
-    () =>
-      ruleColumns.filter(
-        (column) =>
-          column.alwaysVisible || columnVisibility.columnVisibility[column.id],
-      ),
-    [columnVisibility.columnVisibility],
-  );
-  const tableGridStyle = useMemo(
-    () => ({
-      gridTemplateColumns: visibleColumns
-        .map((column) => column.width)
-        .join(" "),
-    }),
-    [visibleColumns],
-  );
-  const tableMinWidth = visibleColumns.reduce(
-    (total, column) => total + column.minWidth,
-    0,
-  );
   const filteredRules = useMemo(() => {
     return filterRules({ rules, query, typeFilter });
   }, [query, rules, typeFilter]);
-  const sortedRules = useMemo(
-    () => sortRules(filteredRules, sort.sortKey, sort.direction),
-    [filteredRules, sort.direction, sort.sortKey],
-  );
-  const pagination = usePagination({
-    items: sortedRules,
+  const table = useTanStackClientTable({
+    data: filteredRules,
+    columns: ruleTableColumns,
+    columnVisibility: columnVisibility.columnVisibility,
+    getRowId: (row) => String(row.id),
   });
+  const tableGridStyle = useMemo(
+    () => ({
+      gridTemplateColumns: table.visibleColumns
+        .map((column) => column.columnDef.meta?.width ?? "minmax(0, 1fr)")
+        .join(" "),
+    }),
+    [table.visibleColumns],
+  );
+  const tableMinWidth = table.visibleColumns.reduce(
+    (total, column) => total + (column.columnDef.meta?.minWidth ?? 0),
+    0,
+  );
 
   function setQuery(value: string) {
     setQueryState(value);
-    pagination.resetPage();
+    table.pagination.resetPage();
   }
 
   function setTypeFilter(value: string | null) {
     setTypeFilterState(value as RuleType | null);
-    pagination.resetPage();
-  }
-
-  function handleSort(key: RuleSortKey) {
-    sort.handleSort(key);
-    pagination.resetPage();
+    table.pagination.resetPage();
   }
 
   function handleColumnToggle(column: RuleColumnKey) {
     columnVisibility.toggleColumn(column);
-    if (sort.sortKey === column) sort.resetSort();
+    if (table.sort.sortKey === column) {
+      table.sort.resetSort();
+      table.pagination.resetPage();
+    }
   }
 
   return {
     columnVisibility,
-    filteredRules,
     handleColumnToggle,
-    handleSort,
-    pagination,
+    pagination: table.pagination,
     query,
     setQuery,
     setTypeFilter,
-    sort,
-    sortedRules,
+    sort: table.sort,
+    sortedRows: table.sortedRows,
+    table: table.table,
     tableGridStyle,
     tableMinWidth,
     typeFilter,
-    visibleColumns,
+    visibleColumns: table.visibleColumns,
   };
 }
 

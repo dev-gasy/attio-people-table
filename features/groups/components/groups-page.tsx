@@ -15,16 +15,16 @@ import { Pagination } from "@/components/ui/pagination";
 
 export function GroupsPage({ filters = {} }: { filters?: GroupsSearch }) {
   const {
-    direction,
     draftSearch,
     filteredTotal,
-    handleSort,
     pagination,
     setProvince,
     setSearch,
     setView,
     shouldLoadGroups,
-    sortKey,
+    table,
+    tableGridStyle,
+    visibleColumns,
     view,
     query: { error, isError, isFetching, isPending, refetch },
   } = useGroupsPage(filters);
@@ -58,13 +58,13 @@ export function GroupsPage({ filters = {} }: { filters?: GroupsSearch }) {
         <PageFrameBody className="pb-8">
           <GroupsContent
             filteredTotal={filteredTotal}
-            activeSort={sortKey}
-            direction={direction}
             idle={!shouldLoadGroups}
             isLoading={shouldLoadGroups && isPending}
-            onSort={handleSort}
             pageSize={pagination.pageSize}
             rows={pagination.pageItems}
+            table={table}
+            tableGridStyle={tableGridStyle}
+            visibleColumns={visibleColumns}
             view={view}
           />
         </PageFrameBody>

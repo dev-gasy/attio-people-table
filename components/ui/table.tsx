@@ -1,8 +1,26 @@
 import type { ComponentType, CSSProperties, ReactNode } from "react";
+import {
+  flexRender,
+  type Column,
+  type Row,
+  type Table as TanStackTable,
+} from "@tanstack/react-table";
 import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type TableSortDirection = "asc" | "desc";
+
+declare module "@tanstack/react-table" {
+  interface ColumnMeta<TData, TValue> {
+    alwaysVisible?: boolean;
+    cellClassName?: string;
+    icon?: ComponentType<{ className?: string }>;
+    label?: string;
+    loadingWidths?: readonly string[];
+    minWidth?: number;
+    width?: string;
+  }
+}
 
 export function SortableTableHeader<SortKey extends string>({
   icon: Icon,
@@ -58,6 +76,112 @@ export function SortableTableHeader<SortKey extends string>({
     >
       {content}
     </button>
+  );
+}
+
+export function TanStackTableHeader<TData>({
+  column,
+  className,
+}: {
+  column: Column<TData>;
+  className?: string;
+}) {
+  const Icon = column.columnDef.meta?.icon;
+  const label =
+    column.columnDef.meta?.label ??
+    (typeof column.columnDef.header === "string"
+      ? column.columnDef.header
+      : "");
+  const isSorted = column.getIsSorted();
+  const isSortable = column.getCanSort();
+  const content = (
+    <>
+      {Icon && <Icon className="h-4 w-4 shrink-0" />}
+      <span className="min-w-0 max-w-full truncate">{label}</span>
+      {isSorted === "asc" && (
+        <ChevronUp className="h-3.5 w-3.5 shrink-0 text-foreground" />
+      )}
+      {isSorted === "desc" && (
+        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-foreground" />
+      )}
+    </>
+  );
+  const baseClassName = cn(
+    "flex w-full min-w-0 max-w-full items-center gap-2 text-sm font-medium text-muted-foreground",
+    className,
+  );
+
+  if (!isSortable) {
+    return <div className={baseClassName}>{content}</div>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={column.getToggleSortingHandler()}
+      className={cn(baseClassName, "hover:text-foreground")}
+      aria-sort={
+        isSorted === "asc"
+          ? "ascending"
+          : isSorted === "desc"
+            ? "descending"
+            : "none"
+      }
+    >
+      {content}
+    </button>
+  );
+}
+
+export function TanStackGridHeader<TData>({
+  table,
+}: {
+  table: TanStackTable<TData>;
+}) {
+  const columns = table.getVisibleLeafColumns();
+
+  return (
+    <>
+      {columns.map((column, index) => (
+        <TableHeaderCell key={column.id} last={index === columns.length - 1}>
+          <TanStackTableHeader column={column} />
+        </TableHeaderCell>
+      ))}
+    </>
+  );
+}
+
+export function TanStackGridRows<TData>({
+  gridStyle,
+  rows,
+}: {
+  gridStyle?: CSSProperties;
+  rows: Row<TData>[];
+}) {
+  return (
+    <>
+      {rows.map((row) => {
+        const cells = row.getVisibleCells();
+
+        return (
+          <div
+            key={row.id}
+            style={gridStyle}
+            className="grid text-sm hover:bg-muted/30"
+          >
+            {cells.map((cell, index) => (
+              <TableBodyCell
+                key={cell.id}
+                className={cell.column.columnDef.meta?.cellClassName}
+                last={index === cells.length - 1}
+              >
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </TableBodyCell>
+            ))}
+          </div>
+        );
+      })}
+    </>
   );
 }
 

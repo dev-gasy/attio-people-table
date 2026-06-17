@@ -1,99 +1,181 @@
-import { useMemo } from "react";
+import { createElement, type ReactNode, useMemo } from "react";
+import { Link } from "@tanstack/react-router";
+import { type ColumnDef } from "@tanstack/react-table";
+import { CalendarDays, Mail, MapPin, Phone, User } from "lucide-react";
+import { Avatar } from "@/components/avatar";
+import { CustomerFavoriteButton } from "@/features/customers/components/shared/customer-favorite-button";
 import type {
   Customer,
   CustomerContactKind,
 } from "@/features/customers/data/customer-mappers";
 import {
-  type CustomerSortKey,
   type CustomerTableScope,
   useCustomerTableStore,
 } from "@/features/customers/stores/customer-table-store";
+import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
 
 export type CustomerTableState = ReturnType<typeof useCustomerTable>;
 
 export function useCustomerTable({
   customers,
+  isFavorite,
   scope,
+  toggleFavorite,
 }: {
   customers: Customer[];
+  isFavorite: (customerId: number) => boolean;
   scope: CustomerTableScope;
+  toggleFavorite: (customerId: number) => void;
 }) {
   const tableSettings = useCustomerTableStore((state) => state.tables[scope]);
-  const resetPage = useCustomerTableStore((state) => state.resetPage);
-  const resetSort = useCustomerTableStore((state) => state.resetSort);
   const setPage = useCustomerTableStore((state) => state.setPage);
   const setPageSize = useCustomerTableStore((state) => state.setPageSize);
-  const sortBy = useCustomerTableStore((state) => state.sortBy);
-  const orderedCustomers = useMemo(
-    () =>
-      tableSettings.sortKey
-        ? sortCustomers(
-            customers,
-            tableSettings.sortKey,
-            tableSettings.direction,
-          )
-        : customers,
-    [customers, tableSettings.direction, tableSettings.sortKey],
+  const columns = useMemo<ColumnDef<Customer>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        id: "name",
+        cell: ({ row }) => {
+          const customer = row.original;
+
+          return createElement(
+            "span",
+            { className: "flex min-w-0 flex-1 items-center gap-2.5" },
+            createElement(CustomerFavoriteButton, {
+              favorite: isFavorite(customer.id),
+              onClick: () => toggleFavorite(customer.id),
+            }),
+            createElement(
+              Link,
+              {
+                to: "/customers/$customerId",
+                params: { customerId: String(customer.id) },
+                className: "flex min-w-0 flex-1 items-center gap-2.5",
+              },
+              createElement(Avatar, {
+                initial: customer.initial,
+                color: customer.color,
+              }),
+              createElement(
+                "span",
+                {
+                  className:
+                    "min-w-0 max-w-full truncate text-base font-semibold text-foreground",
+                },
+                customer.name,
+              ),
+            ),
+          );
+        },
+        meta: {
+          icon: User,
+          label: "Customer",
+          loadingWidths: ["h-8 w-8 rounded-full", "h-3 w-32"],
+          width: "minmax(220px,1.35fr)",
+        },
+      },
+      {
+        accessorFn: (customer) =>
+          getPreferredContact(customer, "phone")?.value ?? "",
+        id: "phone",
+        sortingFn: "alphanumeric",
+        cell: ({ row }) =>
+          createCustomerDetailLink(
+            row.original,
+            createPreferredContactValue(row.original, "phone"),
+          ),
+        meta: {
+          icon: Phone,
+          label: "Phone",
+          loadingWidths: ["h-3 w-28"],
+          width: "minmax(120px,170px)",
+        },
+      },
+      {
+        accessorFn: (customer) =>
+          getPreferredContact(customer, "email")?.value ?? "",
+        id: "email",
+        sortingFn: "alphanumeric",
+        cell: ({ row }) =>
+          createCustomerDetailLink(
+            row.original,
+            createPreferredContactValue(row.original, "email"),
+          ),
+        meta: {
+          icon: Mail,
+          label: "Email",
+          loadingWidths: ["h-3 w-44"],
+          width: "minmax(140px,210px)",
+        },
+      },
+      {
+        accessorFn: (customer) =>
+          getPreferredContact(customer, "address")?.value ?? "",
+        id: "address",
+        sortingFn: "alphanumeric",
+        cell: ({ row }) =>
+          createCustomerDetailLink(
+            row.original,
+            createPreferredContactValue(row.original, "address"),
+          ),
+        meta: {
+          icon: MapPin,
+          label: "Address",
+          loadingWidths: ["h-3 w-60"],
+          width: "minmax(160px,260px)",
+        },
+      },
+      {
+        accessorFn: (customer) => Date.parse(customer.dateOfBirth),
+        id: "dateOfBirth",
+        cell: ({ row }) =>
+          createCustomerDetailLink(
+            row.original,
+            createElement(
+              "span",
+              {
+                className:
+                  "min-w-0 max-w-full truncate text-sm text-muted-foreground",
+              },
+              row.original.dateOfBirth,
+            ),
+          ),
+        meta: {
+          icon: CalendarDays,
+          label: "DOB",
+          loadingWidths: ["h-3 w-28"],
+          width: "minmax(100px,140px)",
+        },
+      },
+    ],
+    [isFavorite, toggleFavorite],
   );
-  const total = orderedCustomers.length;
-  const pageCount = Math.max(1, Math.ceil(total / tableSettings.pageSize));
-  const currentPage = Math.min(tableSettings.page, pageCount);
-  const pageItems = useMemo(
-    () =>
-      orderedCustomers.slice(
-        (currentPage - 1) * tableSettings.pageSize,
-        currentPage * tableSettings.pageSize,
-      ),
-    [currentPage, orderedCustomers, tableSettings.pageSize],
+  const table = useTanStackClientTable({
+    data: customers,
+    columns,
+    page: tableSettings.page,
+    pageSize: tableSettings.pageSize,
+    onPageChange: (page) => setPage(scope, page),
+    onPageSizeChange: (pageSize) => setPageSize(scope, pageSize),
+    getRowId: (row) => String(row.id),
+  });
+  const tableGridStyle = useMemo(
+    () => ({
+      gridTemplateColumns: table.visibleColumns
+        .map((column) => column.columnDef.meta?.width ?? "minmax(0, 1fr)")
+        .join(" "),
+    }),
+    [table.visibleColumns],
   );
-  const handleSort = (key: CustomerSortKey) => sortBy(scope, key);
 
   return {
-    handleSort,
-    orderedCustomers,
-    pagination: {
-      currentPage,
-      page: tableSettings.page,
-      pageCount,
-      pageItems,
-      pageSize: tableSettings.pageSize,
-      resetPage: () => resetPage(scope),
-      setPage: (page: number) => setPage(scope, page),
-      setPageSize: (pageSize: number) => setPageSize(scope, pageSize),
-      total,
-    },
-    sort: {
-      direction: tableSettings.direction,
-      handleSort,
-      resetSort: () => resetSort(scope),
-      sortKey: tableSettings.sortKey,
-    },
+    pagination: table.pagination,
+    sortedRows: table.sortedRows,
+    sort: table.sort,
+    table: table.table,
+    tableGridStyle,
+    visibleColumns: table.visibleColumns,
   };
-}
-
-function sortCustomers(
-  customers: Customer[],
-  sortKey: CustomerSortKey,
-  direction: "asc" | "desc",
-) {
-  return [...customers].sort((a, b) => {
-    const result =
-      sortKey === "dateOfBirth"
-        ? Date.parse(a.dateOfBirth) - Date.parse(b.dateOfBirth)
-        : stringCollator.compare(
-            getCustomerSortValue(a, sortKey),
-            getCustomerSortValue(b, sortKey),
-          );
-
-    return direction === "asc" ? result : -result;
-  });
-}
-
-function getCustomerSortValue(customer: Customer, sortKey: CustomerSortKey) {
-  if (sortKey === "name") return customer.name;
-  if (sortKey === "dateOfBirth") return customer.dateOfBirth;
-
-  return getPreferredContact(customer, sortKey)?.value ?? "";
 }
 
 export function getPreferredContact(
@@ -103,7 +185,30 @@ export function getPreferredContact(
   return customer.contacts.find((item) => item.kind === kind && item.preferred);
 }
 
-const stringCollator = new Intl.Collator(undefined, {
-  numeric: true,
-  sensitivity: "base",
-});
+function createCustomerDetailLink(customer: Customer, children: ReactNode) {
+  return createElement(
+    Link,
+    {
+      to: "/customers/$customerId",
+      params: { customerId: String(customer.id) },
+      className: "flex min-w-0 max-w-full items-center",
+    },
+    children,
+  );
+}
+
+function createPreferredContactValue(
+  customer: Customer,
+  kind: CustomerContactKind,
+) {
+  const contact = getPreferredContact(customer, kind);
+
+  return createElement(
+    "span",
+    {
+      className: "min-w-0 max-w-full truncate text-sm text-muted-foreground",
+      title: contact?.value ?? "Not provided",
+    },
+    contact?.value ?? "Not provided",
+  );
+}

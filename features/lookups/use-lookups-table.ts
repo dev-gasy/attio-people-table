@@ -1,23 +1,15 @@
-import { useMemo, useState, type ComponentType } from "react";
+import { createElement, useMemo, useState } from "react";
+import { type ColumnDef } from "@tanstack/react-table";
 import { CalendarDays, Hash, Languages, ListOrdered } from "lucide-react";
-import type { ColumnVisibilityOption } from "@/components/ui/column-visibility-control";
 import {
   filterLookups,
-  sortLookups,
   type LookupSortKey,
 } from "@/features/lookups/domain/lookups";
 import type { Lookup } from "@/features/lookups/lookup-mappers";
 import { useColumnVisibility } from "@/hooks/use-column-visibility";
-import { usePagination } from "@/hooks/use-pagination";
-import { useSortCycle } from "@/hooks/use-sort-cycle";
+import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
 
 export type LookupColumnKey = LookupSortKey;
-
-export type LookupColumnConfig = ColumnVisibilityOption<LookupColumnKey> & {
-  icon: ComponentType<{ className?: string }>;
-  minWidth: number;
-  width: string;
-};
 
 export const lookupNameCodeStyles: Record<string, string> = {
   "Account tier": "bg-violet-500/10 text-violet-700 dark:text-violet-300",
@@ -30,44 +22,109 @@ export const lookupNameCodeStyles: Record<string, string> = {
   Region: "bg-teal-500/10 text-teal-700 dark:text-teal-300",
 };
 
-export const lookupColumns: LookupColumnConfig[] = [
+const lookupTableColumns = [
   {
+    accessorKey: "code",
     id: "code",
-    label: "Code",
-    icon: Hash,
-    minWidth: 220,
-    width: "minmax(220px, 0.85fr)",
-    alwaysVisible: true,
+    sortingFn: "alphanumeric",
+    cell: ({ row, getValue }) =>
+      createElement(
+        "code",
+        {
+          className: `min-w-0 truncate rounded-md px-2 py-0.5 text-xs ${
+            lookupNameCodeStyles[row.original.lookupName] ??
+            "bg-muted text-muted-foreground"
+          }`,
+        },
+        getValue<string>(),
+      ),
+    meta: {
+      alwaysVisible: true,
+      icon: Hash,
+      label: "Code",
+      loadingWidths: ["h-5 w-24 rounded-md"],
+      minWidth: 220,
+      width: "minmax(220px, 0.85fr)",
+    },
   },
   {
+    accessorKey: "displayValueEn",
     id: "displayValueEn",
-    label: "Display value EN",
-    icon: Languages,
-    minWidth: 220,
-    width: "minmax(220px, 1fr)",
+    sortingFn: "alphanumeric",
+    cell: ({ getValue }) =>
+      createElement(
+        "span",
+        { className: "min-w-0 truncate text-foreground" },
+        getValue<string>(),
+      ),
+    meta: {
+      icon: Languages,
+      label: "Display value EN",
+      loadingWidths: ["h-3 w-40"],
+      minWidth: 220,
+      width: "minmax(220px, 1fr)",
+    },
   },
   {
+    accessorKey: "displayValueFr",
     id: "displayValueFr",
-    label: "Display value FR",
-    icon: Languages,
-    minWidth: 220,
-    width: "minmax(220px, 1fr)",
+    sortingFn: "alphanumeric",
+    cell: ({ getValue }) =>
+      createElement(
+        "span",
+        { className: "min-w-0 truncate text-muted-foreground" },
+        getValue<string>(),
+      ),
+    meta: {
+      icon: Languages,
+      label: "Display value FR",
+      loadingWidths: ["h-3 w-40"],
+      minWidth: 220,
+      width: "minmax(220px, 1fr)",
+    },
   },
   {
+    accessorKey: "effectiveDateValue",
     id: "effectiveDate",
-    label: "Effective date",
-    icon: CalendarDays,
-    minWidth: 160,
-    width: "minmax(140px, 180px)",
+    sortingFn: "alphanumeric",
+    cell: ({ row }) =>
+      createElement(
+        "span",
+        { className: "min-w-0 truncate text-muted-foreground" },
+        row.original.effectiveDate,
+      ),
+    meta: {
+      icon: CalendarDays,
+      label: "Effective date",
+      loadingWidths: ["h-3 w-24"],
+      minWidth: 160,
+      width: "minmax(140px, 180px)",
+    },
   },
   {
+    accessorKey: "orderNo",
     id: "orderNo",
-    label: "Order No.",
-    icon: ListOrdered,
-    minWidth: 120,
-    width: "minmax(110px, 130px)",
+    cell: ({ getValue }) =>
+      createElement(
+        "span",
+        { className: "min-w-0 truncate text-muted-foreground" },
+        getValue<number>(),
+      ),
+    meta: {
+      icon: ListOrdered,
+      label: "Order No.",
+      loadingWidths: ["h-3 w-12"],
+      minWidth: 120,
+      width: "minmax(110px, 130px)",
+    },
   },
-];
+] satisfies ColumnDef<Lookup>[];
+
+export const lookupColumns = lookupTableColumns.map((column) => ({
+  id: column.id as LookupColumnKey,
+  label: column.meta?.label ?? column.id,
+  alwaysVisible: column.meta?.alwaysVisible,
+}));
 
 const defaultLookupColumnVisibility: Record<LookupColumnKey, boolean> = {
   orderNo: true,
@@ -79,70 +136,57 @@ const defaultLookupColumnVisibility: Record<LookupColumnKey, boolean> = {
 
 export function useLookupsTable(lookups: Lookup[]) {
   const [query, setQueryState] = useState("");
-  const sort = useSortCycle<LookupSortKey>();
   const columnVisibility = useColumnVisibility({
     columns: lookupColumns,
     defaultVisibility: defaultLookupColumnVisibility,
   });
-  const visibleColumns = useMemo(
-    () =>
-      lookupColumns.filter(
-        (column) =>
-          column.alwaysVisible || columnVisibility.columnVisibility[column.id],
-      ),
-    [columnVisibility.columnVisibility],
-  );
-  const tableGridStyle = useMemo(
-    () => ({
-      gridTemplateColumns: visibleColumns
-        .map((column) => column.width)
-        .join(" "),
-    }),
-    [visibleColumns],
-  );
-  const tableMinWidth = visibleColumns.reduce(
-    (total, column) => total + column.minWidth,
-    0,
-  );
   const filteredLookups = useMemo(() => {
     return filterLookups({ lookups, query });
   }, [lookups, query]);
-  const sortedLookups = useMemo(
-    () => sortLookups(filteredLookups, sort.sortKey, sort.direction),
-    [filteredLookups, sort.direction, sort.sortKey],
-  );
-  const pagination = usePagination({
-    items: sortedLookups,
+  const table = useTanStackClientTable({
+    data: filteredLookups,
+    columns: lookupTableColumns,
+    columnVisibility: columnVisibility.columnVisibility,
+    getRowId: (row) => String(row.id),
   });
+  const tableGridStyle = useMemo(
+    () => ({
+      gridTemplateColumns: table.visibleColumns
+        .map((column) => column.columnDef.meta?.width ?? "minmax(0, 1fr)")
+        .join(" "),
+    }),
+    [table.visibleColumns],
+  );
+  const tableMinWidth = table.visibleColumns.reduce(
+    (total, column) => total + (column.columnDef.meta?.minWidth ?? 0),
+    0,
+  );
 
   function setQuery(value: string) {
     setQueryState(value);
-    pagination.resetPage();
-  }
-
-  function handleSort(key: LookupSortKey) {
-    sort.handleSort(key);
-    pagination.resetPage();
+    table.pagination.resetPage();
   }
 
   function handleColumnToggle(column: LookupColumnKey) {
     columnVisibility.toggleColumn(column);
-    if (sort.sortKey === column) sort.resetSort();
+    if (table.sort.sortKey === column) {
+      table.sort.resetSort();
+      table.pagination.resetPage();
+    }
   }
 
   return {
     columnVisibility,
-    filteredLookups,
     handleColumnToggle,
-    handleSort,
-    pagination,
+    pagination: table.pagination,
     query,
     setQuery,
-    sort,
-    sortedLookups,
+    sort: table.sort,
+    sortedRows: table.sortedRows,
+    table: table.table,
     tableGridStyle,
     tableMinWidth,
-    visibleColumns,
+    visibleColumns: table.visibleColumns,
   };
 }
 

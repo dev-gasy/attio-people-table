@@ -40,14 +40,16 @@ export function CustomersPage({
 
   const table = useCustomerTable({
     customers: visibleCustomers,
+    isFavorite,
     scope: mode,
+    toggleFavorite,
   });
 
   const showPagination =
     shouldLoadCustomers &&
     !isLoading &&
     !isError &&
-    table.orderedCustomers.length > 0;
+    table.sortedRows.length > 0;
 
   return (
     <PageFrame>
@@ -79,9 +81,6 @@ export function CustomersPage({
         )}
 
         <CustomerTable
-          customers={visibleCustomers}
-          isFavorite={isFavorite}
-          toggleFavorite={toggleFavorite}
           shouldLoadCustomers={shouldLoadCustomers}
           isLoading={isLoading}
           isError={isError}
@@ -105,7 +104,7 @@ export function CustomersPage({
           <Pagination
             page={table.pagination.currentPage}
             pageCount={table.pagination.pageCount}
-            total={table.orderedCustomers.length}
+            total={table.sortedRows.length}
             pageSize={table.pagination.pageSize}
             onPageChange={table.pagination.setPage}
             onPageSizeChange={table.pagination.setPageSize}

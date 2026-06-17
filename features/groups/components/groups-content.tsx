@@ -1,54 +1,45 @@
 import type { Row } from "@tanstack/react-table";
-import { Building2, Hash, Languages, MapPin } from "lucide-react";
 import { GroupCard } from "@/features/groups/components/group-card";
-import { GroupRow } from "@/features/groups/components/group-row";
-import type {
-  GroupSortKey,
-  GroupsView,
-} from "@/features/groups/components/types";
+import type { GroupsView } from "@/features/groups/components/types";
 import {
-  SortableTableHeader,
-  TableHeaderCell,
+  TanStackGridHeader,
+  TanStackGridRows,
   TableLoadingRows,
 } from "@/components/ui/table";
 import type { Group } from "@/features/groups/group-mappers";
-
-const GROUP_TABLE_COLUMNS =
-  "grid-cols-[minmax(220px,1.4fr)_minmax(140px,0.9fr)_minmax(140px,0.9fr)_minmax(160px,1fr)_minmax(120px,0.8fr)]";
-
-const GROUP_LOADING_COLUMNS = [
-  { widths: ["h-3 w-32 rounded"] },
-  { widths: ["h-3 w-28 rounded"] },
-  { widths: ["h-3 w-28 rounded"] },
-  { widths: ["h-3 w-24 rounded"] },
-  { widths: ["h-3 w-20 rounded"] },
-];
+import type { useGroupsPage } from "@/features/groups/use-groups-page";
 
 export function GroupsContent({
-  activeSort,
-  direction,
   filteredTotal,
   idle,
   isLoading = false,
-  onSort,
   pageSize,
   rows,
+  table,
+  tableGridStyle,
+  visibleColumns,
   view,
 }: {
-  activeSort: GroupSortKey | null;
-  direction: "asc" | "desc";
   filteredTotal: number;
   idle: boolean;
   isLoading?: boolean;
-  onSort: (key: GroupSortKey) => void;
   pageSize: number;
   rows: Row<Group>[];
+  table: ReturnType<typeof useGroupsPage>["table"];
+  tableGridStyle: ReturnType<typeof useGroupsPage>["tableGridStyle"];
+  visibleColumns: ReturnType<typeof useGroupsPage>["visibleColumns"];
   view: GroupsView;
 }) {
   return (
     <div>
       {isLoading ? (
-        <GroupsLoadingContent pageSize={pageSize} view={view} />
+        <GroupsLoadingContent
+          pageSize={pageSize}
+          table={table}
+          tableGridStyle={tableGridStyle}
+          visibleColumns={visibleColumns}
+          view={view}
+        />
       ) : idle ? (
         <div className="py-10 text-center text-sm text-muted-foreground">
           Select a province or enter at least 3 search characters to load
@@ -67,62 +58,12 @@ export function GroupsContent({
       ) : (
         <div className="overflow-auto rounded-xl border border-border bg-muted/10">
           <div
-            className={`sticky top-0 z-10 grid ${GROUP_TABLE_COLUMNS} border-b border-border/60 bg-background`}
+            style={tableGridStyle}
+            className="sticky top-0 z-10 grid border-b border-border/60 bg-background"
           >
-            <TableHeaderCell>
-              <SortableTableHeader
-                icon={Building2}
-                label="Organization"
-                sortKey="organization"
-                activeSort={activeSort}
-                direction={direction}
-                onSort={onSort}
-              />
-            </TableHeaderCell>
-            <TableHeaderCell>
-              <SortableTableHeader
-                icon={Languages}
-                label="Short name FR"
-                sortKey="groupShortNameFr"
-                activeSort={activeSort}
-                direction={direction}
-                onSort={onSort}
-              />
-            </TableHeaderCell>
-            <TableHeaderCell>
-              <SortableTableHeader
-                icon={Languages}
-                label="Short name EN"
-                sortKey="groupShortNameEn"
-                activeSort={activeSort}
-                direction={direction}
-                onSort={onSort}
-              />
-            </TableHeaderCell>
-            <TableHeaderCell>
-              <SortableTableHeader
-                icon={Hash}
-                label="Online identifier"
-                sortKey="onlineIdentifier"
-                activeSort={activeSort}
-                direction={direction}
-                onSort={onSort}
-              />
-            </TableHeaderCell>
-            <TableHeaderCell last>
-              <SortableTableHeader
-                icon={MapPin}
-                label="Province"
-                sortKey="province"
-                activeSort={activeSort}
-                direction={direction}
-                onSort={onSort}
-              />
-            </TableHeaderCell>
+            <TanStackGridHeader table={table} />
           </div>
-          {rows.map((row) => (
-            <GroupRow key={row.id} group={row.original} />
-          ))}
+          <TanStackGridRows rows={rows} gridStyle={tableGridStyle} />
         </div>
       )}
     </div>
@@ -131,9 +72,15 @@ export function GroupsContent({
 
 function GroupsLoadingContent({
   pageSize,
+  table,
+  tableGridStyle,
+  visibleColumns,
   view,
 }: {
   pageSize: number;
+  table: ReturnType<typeof useGroupsPage>["table"];
+  tableGridStyle: ReturnType<typeof useGroupsPage>["tableGridStyle"];
+  visibleColumns: ReturnType<typeof useGroupsPage>["visibleColumns"];
   view: GroupsView;
 }) {
   if (view === "grid") {
@@ -168,27 +115,17 @@ function GroupsLoadingContent({
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
       <div
-        className={`sticky top-0 z-10 grid ${GROUP_TABLE_COLUMNS} border-b border-border/60 bg-background`}
+        style={tableGridStyle}
+        className="sticky top-0 z-10 grid border-b border-border/60 bg-background"
       >
-        <TableHeaderCell>
-          <SortableTableHeader icon={Building2} label="Organization" />
-        </TableHeaderCell>
-        <TableHeaderCell>
-          <SortableTableHeader icon={Languages} label="Short name FR" />
-        </TableHeaderCell>
-        <TableHeaderCell>
-          <SortableTableHeader icon={Languages} label="Short name EN" />
-        </TableHeaderCell>
-        <TableHeaderCell>
-          <SortableTableHeader icon={Hash} label="Online identifier" />
-        </TableHeaderCell>
-        <TableHeaderCell last>
-          <SortableTableHeader icon={MapPin} label="Province" />
-        </TableHeaderCell>
+        <TanStackGridHeader table={table} />
       </div>
       <TableLoadingRows
-        columns={GROUP_LOADING_COLUMNS}
-        gridClassName={GROUP_TABLE_COLUMNS}
+        columns={visibleColumns.map((column) => ({
+          key: column.id,
+          widths: column.columnDef.meta?.loadingWidths ?? ["h-3 w-24"],
+        }))}
+        gridStyle={tableGridStyle}
         rowCount={pageSize}
       />
     </div>

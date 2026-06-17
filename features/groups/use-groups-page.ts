@@ -1,20 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { createElement, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import {
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnDef,
-  type SortingState,
-} from "@tanstack/react-table";
-import type {
-  GroupSortKey,
-  GroupsView,
-} from "@/features/groups/components/types";
+import { type ColumnDef } from "@tanstack/react-table";
+import { Building2, Hash, Languages, MapPin } from "lucide-react";
+import type { GroupsView } from "@/features/groups/components/types";
 import { groupsQueryOptions } from "@/features/groups/group-service";
 import type { Group } from "@/features/groups/group-mappers";
-import { usePagination } from "@/hooks/use-pagination";
+import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
+import { Avatar } from "@/components/avatar";
 
 export type GroupsSearch = {
   province?: string;
@@ -31,7 +24,6 @@ export function hasSearchQuery(search: string | undefined) {
 
 export function useGroupsPage(filters: GroupsSearch = {}) {
   const navigate = useNavigate();
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [view, setView] = useState<GroupsView>("grid");
   const [draftSearch, setDraftSearch] = useState(filters.search ?? "");
   const shouldLoadGroups = shouldFetchGroups(filters);
@@ -42,29 +34,122 @@ export function useGroupsPage(filters: GroupsSearch = {}) {
   const groups = useMemo(() => query.data ?? [], [query.data]);
   const columns = useMemo<ColumnDef<Group>[]>(
     () => [
-      { accessorKey: "organization", id: "organization" },
-      { accessorKey: "groupShortNameFr", id: "groupShortNameFr" },
-      { accessorKey: "groupShortNameEn", id: "groupShortNameEn" },
-      { accessorKey: "onlineIdentifier", id: "onlineIdentifier" },
-      { accessorKey: "province", id: "province" },
+      {
+        accessorKey: "organization",
+        id: "organization",
+        cell: ({ row, getValue }) =>
+          createElement(
+            "span",
+            { className: "flex min-w-0 items-center gap-2.5" },
+            createElement(Avatar, {
+              initial: row.original.initial,
+              color: row.original.color,
+            }),
+            createElement(
+              "span",
+              {
+                className: "truncate text-sm text-foreground",
+                title: getValue<string>(),
+              },
+              getValue<string>(),
+            ),
+          ),
+        meta: {
+          icon: Building2,
+          label: "Organization",
+          loadingWidths: ["h-3 w-32 rounded"],
+          width: "minmax(220px,1.4fr)",
+        },
+      },
+      {
+        accessorKey: "groupShortNameFr",
+        id: "groupShortNameFr",
+        cell: ({ getValue }) =>
+          createElement(
+            "span",
+            {
+              className: "truncate text-sm text-muted-foreground",
+              title: getValue<string>(),
+            },
+            getValue<string>(),
+          ),
+        meta: {
+          icon: Languages,
+          label: "Short name FR",
+          loadingWidths: ["h-3 w-28 rounded"],
+          width: "minmax(140px,0.9fr)",
+        },
+      },
+      {
+        accessorKey: "groupShortNameEn",
+        id: "groupShortNameEn",
+        cell: ({ getValue }) =>
+          createElement(
+            "span",
+            {
+              className: "truncate text-sm text-muted-foreground",
+              title: getValue<string>(),
+            },
+            getValue<string>(),
+          ),
+        meta: {
+          icon: Languages,
+          label: "Short name EN",
+          loadingWidths: ["h-3 w-28 rounded"],
+          width: "minmax(140px,0.9fr)",
+        },
+      },
+      {
+        accessorKey: "onlineIdentifier",
+        id: "onlineIdentifier",
+        cell: ({ getValue }) =>
+          createElement(
+            "span",
+            {
+              className: "truncate font-mono text-xs text-foreground",
+              title: getValue<string>(),
+            },
+            getValue<string>(),
+          ),
+        meta: {
+          icon: Hash,
+          label: "Online identifier",
+          loadingWidths: ["h-3 w-24 rounded"],
+          width: "minmax(160px,1fr)",
+        },
+      },
+      {
+        accessorKey: "province",
+        id: "province",
+        cell: ({ row }) =>
+          createElement(
+            "span",
+            { className: "truncate text-sm text-muted-foreground" },
+            row.original.provinceLabel,
+          ),
+        meta: {
+          icon: MapPin,
+          label: "Province",
+          loadingWidths: ["h-3 w-20 rounded"],
+          width: "minmax(120px,0.8fr)",
+        },
+      },
     ],
     [],
   );
-  const table = useReactTable({
+  const table = useTanStackClientTable({
     data: groups,
     columns,
-    state: { sorting },
     getRowId: (row) => String(row.id),
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
   });
-  const sortedRows = table.getRowModel().rows;
-  const pagination = usePagination({
-    items: sortedRows,
-  });
-  const sortKey = (sorting[0]?.id as GroupSortKey | undefined) ?? null;
-  const direction: "asc" | "desc" = sorting[0]?.desc ? "desc" : "asc";
+  const tableGridStyle = useMemo(
+    () => ({
+      gridTemplateColumns: table.visibleColumns
+        .map((column) => column.columnDef.meta?.width ?? "minmax(0, 1fr)")
+        .join(" "),
+    }),
+    [table.visibleColumns],
+  );
 
   useEffect(() => {
     if (filters.search !== undefined) {
@@ -72,18 +157,8 @@ export function useGroupsPage(filters: GroupsSearch = {}) {
     }
   }, [filters.search]);
 
-  function handleSort(key: GroupSortKey) {
-    setSorting((prev) => {
-      const current = prev[0];
-      if (current?.id !== key) return [{ id: key, desc: false }];
-      if (!current.desc) return [{ id: key, desc: true }];
-      return [];
-    });
-    pagination.resetPage();
-  }
-
   function setProvince(province: string | null) {
-    pagination.resetPage();
+    table.pagination.resetPage();
     void navigate({
       to: "/groups",
       search: {
@@ -97,7 +172,7 @@ export function useGroupsPage(filters: GroupsSearch = {}) {
     const trimmedValue = value.trim();
 
     setDraftSearch(value);
-    pagination.resetPage();
+    table.pagination.resetPage();
     void navigate({
       to: "/groups",
       search: {
@@ -108,18 +183,18 @@ export function useGroupsPage(filters: GroupsSearch = {}) {
   }
 
   return {
-    direction,
     draftSearch,
-    filteredTotal: sortedRows.length,
-    handleSort,
-    pageRows: pagination.pageItems,
-    pagination,
+    filteredTotal: table.sortedRows.length,
+    pageRows: table.pageRows,
+    pagination: table.pagination,
     query,
     setProvince,
     setSearch,
     setView,
     shouldLoadGroups,
-    sortKey,
+    table: table.table,
+    tableGridStyle,
+    visibleColumns: table.visibleColumns,
     view,
   };
 }

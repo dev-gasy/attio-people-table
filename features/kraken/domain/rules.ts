@@ -1,7 +1,6 @@
 import type { Rule, RuleType } from "@/lib/workspace-data";
 
 export type RuleSortKey = "name" | "code" | "message" | "type";
-export type RuleSortDirection = "asc" | "desc";
 
 export function normalizeRuleQuery(query: string) {
   return query.trim().toLowerCase();
@@ -43,27 +42,4 @@ export function filterRules({
 
     return matchesType && matchesQuery;
   });
-}
-
-export function sortRules(
-  ruleList: Rule[],
-  sortKey: RuleSortKey | null,
-  direction: RuleSortDirection,
-) {
-  if (!sortKey) return ruleList;
-
-  return [...ruleList].sort((a, b) => {
-    const result =
-      getRuleSortValue(a, sortKey).localeCompare(
-        getRuleSortValue(b, sortKey),
-        undefined,
-        { numeric: true, sensitivity: "base" },
-      ) || a.id - b.id;
-
-    return direction === "asc" ? result : -result;
-  });
-}
-
-function getRuleSortValue(rule: Rule, sortKey: RuleSortKey) {
-  return rule[sortKey];
 }

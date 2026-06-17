@@ -117,12 +117,12 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
         />
       </PageFrameBody>
 
-      {!isLoadingRules && !isRulesError && table.filteredRules.length > 0 && (
+      {!isLoadingRules && !isRulesError && table.sortedRows.length > 0 && (
         <PageFrameFooter>
           <Pagination
             page={table.pagination.currentPage}
             pageCount={table.pagination.pageCount}
-            total={table.sortedRules.length}
+            total={table.sortedRows.length}
             pageSize={table.pagination.pageSize}
             onPageChange={table.pagination.setPage}
             onPageSizeChange={table.pagination.setPageSize}
