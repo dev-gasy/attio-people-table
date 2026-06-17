@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Customer } from "@/features/customers/data/customer-mappers";
 
 export type CustomerSearchValues = {
@@ -20,6 +21,19 @@ export const emptyCustomerSearchValues: CustomerSearchValues = {
   address: "",
 };
 
+export const CustomerSearchSchema = z
+  .object({
+    firstName: z.string(),
+    lastName: z.string(),
+    dateOfBirth: z.string(),
+    policyQuoteNumber: z.string(),
+    email: z.string(),
+    phone: z.string(),
+    address: z.string(),
+  })
+  .transform(trimCustomerSearchValues)
+  .refine(hasCustomerSearchValue, "Unable to search if fields are empty.");
+
 export function trimCustomerSearchValues(
   values: CustomerSearchValues,
 ): CustomerSearchValues {
@@ -32,6 +46,10 @@ export function trimCustomerSearchValues(
     phone: values.phone.trim(),
     address: values.address.trim(),
   };
+}
+
+export function hasCustomerSearchValue(values: CustomerSearchValues) {
+  return Object.values(trimCustomerSearchValues(values)).some(Boolean);
 }
 
 export function filterCustomers(

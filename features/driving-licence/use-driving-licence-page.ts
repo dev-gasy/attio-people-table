@@ -1,37 +1,44 @@
-import { useMemo, useState } from "react";
+import { useForm, useStore } from "@tanstack/react-form";
+
 import {
-  canGenerateLicence,
   createLicenceResult,
-  createRandomLicenceForm,
+  createRandomLicenceFormValues,
   emptyLicenceForm,
-  type LicenceForm,
+  LicenceFormValues,
+  LicenceFormValuesSchema,
+  merge,
+  validateLicenceForm,
 } from "@/features/driving-licence/domain/licence";
 
 export function useDrivingLicencePage() {
-  const [form, setForm] = useState<LicenceForm>(emptyLicenceForm);
-  const canGenerate = useMemo(() => canGenerateLicence(form), [form]);
-  const result = useMemo(
-    () => (canGenerate ? createLicenceResult(form) : null),
-    [canGenerate, form],
-  );
+  const form = useForm({
+    defaultValues: emptyLicenceForm,
+    validators: {
+      onBlur: LicenceFormValuesSchema,
+      onSubmit: LicenceFormValuesSchema,
+    },
+  });
 
-  function updateForm(values: Partial<LicenceForm>) {
-    setForm((currentForm) => ({ ...currentForm, ...values }));
-  }
+  const reset = (newValues: Partial<LicenceFormValues>) => {
+    form.reset(merge(newValues, emptyLicenceForm));
+    form.setFieldValue(
+      "province",
+      newValues.province ?? emptyLicenceForm.province,
+    );
+  };
+
+  const result = useStore(form.store, (state) => {
+    const parsed = validateLicenceForm(state.values);
+    return parsed.success ? createLicenceResult(parsed.data) : null;
+  });
 
   function handleReset() {
-    setForm(emptyLicenceForm);
+    reset(emptyLicenceForm);
   }
 
   function handleRandomize() {
-    setForm(createRandomLicenceForm());
+    form.reset(createRandomLicenceFormValues());
   }
 
-  return {
-    form,
-    handleRandomize,
-    handleReset,
-    result,
-    updateForm,
-  };
+  return { form, handleRandomize, handleReset, result };
 }

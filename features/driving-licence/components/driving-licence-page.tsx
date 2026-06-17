@@ -5,7 +5,7 @@ import { LicencePreview } from "@/features/driving-licence/components/licence-pr
 import { useDrivingLicencePage } from "@/features/driving-licence/use-driving-licence-page";
 
 export function DrivingLicencePage() {
-  const { form, handleRandomize, handleReset, result, updateForm } =
+  const { form, handleRandomize, handleReset, result } =
     useDrivingLicencePage();
 
   return (
@@ -16,7 +16,6 @@ export function DrivingLicencePage() {
         <div className="flex flex-col gap-6">
           <LicenceDetailsForm
             form={form}
-            onFieldChange={updateForm}
             onRandomize={handleRandomize}
             onReset={handleReset}
           />

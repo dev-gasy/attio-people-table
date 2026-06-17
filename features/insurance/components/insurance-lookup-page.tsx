@@ -1,19 +1,22 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useForm } from "@tanstack/react-form";
+import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { FileText, Search } from "lucide-react";
 import { z } from "zod";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  TextInputField,
+  type StringFieldApi,
+} from "@/components/ui/form-field";
 
 const policySchema = z.object({
-  businessKey: z.string().min(1),
+  businessKey: z.string().trim().min(1, "Policy business key is required"),
 });
 
 const quoteSchema = z.object({
-  businessKey: z.string().min(1),
-  revisionNumber: z.string().min(1),
+  businessKey: z.string().trim().min(1, "Quote business key is required"),
+  revisionNumber: z.string().trim().min(1, "Revision number is required"),
 });
 
 function LookupForm({
@@ -47,22 +50,6 @@ function LookupForm({
   );
 }
 
-function FormField({
-  label,
-  placeholder,
-  ...inputProps
-}: {
-  label: string;
-  placeholder: string;
-} & React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <label className="flex min-w-0 flex-col gap-1.5">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
-      <Input placeholder={placeholder} {...inputProps} />
-    </label>
-  );
-}
-
 function normalize(value: string) {
   return value.trim().toUpperCase();
 }
@@ -72,7 +59,11 @@ export function InsuranceLookupPage() {
 
   const policyForm = useForm({
     defaultValues: { businessKey: "" },
-    validators: { onSubmit: policySchema },
+    validationLogic: revalidateLogic({
+      mode: "blur",
+      modeAfterSubmission: "change",
+    }),
+    validators: { onDynamic: policySchema },
     onSubmit: ({ value }) =>
       navigate({
         to: "/policies/$businessKey",
@@ -82,7 +73,11 @@ export function InsuranceLookupPage() {
 
   const quoteForm = useForm({
     defaultValues: { businessKey: "", revisionNumber: "" },
-    validators: { onSubmit: quoteSchema },
+    validationLogic: revalidateLogic({
+      mode: "blur",
+      modeAfterSubmission: "change",
+    }),
+    validators: { onDynamic: quoteSchema },
     onSubmit: ({ value }) =>
       navigate({
         to: "/quotes/$businessKey",
@@ -105,14 +100,12 @@ export function InsuranceLookupPage() {
             }}
             fields={
               <policyForm.Field name="businessKey">
-                {(field) => (
-                  <FormField
+                {(field: StringFieldApi) => (
+                  <TextInputField
+                    field={field}
                     label="Policy business key"
                     placeholder="POL-001496"
                     autoFocus
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
                   />
                 )}
               </policyForm.Field>
@@ -129,25 +122,21 @@ export function InsuranceLookupPage() {
             fields={
               <>
                 <quoteForm.Field name="businessKey">
-                  {(field) => (
-                    <FormField
+                  {(field: StringFieldApi) => (
+                    <TextInputField
+                      field={field}
                       label="Quote business key"
                       placeholder="QUO-001500"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
                     />
                   )}
                 </quoteForm.Field>
                 <quoteForm.Field name="revisionNumber">
-                  {(field) => (
-                    <FormField
+                  {(field: StringFieldApi) => (
+                    <TextInputField
+                      field={field}
                       label="Revision number"
                       placeholder="1"
                       type="number"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
                     />
                   )}
                 </quoteForm.Field>

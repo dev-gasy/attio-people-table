@@ -1,14 +1,18 @@
-import { useForm } from "@tanstack/react-form";
+import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { RotateCcw, Search } from "lucide-react";
-import { useEffect, useState, type ElementType, type ReactNode } from "react";
+import { useEffect, type ElementType, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Collapsible } from "@/components/ui/collapsible-section";
 import {
+  CustomerSearchSchema,
   emptyCustomerSearchValues,
-  trimCustomerSearchValues,
   type CustomerSearchValues,
 } from "@/features/customers/domain/customers-list";
-import { Input } from "@/components/ui/input";
+import {
+  FormErrors,
+  TextInputField,
+  type StringFieldApi,
+} from "@/components/ui/form-field";
 
 const fieldGroups: Array<
   Array<{
@@ -50,19 +54,15 @@ const fieldGroups: Array<
 ];
 
 type CustomerFieldApi = {
-  name: keyof CustomerSearchValues;
-  state: { value: string };
-  handleBlur: () => void;
-  handleChange: (value: string) => void;
+  Field: ElementType;
 };
 
 function SearchField({
   form,
   searchField,
   disabled,
-  onValueChange,
 }: {
-  form: { Field: ElementType };
+  form: CustomerFieldApi;
   searchField: {
     name: keyof CustomerSearchValues;
     label: string;
@@ -70,30 +70,18 @@ function SearchField({
     type?: string;
   };
   disabled?: boolean;
-  onValueChange: (name: keyof CustomerSearchValues, value: string) => void;
 }) {
   return (
     <form.Field
       name={searchField.name}
-      children={(field: CustomerFieldApi): ReactNode => (
-        <label className="flex min-w-0 flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted-foreground">
-            {searchField.label}
-          </span>
-          <Input
-            name={field.name}
-            value={field.state.value}
-            onBlur={field.handleBlur}
-            onChange={(event) => {
-              const value = event.target.value;
-              onValueChange(searchField.name, value);
-              field.handleChange(value);
-            }}
-            type={searchField.type ?? "text"}
-            placeholder={searchField.placeholder}
-            disabled={disabled}
-          />
-        </label>
+      children={(field: StringFieldApi): ReactNode => (
+        <TextInputField
+          field={field}
+          label={searchField.label}
+          type={searchField.type ?? "text"}
+          placeholder={searchField.placeholder}
+          disabled={disabled}
+        />
       )}
     />
   );
@@ -110,29 +98,24 @@ export function CustomerSearchForm({
   onReset: () => void;
   disabled?: boolean;
 }) {
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const [draftValues, setDraftValues] = useState<CustomerSearchValues>(values);
-  const canSearch = hasCustomerSearchValue(draftValues);
   const form = useForm({
     defaultValues: values,
+    validationLogic: revalidateLogic({
+      mode: "blur",
+      modeAfterSubmission: "change",
+    }),
+    validators: {
+      onDynamic: CustomerSearchSchema,
+    },
     onSubmit: ({ value }) => {
-      const trimmedValues = trimCustomerSearchValues(value);
-
-      if (!hasCustomerSearchValue(trimmedValues)) {
-        setSearchError("Unable to search if fields are empty.");
-        return;
-      }
-
-      setSearchError(null);
-      onSearch(trimmedValues);
+      const parsedSearch = CustomerSearchSchema.safeParse(value);
+      if (parsedSearch.success) onSearch(parsedSearch.data);
     },
   });
 
   useEffect(() => {
     form.reset(values);
-    setDraftValues(values);
-    setSearchError(null);
-  }, [values]);
+  }, [form, values]);
 
   return (
     <form
@@ -153,13 +136,6 @@ export function CustomerSearchForm({
                     form={form}
                     searchField={searchField}
                     disabled={disabled}
-                    onValueChange={(name, value) => {
-                      setSearchError(null);
-                      setDraftValues((currentValues) => ({
-                        ...currentValues,
-                        [name]: value,
-                      }));
-                    }}
                   />
                 ))}
               </div>
@@ -168,35 +144,40 @@ export function CustomerSearchForm({
         </div>
 
         <div className="border-t border-border bg-background/40 px-4 py-3">
-          {searchError && (
-            <p role="alert" className="mb-3 text-sm text-destructive">
-              {searchError}
-            </p>
-          )}
-          <div className="flex items-center gap-2">
-            <Button type="submit" disabled={disabled || !canSearch}>
-              <Search className="h-4 w-4" />
-              Search
-            </Button>
-            <Button
-              type="button"
-              disabled={disabled}
-              variant="outline"
-              onClick={() => {
-                setSearchError(null);
-                onReset();
-              }}
-            >
-              <RotateCcw className="h-4 w-4" />
-              Clear
-            </Button>
-          </div>
+          <form.Subscribe
+            selector={(state) => ({
+              canSubmit: state.canSubmit,
+              errors: state.errors,
+              submissionAttempts: state.submissionAttempts,
+            })}
+          >
+            {(state) => (
+              <>
+                <FormErrors
+                  errors={state.errors}
+                  show={state.submissionAttempts > 0}
+                  className="mb-3"
+                />
+                <div className="flex items-center gap-2">
+                  <Button type="submit" disabled={disabled || !state.canSubmit}>
+                    <Search className="h-4 w-4" />
+                    Search
+                  </Button>
+                  <Button
+                    type="button"
+                    disabled={disabled}
+                    variant="outline"
+                    onClick={onReset}
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Clear
+                  </Button>
+                </div>
+              </>
+            )}
+          </form.Subscribe>
         </div>
       </Collapsible>
     </form>
   );
-}
-
-function hasCustomerSearchValue(values: CustomerSearchValues) {
-  return Object.values(trimCustomerSearchValues(values)).some(Boolean);
 }
