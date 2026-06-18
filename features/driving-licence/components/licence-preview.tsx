@@ -12,9 +12,6 @@ export function LicencePreview({ canGenerate, result }: LicencePreviewProps) {
       {result ? (
         <div className="flex flex-wrap items-center justify-between gap-3 p-4">
           <div className="min-w-0">
-            <p className="text-xs font-medium uppercase text-muted-foreground">
-              Generated number
-            </p>
             <p className="mt-1 break-all text-2xl font-semibold text-foreground">
               {result.licenceNumber}
             </p>

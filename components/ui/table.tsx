@@ -45,21 +45,28 @@ export function SortableTableHeader<SortKey extends string>({
 }) {
   const isSortable = Boolean(sortKey && onSort);
   const isActive = Boolean(sortKey && activeSort === sortKey);
+  const sortIcon =
+    isActive && direction === "asc" ? (
+      <ChevronUp className="h-4 w-4 shrink-0 text-foreground" />
+    ) : isActive ? (
+      <ChevronDown className="h-4 w-4 shrink-0 text-foreground" />
+    ) : null;
   const content = (
     <>
-      <Icon className="h-4 w-4 shrink-0" />
-      <span className="min-w-0 max-w-full truncate">{label}</span>
-      {isActive &&
-        (direction === "asc" ? (
-          <ChevronUp className="h-3.5 w-3.5 shrink-0 text-foreground" />
-        ) : (
-          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-foreground" />
-        ))}
-      {sparkle && <Sparkles className="ml-auto h-3.5 w-3.5 text-primary" />}
+      <span className="flex min-w-0 flex-1 items-center gap-2">
+        <Icon className="h-4 w-4 shrink-0" />
+        <span className="min-w-0 max-w-full truncate">{label}</span>
+      </span>
+      {(sortIcon || sparkle) && (
+        <span className="ml-auto flex shrink-0 items-center gap-1.5">
+          {sortIcon}
+          {sparkle && <Sparkles className="h-4 w-4 text-primary" />}
+        </span>
+      )}
     </>
   );
   const baseClassName = cn(
-    "flex w-full min-w-0 max-w-full items-center gap-2 text-sm font-medium text-muted-foreground",
+    "flex h-full w-full min-w-0 max-w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-muted-foreground",
     className,
   );
 
@@ -96,20 +103,25 @@ export function TanStackTableHeader<TData>({
       : "");
   const isSorted = column.getIsSorted();
   const isSortable = column.getCanSort();
+  const sortIcon =
+    isSorted === "asc" ? (
+      <ChevronUp className="h-4 w-4 shrink-0 text-foreground" />
+    ) : isSorted === "desc" ? (
+      <ChevronDown className="h-4 w-4 shrink-0 text-foreground" />
+    ) : null;
   const content = (
     <>
-      {Icon && <Icon className="h-4 w-4 shrink-0" />}
-      <span className="min-w-0 max-w-full truncate">{label}</span>
-      {isSorted === "asc" && (
-        <ChevronUp className="h-3.5 w-3.5 shrink-0 text-foreground" />
-      )}
-      {isSorted === "desc" && (
-        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-foreground" />
+      <span className="flex min-w-0 flex-1 items-center gap-2">
+        {Icon && <Icon className="h-4 w-4 shrink-0" />}
+        <span className="min-w-0 max-w-full truncate">{label}</span>
+      </span>
+      {sortIcon && (
+        <span className="ml-auto flex shrink-0 items-center">{sortIcon}</span>
       )}
     </>
   );
   const baseClassName = cn(
-    "flex w-full min-w-0 max-w-full items-center gap-2 text-sm font-medium text-muted-foreground",
+    "flex h-full w-full min-w-0 max-w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-muted-foreground",
     className,
   );
 
@@ -199,7 +211,7 @@ export function TableHeaderCell({
   return (
     <div
       className={cn(
-        "min-w-0 max-w-full px-4 py-3",
+        "min-w-0 max-w-full",
         !last && "border-r border-border",
         className,
       )}
