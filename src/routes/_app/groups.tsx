@@ -30,6 +30,5 @@ export const Route = createFileRoute("/_app/groups")({
 
 function GroupsRoute() {
   const search = Route.useSearch();
-
   return <GroupsPage filters={search} />;
 }

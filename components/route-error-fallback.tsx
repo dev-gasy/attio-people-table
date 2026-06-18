@@ -24,8 +24,8 @@ export function RouteErrorFallback({
   return (
     <PageFrame>
       <PageHeader title={title} />
-      <PageFrameBody className="flex items-center justify-center">
-        <div className="w-full max-w-md rounded-xl border border-destructive/25 bg-destructive/10 px-5 py-5 text-center">
+      <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center">
+        <div className="w-full max-w-md rounded-xl px-5 py-5 text-center">
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
             <AlertTriangle className="h-5 w-5" />
           </div>

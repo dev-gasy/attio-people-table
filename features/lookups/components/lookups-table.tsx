@@ -9,6 +9,7 @@ export function LookupsTable({
   lookupName?: string;
   table: LookupsTableState;
 }) {
+  const showHeader = lookupName && table.sortedRows.length > 0;
   return (
     <div
       style={{ transition: "opacity 0.2s ease" }}
@@ -18,12 +19,14 @@ export function LookupsTable({
     >
       <div className="overflow-auto rounded-xl border border-border bg-muted/10">
         <div style={{ minWidth: table.tableMinWidth }}>
-          <div
-            style={table.tableGridStyle}
-            className="sticky top-0 z-10 grid border-b border-border/60 bg-background"
-          >
-            <TanStackGridHeader table={table.table} />
-          </div>
+          {showHeader && (
+            <div
+              style={table.tableGridStyle}
+              className="sticky top-0 z-10 grid border-b border-border/60 bg-background"
+            >
+              <TanStackGridHeader table={table.table} />
+            </div>
+          )}
 
           <div className="divide-y divide-border/60">
             {lookupName && (
@@ -33,14 +36,14 @@ export function LookupsTable({
               />
             )}
           </div>
-
-          {!lookupName && <EmptyView message="Select a lookup name" />}
-
-          {lookupName && table.sortedRows.length === 0 && (
-            <EmptyView message="No lookups found" />
-          )}
         </div>
       </div>
+
+      {!lookupName && <EmptyView message="Select a lookup name" expanded />}
+
+      {lookupName && table.sortedRows.length === 0 && (
+        <EmptyView message="No lookups found" expanded />
+      )}
     </div>
   );
 }

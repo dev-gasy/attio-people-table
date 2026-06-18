@@ -84,7 +84,7 @@ const NameSchema = z
   .min(1, "Required")
   .max(50, "Must be 50 characters or fewer")
   .regex(
-    /^[\p{L}\s'\-]+$/u,
+    /^[\p{L}\s'-]+$/u,
     "Only letters, spaces, hyphens, and apostrophes are allowed",
   );
 

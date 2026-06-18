@@ -13,6 +13,7 @@ import { Combobox, type ComboOption } from "@/components/ui/combobox";
 import { Pagination } from "@/components/ui/pagination";
 import { KrakenControls } from "@/features/kraken/components/kraken-controls";
 import { KrakenRulesTable } from "@/features/kraken/components/kraken-rules-table";
+import { EmptyView } from "@/components/empty-view";
 import {
   krakenEntrypointRulesQueryOptions,
   getStaticKrakenEntrypoints,
@@ -91,41 +92,49 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
         }
       />
 
-      <PageFrameControls>
-        <KrakenControls
-          disabled={isLoadingRules || isRulesError}
-          hasEntrypoint={Boolean(entrypointName)}
-          ruleTypeOptions={ruleTypeOptions}
-          table={table}
-        />
-      </PageFrameControls>
+      {!entrypointName ? (
+        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+          <EmptyView message="Select an entrypoint name" />
+        </PageFrameBody>
+      ) : (
+        <>
+          <PageFrameControls>
+            <KrakenControls
+              disabled={isLoadingRules || isRulesError}
+              hasEntrypoint={Boolean(entrypointName)}
+              ruleTypeOptions={ruleTypeOptions}
+              table={table}
+            />
+          </PageFrameControls>
 
-      <PageFrameBody className="pb-8">
-        <KrakenRulesTable
-          entrypointName={entrypointName}
-          error={rulesError}
-          isError={isRulesError}
-          isLoading={isLoadingRules}
-          isRetrying={isFetchingRules}
-          onRetry={() => {
-            void refetchRules();
-          }}
-          table={table}
-        />
-      </PageFrameBody>
+          <PageFrameBody className="pb-8">
+            <KrakenRulesTable
+              entrypointName={entrypointName}
+              error={rulesError}
+              isError={isRulesError}
+              isLoading={isLoadingRules}
+              isRetrying={isFetchingRules}
+              onRetry={() => {
+                void refetchRules();
+              }}
+              table={table}
+            />
+          </PageFrameBody>
 
-      {!isLoadingRules && !isRulesError && pagination.total > 0 && (
-        <PageFrameFooter>
-          <Pagination
-            page={pagination.currentPage}
-            pageCount={pagination.pageCount}
-            total={pagination.total}
-            pageSize={pagination.pageSize}
-            onPageChange={pagination.setPage}
-            onPageSizeChange={pagination.setPageSize}
-            bordered={false}
-          />
-        </PageFrameFooter>
+          {!isLoadingRules && !isRulesError && pagination.total > 0 && (
+            <PageFrameFooter>
+              <Pagination
+                page={pagination.currentPage}
+                pageCount={pagination.pageCount}
+                total={pagination.total}
+                pageSize={pagination.pageSize}
+                onPageChange={pagination.setPage}
+                onPageSizeChange={pagination.setPageSize}
+                bordered={false}
+              />
+            </PageFrameFooter>
+          )}
+        </>
       )}
     </PageFrame>
   );
