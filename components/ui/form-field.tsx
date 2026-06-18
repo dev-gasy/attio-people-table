@@ -1,4 +1,5 @@
 import { useId } from "react";
+import type React from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
@@ -202,17 +203,28 @@ export function RadioGroupField<TValue extends string = string>({
   label,
   options,
   disabled,
+  columns,
 }: {
   field: StringFieldApi<TValue>;
   label: string;
   options: Array<FieldOption<TValue>>;
   disabled?: boolean;
+  /** Number of columns in the radio grid. Defaults to 2. */
+  columns?: number;
 }) {
   const groupId = useId();
   const errorId = `${groupId}-error`;
   const showErrors = shouldShowFieldErrors(field.state.meta);
   const hasErrors =
     showErrors && uniqueMessages(field.state.meta.errors ?? []).length > 0;
+
+  const gridStyle =
+    columns !== undefined
+      ? ({
+          "--radio-cols": columns,
+          gridTemplateColumns: `repeat(var(--radio-cols), minmax(0, 1fr))`,
+        } as React.CSSProperties)
+      : undefined;
 
   return (
     <fieldset
@@ -223,7 +235,13 @@ export function RadioGroupField<TValue extends string = string>({
       <legend className="text-xs font-medium text-muted-foreground">
         {label}
       </legend>
-      <div className="grid grid-cols-2 gap-2 pt-2">
+      <div
+        className={cn(
+          "grid gap-2 pt-2",
+          columns === undefined && "grid-cols-2",
+        )}
+        style={gridStyle}
+      >
         {options.map((option) => {
           const id = `${groupId}-${option.value.toLowerCase()}`;
           const isSelected = field.state.value === option.value;

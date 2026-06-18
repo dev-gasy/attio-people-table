@@ -1,6 +1,7 @@
+import { Suspense } from "react";
 import { GroupsContent } from "@/features/groups/components/groups-content";
 import { GroupsToolbar } from "@/features/groups/components/groups-toolbar";
-import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
+import { GroupsLoadingSkeleton } from "@/features/groups/components/groups-loading-skeleton";
 import { EmptyView } from "@/components/empty-view";
 import { PageHeader } from "@/components/page-header";
 import {
@@ -10,25 +11,17 @@ import {
 } from "@/components/page-frame";
 import {
   useGroupsPage,
+  useGroupsPageControls,
   type GroupsSearch,
+  type GroupsPageControls,
 } from "@/features/groups/use-groups-page";
 import { Pagination } from "@/components/ui/pagination";
 
+const CENTERED_BODY =
+  "flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8";
+
 export function GroupsPage({ filters = {} }: { filters?: GroupsSearch }) {
-  const {
-    draftSearch,
-    filteredTotal,
-    pagination,
-    setProvince,
-    setSearch,
-    setView,
-    shouldLoadGroups,
-    table,
-    tableGridStyle,
-    visibleColumns,
-    view,
-    query: { error, isError, isFetching, isPending, refetch },
-  } = useGroupsPage(filters);
+  const controls = useGroupsPageControls(filters);
 
   return (
     <PageFrame>
@@ -37,59 +30,85 @@ export function GroupsPage({ filters = {} }: { filters?: GroupsSearch }) {
         actions={
           <GroupsToolbar
             province={filters.province}
-            search={draftSearch}
-            view={view}
-            onProvinceChange={setProvince}
-            onSearchChange={setSearch}
-            onViewChange={setView}
+            search={controls.draftSearch}
+            view={controls.view}
+            onProvinceChange={controls.setProvince}
+            onSearchChange={controls.setSearch}
+            onViewChange={controls.setView}
           />
         }
       />
 
-      {isError ? (
-        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
-          <DataErrorView
-            title="Could not load groups"
-            message={getErrorMessage(error)}
-            onRetry={refetch}
-            isRetrying={isFetching}
-          />
-        </PageFrameBody>
-      ) : !shouldLoadGroups ? (
-        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+      {!controls.shouldLoadGroups ? (
+        <PageFrameBody className={CENTERED_BODY}>
           <EmptyView message="Select a province or enter at least 3 search characters to load groups." />
         </PageFrameBody>
-      ) : shouldLoadGroups && !isPending && filteredTotal === 0 ? (
-        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
-          <EmptyView message="No groups match your filters" />
-        </PageFrameBody>
       ) : (
-        <PageFrameBody className="pb-8">
-          <GroupsContent
-            isLoading={shouldLoadGroups && isPending}
-            pageSize={pagination.pageSize}
-            rows={pagination.pageItems}
-            table={table}
-            tableGridStyle={tableGridStyle}
-            visibleColumns={visibleColumns}
-            view={view}
+        <Suspense
+          fallback={
+            <PageFrameBody>
+              <GroupsLoadingSkeleton
+                pageSize={12}
+                table={null as never}
+                tableGridStyle={{}}
+                visibleColumns={[]}
+                view={controls.view}
+              />
+            </PageFrameBody>
+          }
+        >
+          <GroupsDataLayer
+            activeFilters={controls.activeFilters}
+            controls={controls}
           />
-        </PageFrameBody>
-      )}
-
-      {shouldLoadGroups && !isPending && !isError && filteredTotal > 0 && (
-        <PageFrameFooter>
-          <Pagination
-            page={pagination.currentPage}
-            pageCount={pagination.pageCount}
-            total={filteredTotal}
-            pageSize={pagination.pageSize}
-            onPageChange={pagination.setPage}
-            onPageSizeChange={pagination.setPageSize}
-            bordered={false}
-          />
-        </PageFrameFooter>
+        </Suspense>
       )}
     </PageFrame>
+  );
+}
+
+function GroupsDataLayer({
+  activeFilters,
+  controls,
+}: {
+  activeFilters: GroupsSearch;
+  controls: GroupsPageControls;
+}) {
+  const { filteredTotal, pagination, table, tableGridStyle, visibleColumns } =
+    useGroupsPage(activeFilters);
+
+  if (filteredTotal === 0) {
+    return (
+      <PageFrameBody className={CENTERED_BODY}>
+        <EmptyView message="No groups match your filters" />
+      </PageFrameBody>
+    );
+  }
+
+  return (
+    <>
+      <PageFrameBody className="pb-8">
+        <GroupsContent
+          isStale={controls.isStale}
+          rows={pagination.pageItems}
+          table={table}
+          tableGridStyle={tableGridStyle}
+          visibleColumns={visibleColumns}
+          view={controls.view}
+        />
+      </PageFrameBody>
+
+      <PageFrameFooter>
+        <Pagination
+          page={pagination.currentPage}
+          pageCount={pagination.pageCount}
+          total={filteredTotal}
+          pageSize={pagination.pageSize}
+          onPageChange={pagination.setPage}
+          onPageSizeChange={pagination.setPageSize}
+          bordered={false}
+        />
+      </PageFrameFooter>
+    </>
   );
 }

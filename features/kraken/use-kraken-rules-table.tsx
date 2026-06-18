@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { FileText, Hash, MessageSquareText, Tags } from "lucide-react";
 import { type Rule, type RuleType } from "@/lib/workspace-data";
@@ -109,19 +109,25 @@ const defaultRuleColumnVisibility: Record<RuleColumnKey, boolean> = {
 export function useKrakenRulesTable(rules: Rule[]) {
   const [typeFilter, setTypeFilterState] = useState<RuleType | null>(null);
   const [query, setQueryState] = useState("");
+  const deferredQuery = useDeferredValue(query);
+  const isStale = deferredQuery !== query;
+
   const columnVisibility = useColumnVisibility({
     columns: ruleColumns,
     defaultVisibility: defaultRuleColumnVisibility,
   });
+
   const filteredRules = useMemo(() => {
-    return filterRules({ rules, query, typeFilter });
-  }, [query, rules, typeFilter]);
+    return filterRules({ rules, query: deferredQuery, typeFilter });
+  }, [deferredQuery, rules, typeFilter]);
+
   const table = useTanStackClientTable({
     data: filteredRules,
     columns: ruleTableColumns,
     columnVisibility: columnVisibility.columnVisibility,
     getRowId: (row) => String(row.id),
   });
+
   const tableGridStyle = useMemo(
     () => ({
       gridTemplateColumns: table.visibleColumns
@@ -130,6 +136,7 @@ export function useKrakenRulesTable(rules: Rule[]) {
     }),
     [table.visibleColumns],
   );
+
   const tableMinWidth = table.visibleColumns.reduce(
     (total, column) => total + (column.columnDef.meta?.minWidth ?? 0),
     0,
@@ -153,6 +160,7 @@ export function useKrakenRulesTable(rules: Rule[]) {
   return {
     columnVisibility,
     handleColumnToggle,
+    isStale,
     pagination: table.pagination,
     query,
     setQuery,

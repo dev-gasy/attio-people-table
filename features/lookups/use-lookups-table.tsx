@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { CalendarDays, Hash, Languages, ListOrdered } from "lucide-react";
 import {
@@ -131,19 +131,25 @@ const defaultLookupColumnVisibility: Record<LookupColumnKey, boolean> = {
 
 export function useLookupsTable(lookups: Lookup[]) {
   const [query, setQueryState] = useState("");
+  const deferredQuery = useDeferredValue(query);
+  const isStale = deferredQuery !== query;
+
   const columnVisibility = useColumnVisibility({
     columns: lookupColumns,
     defaultVisibility: defaultLookupColumnVisibility,
   });
+
   const filteredLookups = useMemo(() => {
-    return filterLookups({ lookups, query });
-  }, [lookups, query]);
+    return filterLookups({ lookups, query: deferredQuery });
+  }, [lookups, deferredQuery]);
+
   const table = useTanStackClientTable({
     data: filteredLookups,
     columns: lookupTableColumns,
     columnVisibility: columnVisibility.columnVisibility,
     getRowId: (row) => String(row.id),
   });
+
   const tableGridStyle = useMemo(
     () => ({
       gridTemplateColumns: table.visibleColumns
@@ -152,6 +158,7 @@ export function useLookupsTable(lookups: Lookup[]) {
     }),
     [table.visibleColumns],
   );
+
   const tableMinWidth = table.visibleColumns.reduce(
     (total, column) => total + (column.columnDef.meta?.minWidth ?? 0),
     0,
@@ -171,6 +178,7 @@ export function useLookupsTable(lookups: Lookup[]) {
   return {
     columnVisibility,
     handleColumnToggle,
+    isStale,
     pagination: table.pagination,
     query,
     setQuery,

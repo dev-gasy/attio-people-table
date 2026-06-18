@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { Suspense, useMemo, useTransition } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { ListTree } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -18,38 +18,30 @@ import {
   lookupNameQueryOptions,
 } from "@/features/lookups/lookup-service";
 import { useLookupsTable } from "@/features/lookups/use-lookups-table";
+import { EmptyView } from "@/components/empty-view";
 
 export function LookupsPage({ lookupName }: { lookupName?: string }) {
   const navigate = useNavigate();
+  const [, startTransition] = useTransition();
   const lookupNames = useMemo(() => getStaticLookupNames(), []);
-  const {
-    data,
-    error: lookupsError,
-    isError: isLookupsError,
-    isFetching: isFetchingLookups,
-    isPending: isLoadingLookups,
-    refetch: refetchLookups,
-  } = useQuery({
-    ...lookupNameQueryOptions(lookupName ?? ""),
-    enabled: Boolean(lookupName),
-  });
-  const selectedLookupName = data?.lookupName ?? null;
-  const lookups = useMemo(() => data?.lookups ?? [], [data?.lookups]);
-  const table = useLookupsTable(lookups);
+
   const lookupNameOptions = useMemo<ComboOption[]>(
     () =>
-      lookupNames.map((lookupName) => ({
-        value: lookupName.slug,
-        label: lookupName.name,
+      lookupNames.map((ln) => ({
+        value: ln.slug,
+        label: ln.name,
       })),
     [lookupNames],
   );
+
   function handleLookupNameChange(value: string | null) {
     if (!value || value === lookupName) return;
 
-    void navigate({
-      to: "/lookups/$lookupName",
-      params: { lookupName: value },
+    startTransition(() => {
+      void navigate({
+        to: "/lookups/$lookupName",
+        params: { lookupName: value },
+      });
     });
   }
 
@@ -57,13 +49,6 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
     <PageFrame>
       <PageHeader
         title="Lookups"
-        badge={
-          selectedLookupName ? (
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-              {selectedLookupName.name}
-            </span>
-          ) : null
-        }
         actions={
           <Combobox
             options={lookupNameOptions}
@@ -79,29 +64,34 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
         }
       />
 
+      {!lookupName ? (
+        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+          <EmptyView message="Select a lookup name" />
+        </PageFrameBody>
+      ) : (
+        <Suspense fallback={<LookupsLoadingShell />}>
+          <LookupsDataLayer lookupName={lookupName} />
+        </Suspense>
+      )}
+    </PageFrame>
+  );
+}
+
+function LookupsDataLayer({ lookupName }: { lookupName: string }) {
+  const { data } = useSuspenseQuery(lookupNameQueryOptions(lookupName));
+  const table = useLookupsTable(data.lookups);
+
+  return (
+    <>
       <PageFrameControls>
-        <LookupsControls
-          disabled={isLoadingLookups || isLookupsError}
-          hasLookupName={Boolean(lookupName)}
-          table={table}
-        />
+        <LookupsControls disabled={false} hasLookupName table={table} />
       </PageFrameControls>
 
       <PageFrameBody className="pb-8">
-        <LookupsTable
-          error={lookupsError}
-          isError={isLookupsError}
-          isLoading={isLoadingLookups}
-          isRetrying={isFetchingLookups}
-          lookupName={lookupName}
-          onRetry={() => {
-            void refetchLookups();
-          }}
-          table={table}
-        />
+        <LookupsTable lookupName={lookupName} table={table} />
       </PageFrameBody>
 
-      {!isLoadingLookups && !isLookupsError && table.sortedRows.length > 0 && (
+      {table.sortedRows.length > 0 && (
         <PageFrameFooter>
           <Pagination
             page={table.pagination.currentPage}
@@ -114,6 +104,41 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
           />
         </PageFrameFooter>
       )}
-    </PageFrame>
+    </>
+  );
+}
+
+function LookupsLoadingShell() {
+  return (
+    <>
+      <PageFrameControls>
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <div className="h-8 w-72 animate-pulse rounded-lg bg-muted" />
+          <div className="h-8 w-8 animate-pulse rounded-lg bg-muted" />
+        </div>
+      </PageFrameControls>
+      <PageFrameBody className="pb-8">
+        <div className="overflow-auto rounded-xl border border-border bg-muted/10">
+          <div className="divide-y divide-border/60">
+            {Array.from({ length: 15 }).map((_, i) => (
+              <div
+                key={i}
+                className="grid gap-4 px-4 py-3"
+                style={{
+                  gridTemplateColumns:
+                    "minmax(220px, 0.85fr) minmax(220px, 1fr) minmax(220px, 1fr) minmax(140px, 180px) minmax(110px, 130px)",
+                }}
+              >
+                <div className="h-5 w-24 animate-pulse rounded-md bg-muted" />
+                <div className="h-3 w-40 animate-pulse rounded bg-muted" />
+                <div className="h-3 w-40 animate-pulse rounded bg-muted" />
+                <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+                <div className="h-3 w-12 animate-pulse rounded bg-muted" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </PageFrameBody>
+    </>
   );
 }
