@@ -1,5 +1,6 @@
 import { Plus, FileText } from "lucide-react";
 import { Avatar } from "@/components/avatar";
+import { EmptyView } from "@/components/empty-view";
 import { PageHeader } from "@/components/page-header";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { Button } from "@/components/ui/button";
@@ -55,9 +56,7 @@ export function NotesPage() {
           ))}
         </div>
         {rows.length === 0 && (
-          <div className="py-10 text-center text-sm text-muted-foreground">
-            No notes match &ldquo;{query}&rdquo;
-          </div>
+          <EmptyView message={`No notes match "${query}"`} />
         )}
       </PageFrameBody>
     </PageFrame>

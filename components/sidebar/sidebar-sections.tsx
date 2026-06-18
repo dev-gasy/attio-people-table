@@ -1,16 +1,18 @@
 import { ChevronDown, ChevronRight, Plus, Table2 } from "lucide-react";
 
+interface SidebarSectionsProps {
+  groupOpen: boolean;
+  pinnedOpen: boolean;
+  onToggleGroup: () => void;
+  onTogglePinned: () => void;
+}
+
 export function SidebarSections({
   groupOpen,
   pinnedOpen,
   onToggleGroup,
   onTogglePinned,
-}: {
-  groupOpen: boolean;
-  pinnedOpen: boolean;
-  onToggleGroup: () => void;
-  onTogglePinned: () => void;
-}) {
+}: SidebarSectionsProps) {
   return (
     <>
       <div className="mt-6 px-3">

@@ -1,4 +1,5 @@
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
+import { EmptyView } from "@/components/empty-view";
 import {
   TanStackGridHeader,
   TanStackGridRows,
@@ -59,19 +60,13 @@ export function LookupsTable({
           )}
         </div>
 
-        {!lookupName && (
-          <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-            Select a lookup name
-          </div>
-        )}
+        {!lookupName && <EmptyView message="Select a lookup name" />}
 
         {lookupName &&
           !isLoading &&
           !isError &&
           table.sortedRows.length === 0 && (
-            <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-              No lookups found
-            </div>
+            <EmptyView message="No lookups found" />
           )}
       </div>
     </div>

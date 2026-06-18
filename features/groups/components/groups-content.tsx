@@ -10,8 +10,6 @@ import type { Group } from "@/features/groups/group-mappers";
 import type { useGroupsPage } from "@/features/groups/use-groups-page";
 
 export function GroupsContent({
-  filteredTotal,
-  idle,
   isLoading = false,
   pageSize,
   rows,
@@ -20,8 +18,6 @@ export function GroupsContent({
   visibleColumns,
   view,
 }: {
-  filteredTotal: number;
-  idle: boolean;
   isLoading?: boolean;
   pageSize: number;
   rows: Row<Group>[];
@@ -40,15 +36,6 @@ export function GroupsContent({
           visibleColumns={visibleColumns}
           view={view}
         />
-      ) : idle ? (
-        <div className="py-10 text-center text-sm text-muted-foreground">
-          Select a province or enter at least 3 search characters to load
-          groups.
-        </div>
-      ) : filteredTotal === 0 ? (
-        <div className="py-10 text-center text-sm text-muted-foreground">
-          No groups match your filters
-        </div>
       ) : view === "grid" ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map((row) => (

@@ -1,6 +1,7 @@
 import { GroupsContent } from "@/features/groups/components/groups-content";
 import { GroupsToolbar } from "@/features/groups/components/groups-toolbar";
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
+import { EmptyView } from "@/components/empty-view";
 import { PageHeader } from "@/components/page-header";
 import {
   PageFrame,
@@ -46,7 +47,7 @@ export function GroupsPage({ filters = {} }: { filters?: GroupsSearch }) {
       />
 
       {isError ? (
-        <PageFrameBody className="pb-8">
+        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
           <DataErrorView
             title="Could not load groups"
             message={getErrorMessage(error)}
@@ -54,11 +55,17 @@ export function GroupsPage({ filters = {} }: { filters?: GroupsSearch }) {
             isRetrying={isFetching}
           />
         </PageFrameBody>
+      ) : !shouldLoadGroups ? (
+        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+          <EmptyView message="Select a province or enter at least 3 search characters to load groups." />
+        </PageFrameBody>
+      ) : shouldLoadGroups && !isPending && filteredTotal === 0 ? (
+        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+          <EmptyView message="No groups match your filters" />
+        </PageFrameBody>
       ) : (
         <PageFrameBody className="pb-8">
           <GroupsContent
-            filteredTotal={filteredTotal}
-            idle={!shouldLoadGroups}
             isLoading={shouldLoadGroups && isPending}
             pageSize={pagination.pageSize}
             rows={pagination.pageItems}

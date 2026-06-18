@@ -1,4 +1,5 @@
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
+import { EmptyView } from "@/components/empty-view";
 import {
   TanStackGridHeader,
   TanStackGridRows,
@@ -76,9 +77,5 @@ export function CustomerTable({
 }
 
 function CustomerTableEmptyState({ message }: { message: string }) {
-  return (
-    <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-      {message}
-    </div>
-  );
+  return <EmptyView message={message} />;
 }

@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EmptyView } from "@/components/empty-view";
 import { PageHeader } from "@/components/page-header";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { taskFilters, useTasksPage } from "@/features/tasks/use-tasks-page";
@@ -39,9 +40,7 @@ export function TasksPage() {
       <PageFrameBody className="pb-8">
         <div className="w-full divide-y divide-border/60 overflow-hidden rounded-xl border border-border">
           {visibleTasks.length === 0 ? (
-            <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              No {filter} tasks
-            </p>
+            <EmptyView message={`No ${filter} tasks`} />
           ) : (
             visibleTasks.map((t) => (
               <div
