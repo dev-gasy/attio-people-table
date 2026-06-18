@@ -19,9 +19,10 @@ import type {
   LicenceFormValues,
 } from "@/features/driving-licence/domain/licence";
 
-const genderOptions: Array<{ label: Gender; value: Gender }> = [
+const genderOptions: Array<{ label: string; value: Gender }> = [
   { label: "Male", value: "Male" },
   { label: "Female", value: "Female" },
+  { label: "Other", value: "Other" },
 ];
 
 const provinceOptions = canadianProvinces.map((province) => ({

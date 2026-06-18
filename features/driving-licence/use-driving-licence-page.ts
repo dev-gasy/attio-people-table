@@ -2,7 +2,6 @@ import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 
 import type { StringFieldApi } from "@/components/ui/form-field";
 import {
-  canGenerateLicence,
   createLicenceResult,
   createRandomLicenceFormValues,
   emptyLicenceForm,
@@ -49,7 +48,8 @@ export function useDrivingLicencePage() {
     return parsed.success ? createLicenceResult(parsed.data) : null;
   }, [values]);
 
-  const canGenerate = useMemo(() => canGenerateLicence(values), [values]);
+  // Derived from `result` — avoids a second parse of the same values.
+  const canGenerate = result !== null;
 
   const resetMeta = useCallback(() => {
     setFieldMeta({});
