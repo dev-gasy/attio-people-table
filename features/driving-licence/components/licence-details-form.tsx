@@ -1,6 +1,12 @@
 import { useId, useState, type ElementType, type ReactNode } from "react";
-import { ChevronRight, IdCard, RotateCcw, Shuffle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  CalendarDays,
+  ChevronRight,
+  IdCard,
+  Mail,
+  MapPin,
+  UserRound,
+} from "lucide-react";
 import {
   RadioGroupField,
   SelectField,
@@ -17,6 +23,7 @@ const genderOptions: Array<{ label: Gender; value: Gender }> = [
   { label: "Male", value: "Male" },
   { label: "Female", value: "Female" },
 ];
+
 const provinceOptions = canadianProvinces.map((province) => ({
   label: province,
   value: province,
@@ -27,15 +34,7 @@ type LicenceDetailsFormApi = {
   handleSubmit: () => void;
 };
 
-export function LicenceDetailsForm({
-  form,
-  onRandomize,
-  onReset,
-}: {
-  form: LicenceDetailsFormApi;
-  onRandomize: () => void;
-  onReset: () => void;
-}) {
+export function LicenceDetailsForm({ form }: { form: LicenceDetailsFormApi }) {
   const [open, setOpen] = useState(true);
   const contentId = useId();
 
@@ -45,19 +44,17 @@ export function LicenceDetailsForm({
         event.preventDefault();
         form.handleSubmit();
       }}
-      className="overflow-hidden rounded-xl border border-border"
+      className="overflow-hidden rounded-lg border border-border bg-background"
     >
       <button
         type="button"
         aria-controls={contentId}
         aria-expanded={open}
         onClick={() => setOpen((currentOpen) => !currentOpen)}
-        className="flex w-full items-center gap-2.5 bg-muted/30 px-4 py-3 text-left hover:bg-muted/50"
+        className="flex w-full items-center gap-2.5 border-b border-border bg-muted/20 px-4 py-3 text-left transition-colors hover:bg-muted/35"
       >
         <IdCard className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium text-foreground">
-          Licence details
-        </span>
+        <h2 className="text-sm font-medium text-foreground">Licence details</h2>
         <ChevronRight
           className={`ml-auto h-4 w-4 text-muted-foreground transition-transform ${
             open ? "rotate-90" : ""
@@ -72,91 +69,116 @@ export function LicenceDetailsForm({
         }`}
       >
         <div className="overflow-hidden">
-          <div className="grid gap-4 border-t border-border bg-muted/10 px-4 py-4 sm:grid-cols-2">
-            <form.Field name="firstName">
-              {(
-                field: StringFieldApi<LicenceFormValues["firstName"]>,
-              ): ReactNode => (
-                <TextInputField
-                  autoFocus
-                  field={field}
-                  label="First Name"
-                  placeholder="Enter first name"
-                />
-              )}
-            </form.Field>
-            <form.Field name="lastName">
-              {(
-                field: StringFieldApi<LicenceFormValues["lastName"]>,
-              ): ReactNode => (
-                <TextInputField
-                  field={field}
-                  label="Last Name"
-                  placeholder="Enter last name"
-                />
-              )}
-            </form.Field>
-            <form.Field name="dateOfBirth">
-              {(
-                field: StringFieldApi<LicenceFormValues["dateOfBirth"]>,
-              ): ReactNode => (
-                <TextInputField
-                  field={field}
-                  label="Date of Birth"
-                  placeholder="yyyy-mm-dd"
-                  type="date"
-                />
-              )}
-            </form.Field>
-            <form.Field name="province">
-              {(
-                field: StringFieldApi<LicenceFormValues["province"]>,
-              ): ReactNode => (
-                <SelectField
-                  field={field}
-                  label="Province"
-                  options={provinceOptions}
-                  placeholder="Select province"
-                />
-              )}
-            </form.Field>
-            <form.Field name="gender">
-              {(
-                field: StringFieldApi<LicenceFormValues["gender"]>,
-              ): ReactNode => (
-                <RadioGroupField
-                  field={field}
-                  label="Gender"
-                  options={genderOptions}
-                />
-              )}
-            </form.Field>
-            <form.Field name="email">
-              {(
-                field: StringFieldApi<LicenceFormValues["email"]>,
-              ): ReactNode => (
-                <TextInputField
-                  field={field}
-                  label="Email"
-                  placeholder="name@example.com"
-                  type="email"
-                />
-              )}
-            </form.Field>
-          </div>
+          <div className="grid gap-5 p-4 sm:grid-cols-2">
+            <FieldGroup icon={UserRound} title="Identity">
+              <form.Field name="firstName">
+                {(
+                  field: StringFieldApi<LicenceFormValues["firstName"]>,
+                ): ReactNode => (
+                  <TextInputField
+                    autoFocus
+                    field={field}
+                    label="First Name"
+                    placeholder="Enter first name"
+                  />
+                )}
+              </form.Field>
+              <form.Field name="lastName">
+                {(
+                  field: StringFieldApi<LicenceFormValues["lastName"]>,
+                ): ReactNode => (
+                  <TextInputField
+                    field={field}
+                    label="Last Name"
+                    placeholder="Enter last name"
+                  />
+                )}
+              </form.Field>
+              <form.Field name="gender">
+                {(
+                  field: StringFieldApi<LicenceFormValues["gender"]>,
+                ): ReactNode => (
+                  <RadioGroupField
+                    field={field}
+                    label="Gender"
+                    options={genderOptions}
+                  />
+                )}
+              </form.Field>
+            </FieldGroup>
 
-          <div className="flex flex-wrap items-center gap-2 border-t border-border bg-background/40 px-4 py-3">
-            <Button type="button" variant="outline" onClick={onRandomize}>
-              <Shuffle className="h-4 w-4" />
-              Randomize
-            </Button>
-            <Button type="button" variant="outline" onClick={onReset}>
-              <RotateCcw className="h-4 w-4" />
-              Reset
-            </Button>
+            <FieldGroup icon={CalendarDays} title="Eligibility">
+              <form.Field name="dateOfBirth">
+                {(
+                  field: StringFieldApi<LicenceFormValues["dateOfBirth"]>,
+                ): ReactNode => (
+                  <TextInputField
+                    field={field}
+                    label="Date of Birth"
+                    placeholder="yyyy-mm-dd"
+                    type="date"
+                  />
+                )}
+              </form.Field>
+              <form.Field name="province">
+                {(
+                  field: StringFieldApi<LicenceFormValues["province"]>,
+                ): ReactNode => (
+                  <SelectField
+                    field={field}
+                    label="Province"
+                    options={provinceOptions}
+                    placeholder="Select province"
+                  />
+                )}
+              </form.Field>
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5" />
+                Canada only
+              </div>
+            </FieldGroup>
+
+            <FieldGroup icon={Mail} title="Contact" className="sm:col-span-2">
+              <form.Field name="email">
+                {(
+                  field: StringFieldApi<LicenceFormValues["email"]>,
+                ): ReactNode => (
+                  <TextInputField
+                    field={field}
+                    label="Email"
+                    placeholder="name@example.com"
+                    type="email"
+                  />
+                )}
+              </form.Field>
+            </FieldGroup>
           </div>
         </div>
       </div>
     </form>
+  );
+}
+
+function FieldGroup({
+  children,
+  className = "",
+  icon: Icon,
+  title,
+}: {
+  children: ReactNode;
+  className?: string;
+  icon: ElementType;
+  title: string;
+}) {
+  return (
+    <section className={`min-w-0 space-y-4 ${className}`}>
+      <div className="flex items-center gap-2 border-b border-border/60 pb-2">
+        <Icon className="h-4 w-4 text-muted-foreground" />
+        <h3 className="text-xs font-semibold uppercase text-muted-foreground">
+          {title}
+        </h3>
+      </div>
+      <div className="grid gap-4">{children}</div>
+    </section>
   );
 }
