@@ -1,0 +1,4 @@
+interface:
+  display_name: "React Remote State Architecture"
+  short_description: "Scaffold strict TanStack Query layers"
+  default_prompt: "Use $clean-react-remote-state-architecture to add a typed API domain for this React feature."
