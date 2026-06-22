@@ -1,4 +1,4 @@
-import type { CustomerProduct } from "@/features/customers/data/customer-mappers";
+import type { CustomerProduct } from "@/features/customers/services/customers.types";
 
 export function CustomerProductRow({ product }: { product: CustomerProduct }) {
   return (

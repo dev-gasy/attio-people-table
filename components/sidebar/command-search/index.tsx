@@ -29,8 +29,8 @@ import type {
 } from "./types";
 import type { CustomerSearchValues } from "@/features/customers/domain/customers-list";
 import { useCustomerSearchStore } from "@/features/customers/stores/customer-search-store";
-import { getStaticKrakenEntrypoints } from "@/features/kraken/kraken-service";
-import { getStaticLookupNames } from "@/features/lookups/lookup-service";
+import { useKrakenEntrypointsQuery } from "@/features/kraken/services/kraken.queries";
+import { useLookupNamesQuery } from "@/features/lookups/services/lookups.queries";
 
 type NavigationEntry = {
   node: CommandNode;
@@ -142,8 +142,8 @@ export function CommandSearch({
   const [activeIndex, setActiveIndex] = useState(0);
   const [navigationStack, setNavigationStack] = useState<NavigationEntry[]>([]);
 
-  const krakenEntrypoints = useMemo(() => getStaticKrakenEntrypoints(), []);
-  const lookupNames = useMemo(() => getStaticLookupNames(), []);
+  const { data: krakenEntrypoints = [] } = useKrakenEntrypointsQuery();
+  const { data: lookupNames = [] } = useLookupNamesQuery();
 
   const focusInput = useCallback(() => {
     requestAnimationFrame(() => inputRef.current?.focus());

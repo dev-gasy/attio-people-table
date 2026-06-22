@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import type { CustomerContact } from "@/features/customers/data/customer-mappers";
+import type { CustomerContact } from "@/features/customers/services/customers.types";
 
 export function CustomerContactRow({ contact }: { contact: CustomerContact }) {
   return (

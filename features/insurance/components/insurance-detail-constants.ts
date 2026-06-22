@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import { CarFront, FileText, ShieldCheck, UserRound } from "lucide-react";
-import type { InsuranceRecordKind } from "@/features/insurance/insurance-mappers";
+import type { InsuranceRecordKind } from "@/features/insurance/services/insurance.types";
 
 export type InsuranceTab = "details" | "parties" | "vehicles" | "coverage";
 

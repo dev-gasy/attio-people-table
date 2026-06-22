@@ -5,7 +5,7 @@ import {
   filterLookups,
   type LookupSortKey,
 } from "@/features/lookups/domain/lookups";
-import type { Lookup } from "@/features/lookups/lookup-mappers";
+import type { Lookup } from "@/features/lookups/services/lookups.types";
 import { useColumnVisibility } from "@/hooks/use-column-visibility";
 import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
 

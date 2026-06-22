@@ -9,7 +9,7 @@ import { getInsuranceSummaryFields } from "@/features/insurance/domain/insurance
 import type {
   InsuranceRecord,
   InsuranceRecordKind,
-} from "@/features/insurance/insurance-mappers";
+} from "@/features/insurance/services/insurance.types";
 
 export function InsuranceSummarySection({
   kind,

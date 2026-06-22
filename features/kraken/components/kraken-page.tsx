@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { ListFilter } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -14,16 +13,16 @@ import { Pagination } from "@/components/ui/pagination";
 import { KrakenControls } from "@/features/kraken/components/kraken-controls";
 import { KrakenRulesTable } from "@/features/kraken/components/kraken-rules-table";
 import { EmptyView } from "@/components/empty-view";
-import {
-  krakenEntrypointRulesQueryOptions,
-  getStaticKrakenEntrypoints,
-} from "@/features/kraken/kraken-service";
 import { ruleTypes } from "@/features/kraken/kraken-data";
 import { useKrakenRulesTable } from "@/features/kraken/use-kraken-rules-table";
+import {
+  useKrakenEntrypointRulesQuery,
+  useKrakenEntrypointsQuery,
+} from "@/features/kraken/services/kraken.queries";
 
 export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
   const navigate = useNavigate();
-  const entrypoints = useMemo(() => getStaticKrakenEntrypoints(), []);
+  const { data: entrypoints = [] } = useKrakenEntrypointsQuery();
   const {
     data,
     error: rulesError,
@@ -31,10 +30,10 @@ export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
     isFetching: isFetchingRules,
     isPending: isLoadingRules,
     refetch: refetchRules,
-  } = useQuery({
-    ...krakenEntrypointRulesQueryOptions(entrypointName ?? ""),
-    enabled: Boolean(entrypointName),
-  });
+  } = useKrakenEntrypointRulesQuery(
+    entrypointName ?? "",
+    Boolean(entrypointName),
+  );
   const rules = useMemo(() => data?.rules ?? [], [data?.rules]);
   const entrypoint = data?.entrypoint ?? null;
   const table = useKrakenRulesTable(rules);

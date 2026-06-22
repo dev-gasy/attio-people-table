@@ -5,7 +5,7 @@ import type {
   CustomerProduct,
   CustomerProductActivity,
   CustomerProductBusinessDimension,
-} from "@/features/customers/data/customer-mappers";
+} from "@/features/customers/services/customers.types";
 
 export type CustomerProductActivityFilter = CustomerProductActivity | "All";
 

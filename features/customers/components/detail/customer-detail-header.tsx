@@ -3,7 +3,7 @@ import { PageFrameHeader } from "@/components/page-frame";
 import { CustomerDetailBackLink } from "@/features/customers/components/detail/customer-detail-back-link";
 import { CustomerFavoriteButton } from "@/features/customers/components/shared/customer-favorite-button";
 import { CustomerStatusBadge } from "@/features/customers/components/shared/customer-status-badge";
-import type { Customer } from "@/features/customers/data/customer-mappers";
+import type { Customer } from "@/features/customers/services/customers.types";
 
 export function CustomerDetailHeader({
   customer,

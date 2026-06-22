@@ -7,7 +7,7 @@ import { CustomerFavoriteButton } from "@/features/customers/components/shared/c
 import type {
   Customer,
   CustomerContactKind,
-} from "@/features/customers/data/customer-mappers";
+} from "@/features/customers/services/customers.types";
 import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
 
 export type CustomerTableState = ReturnType<typeof useCustomerTable>;

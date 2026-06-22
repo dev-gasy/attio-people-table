@@ -1,4 +1,4 @@
-import type { Lookup } from "@/features/lookups/lookup-mappers";
+import type { Lookup } from "@/features/lookups/services/lookups.types";
 
 export type LookupSortKey =
   | "code"

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { getErrorMessage } from "@/components/data-error-view";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { InsuranceCoveragesSection } from "@/features/insurance/components/insurance-coverages-section";
@@ -17,8 +16,8 @@ import { InsuranceDetailTabs } from "@/features/insurance/components/insurance-d
 import { InsurancePartiesSection } from "@/features/insurance/components/insurance-parties-section";
 import { InsuranceSummarySection } from "@/features/insurance/components/insurance-summary-section";
 import { InsuranceVehiclesSection } from "@/features/insurance/components/insurance-vehicles-section";
-import { insuranceRecordQueryOptions } from "@/features/insurance/insurance-service";
-import type { InsuranceRecordKind } from "@/features/insurance/insurance-mappers";
+import { useInsuranceRecordQuery } from "@/features/insurance/services/insurance.queries";
+import type { InsuranceRecordKind } from "@/features/insurance/services/insurance.types";
 
 export function InsuranceDetailPage({
   businessKey,
@@ -28,9 +27,8 @@ export function InsuranceDetailPage({
   kind: InsuranceRecordKind;
 }) {
   const [activeTab, setActiveTab] = useState<InsuranceTab>("details");
-  const { data, error, isError, isFetching, isPending, refetch } = useQuery(
-    insuranceRecordQueryOptions(kind, businessKey),
-  );
+  const { data, error, isError, isFetching, isPending, refetch } =
+    useInsuranceRecordQuery(kind, businessKey);
   const record = data?.record;
   const label = insuranceRouteLabels[kind];
 

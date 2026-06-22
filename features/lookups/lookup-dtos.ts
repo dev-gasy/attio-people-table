@@ -1,12 +1,6 @@
-export type LookupDto = {
-  id: number;
-  lookupName: string;
-  code: string;
-  orderNo: number;
-  displayValueEn: string;
-  displayValueFr: string;
-  effectiveDate: string;
-};
+import type { LookupDto } from "@/features/lookups/services/lookups.types";
+
+export type { LookupDto } from "@/features/lookups/services/lookups.types";
 
 const LOOKUPS_PER_NAME = 100;
 

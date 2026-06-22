@@ -1,28 +1,13 @@
 import { faker } from "@faker-js/faker";
+import type {
+  GroupDto,
+  ProvinceCode,
+} from "@/features/groups/services/groups.types";
 
-export type ProvinceCode =
-  | "AB"
-  | "BC"
-  | "MB"
-  | "NB"
-  | "NL"
-  | "NT"
-  | "NS"
-  | "NU"
-  | "ON"
-  | "PE"
-  | "QC"
-  | "SK"
-  | "YT";
-
-export type GroupDto = {
-  id: number;
-  organization: string;
-  groupShortNameFr: string;
-  groupShortNameEn: string;
-  onlineIdentifier: string;
-  province: ProvinceCode;
-};
+export type {
+  GroupDto,
+  ProvinceCode,
+} from "@/features/groups/services/groups.types";
 
 export const provinceOptions = [
   { value: "AB", label: "Alberta" },

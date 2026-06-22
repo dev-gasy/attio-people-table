@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LookupsPage } from "@/features/lookups/components/lookups-page";
+import { getStaticLookupNamesPayload } from "@/features/lookups/lookup-server";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { getStaticLookupNames } from "@/features/lookups/lookup-service";
 import { buildPageMeta } from "@/src/lib/page-meta";
 
 export const Route = createFileRoute("/_app/lookups_/$lookupName")({
   head: ({ params }) => {
     const lookupName =
-      getStaticLookupNames().find((lookup) => lookup.slug === params.lookupName)
-        ?.name ?? params.lookupName;
+      getStaticLookupNamesPayload().find(
+        (lookup) => lookup.slug === params.lookupName,
+      )?.name ?? params.lookupName;
 
     return {
       meta: buildPageMeta({

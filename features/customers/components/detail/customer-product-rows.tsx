@@ -1,5 +1,5 @@
 import { CustomerProductRow } from "@/features/customers/components/detail/customer-product-row";
-import type { CustomerProduct } from "@/features/customers/data/customer-mappers";
+import type { CustomerProduct } from "@/features/customers/services/customers.types";
 
 export function CustomerProductRows({
   products,

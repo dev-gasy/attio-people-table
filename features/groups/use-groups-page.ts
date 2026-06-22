@@ -1,11 +1,10 @@
 import { createElement, useMemo, useState, useTransition } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Building2, Hash, Languages, MapPin } from "lucide-react";
 import type { GroupsView } from "@/features/groups/components/types";
-import { groupsQueryOptions } from "@/features/groups/group-service";
-import type { Group } from "@/features/groups/group-mappers";
+import { useGroupsQuery } from "@/features/groups/services/groups.queries";
+import type { Group } from "@/features/groups/services/groups.types";
 import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Avatar } from "@/components/avatar";
@@ -188,7 +187,7 @@ const COLUMNS: ColumnDef<Group>[] = [
 ];
 
 export function useGroupsPage(filters: GroupsSearch) {
-  const { data: groups } = useSuspenseQuery(groupsQueryOptions(filters));
+  const { data: groups } = useGroupsQuery(filters);
 
   const table = useTanStackClientTable({
     data: groups,

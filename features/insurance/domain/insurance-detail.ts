@@ -3,7 +3,7 @@ import type {
   InsuranceParty,
   InsuranceRecord,
   InsuranceVehicle,
-} from "@/features/insurance/insurance-mappers";
+} from "@/features/insurance/services/insurance.types";
 
 export type InsuranceField = {
   label: string;

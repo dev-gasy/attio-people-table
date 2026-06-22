@@ -20,13 +20,11 @@ import type {
   CommandRouteValue,
   CommandSearchResult,
 } from "@/components/sidebar/command-search/types";
-import type { getStaticKrakenEntrypoints } from "@/features/kraken/kraken-service";
-import type { getStaticLookupNames } from "@/features/lookups/lookup-service";
+import type { KrakenEntrypoint } from "@/features/kraken/services/kraken.types";
+import type { LookupNameDto } from "@/features/lookups/services/lookups.types";
 
-type StaticKrakenEntrypoint = ReturnType<
-  typeof getStaticKrakenEntrypoints
->[number];
-type StaticLookupName = ReturnType<typeof getStaticLookupNames>[number];
+type StaticKrakenEntrypoint = KrakenEntrypoint;
+type StaticLookupName = LookupNameDto;
 
 export function createCommandTree({
   collapsed,

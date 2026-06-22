@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { getErrorMessage } from "@/components/data-error-view";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { CustomerContactsTab } from "@/features/customers/components/detail/customer-contacts-tab";
@@ -13,18 +12,16 @@ import { CustomerDetailTabs } from "@/features/customers/components/detail/custo
 import { CustomerDetailsTab } from "@/features/customers/components/detail/customer-details-tab";
 import { CustomerProductsTab } from "@/features/customers/components/detail/customer-products-tab";
 import type { CustomerTab } from "@/features/customers/components/detail/customer-detail-constants";
-import { customerQueryOptions } from "@/features/customers/data/customer-service";
 import { useCustomerFavorites } from "@/features/customers/hooks/use-customer-favorites";
+import { useCustomerQuery } from "@/features/customers/services/customers.queries";
 
 export function CustomerDetailPage({ customerId }: { customerId: string }) {
   const [activeTab, setActiveTab] = useState<CustomerTab>("details");
   const { isFavorite, toggleFavorite } = useCustomerFavorites();
   const numericCustomerId = Number(customerId);
   const hasValidCustomerId = Number.isFinite(numericCustomerId);
-  const { data, error, isError, isFetching, isPending, refetch } = useQuery({
-    ...customerQueryOptions(numericCustomerId),
-    enabled: hasValidCustomerId,
-  });
+  const { data, error, isError, isFetching, isPending, refetch } =
+    useCustomerQuery(numericCustomerId, hasValidCustomerId);
   const customer = data ?? null;
 
   if (!hasValidCustomerId) {

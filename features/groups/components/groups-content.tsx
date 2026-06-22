@@ -2,7 +2,7 @@ import type { Row } from "@tanstack/react-table";
 import { GroupCard } from "@/features/groups/components/group-card";
 import type { GroupsView } from "@/features/groups/components/types";
 import { TanStackGridHeader, TanStackGridRows } from "@/components/ui/table";
-import type { Group } from "@/features/groups/group-mappers";
+import type { Group } from "@/features/groups/services/groups.types";
 import type { useGroupsPage } from "@/features/groups/use-groups-page";
 
 export function GroupsContent({

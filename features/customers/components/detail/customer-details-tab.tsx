@@ -6,7 +6,7 @@ import {
   getCustomerProfileFields,
   getPreferredCustomerContacts,
 } from "@/features/customers/domain/customer-detail";
-import type { Customer } from "@/features/customers/data/customer-mappers";
+import type { Customer } from "@/features/customers/services/customers.types";
 
 export function CustomerDetailsTab({ customer }: { customer: Customer }) {
   const fields = getCustomerProfileFields(customer);

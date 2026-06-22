@@ -3,7 +3,7 @@ import { Collapsible } from "@/components/ui/collapsible-section";
 import { CustomerContactRow } from "@/features/customers/components/detail/customer-contact-row";
 import { contactIcons } from "@/features/customers/components/detail/customer-detail-constants";
 import { getCustomerContactGroups } from "@/features/customers/domain/customer-detail";
-import type { CustomerContact } from "@/features/customers/data/customer-mappers";
+import type { CustomerContact } from "@/features/customers/services/customers.types";
 
 export function CustomerContactsTab({
   contacts,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Customer } from "@/features/customers/data/customer-mappers";
+import type { Customer } from "@/features/customers/services/customers.types";
 
 export type CustomerSearchValues = {
   firstName: string;

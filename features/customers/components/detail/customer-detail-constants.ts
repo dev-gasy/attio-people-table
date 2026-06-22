@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 import { FileText, Home, Mail, Package, Phone } from "lucide-react";
 import type { CustomerProductActivityFilter } from "@/features/customers/domain/customer-detail";
-import type { CustomerContactKind } from "@/features/customers/data/customer-mappers";
+import type { CustomerContactKind } from "@/features/customers/services/customers.types";
 
 export type CustomerTab = "details" | "contacts" | "products";
 

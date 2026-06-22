@@ -25,14 +25,14 @@ Use the singular entity for symbols (`contactService`, `ContactDTO`) and the hyp
 
 Enforce these imports and responsibilities:
 
-| Layer | May depend on | Must not contain or depend on |
-| --- | --- | --- |
-| UI component | `*.queries.ts`, `*.types.ts` | `*.service.ts`, `*.mapper.ts`, `*.options.ts`, HTTP details |
-| `*.queries.ts` | TanStack hooks and `*.options.ts` | parsing, formatting, mapping, layout, direct HTTP |
-| `*.options.ts` | TanStack factories, service, mapper | React layout or UI-specific behavior |
-| `*.service.ts` | DTO types and injected HTTP client | UI models, React, mapper, TanStack |
-| `*.mapper.ts` | DTO/model types | I/O, mutable global state, React |
-| `*.types.ts` | nothing when practical | runtime behavior |
+| Layer          | May depend on                       | Must not contain or depend on                               |
+| -------------- | ----------------------------------- | ----------------------------------------------------------- |
+| UI component   | `*.queries.ts`, `*.types.ts`        | `*.service.ts`, `*.mapper.ts`, `*.options.ts`, HTTP details |
+| `*.queries.ts` | TanStack hooks and `*.options.ts`   | parsing, formatting, mapping, layout, direct HTTP           |
+| `*.options.ts` | TanStack factories, service, mapper | React layout or UI-specific behavior                        |
+| `*.service.ts` | DTO types and injected HTTP client  | UI models, React, mapper, TanStack                          |
+| `*.mapper.ts`  | DTO/model types                     | I/O, mutable global state, React                            |
+| `*.types.ts`   | nothing when practical              | runtime behavior                                            |
 
 Treat DTOs as raw API contracts, including snake_case keys, nullable values, nesting, and wire-format strings. Treat models as clean component-facing values. Perform all normalization, fallbacks, flattening, parsing, and presentation-safe formatting in the mapper, never in the service, options, hooks, or components.
 
@@ -67,18 +67,26 @@ Declare request input types here when they are part of the feature contract. Kee
 ### 2. Mapper
 
 ```ts
-import type { ContactDTO, ContactModel, UpdateContactInput } from "./contact.types";
+import type {
+  ContactDTO,
+  ContactModel,
+  UpdateContactInput,
+} from "./contact.types";
 
 export const contactMapper = {
   toModel(dto: ContactDTO): ContactModel {
     return {
       id: dto.id,
-      displayName: [dto.first_name, dto.last_name].filter(Boolean).join(" ") || "Unnamed contact",
+      displayName:
+        [dto.first_name, dto.last_name].filter(Boolean).join(" ") ||
+        "Unnamed contact",
       email: dto.email_address,
     };
   },
 
-  toUpdateDTO(input: UpdateContactInput): Pick<ContactDTO, "first_name" | "last_name"> {
+  toUpdateDTO(
+    input: UpdateContactInput,
+  ): Pick<ContactDTO, "first_name" | "last_name"> {
     return {
       first_name: input.firstName,
       last_name: input.lastName,
@@ -109,7 +117,10 @@ export class ContactService {
     return response.json() as Promise<ContactDTO>;
   }
 
-  async update(id: string, body: Pick<ContactDTO, "first_name" | "last_name">): Promise<ContactDTO> {
+  async update(
+    id: string,
+    body: Pick<ContactDTO, "first_name" | "last_name">,
+  ): Promise<ContactDTO> {
     const response = await this.httpClient(`/api/contacts/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

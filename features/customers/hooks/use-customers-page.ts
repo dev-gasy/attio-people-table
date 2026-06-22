@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
   filterCustomers,
@@ -7,8 +6,8 @@ import {
   type CustomerSearchValues,
 } from "@/features/customers/domain/customers-list";
 import { useCustomerSearchStore } from "@/features/customers/stores/customer-search-store";
-import { customersQueryOptions } from "@/features/customers/data/customer-service";
 import { useCustomerFavorites } from "@/features/customers/hooks/use-customer-favorites";
+import { useCustomersQuery } from "@/features/customers/services/customers.queries";
 
 export type CustomersPageMode = "search" | "favorites";
 
@@ -23,10 +22,7 @@ export function useCustomersPage({ mode }: { mode: CustomersPageMode }) {
     (state) => state.resetSearch,
   );
   const shouldLoadCustomers = mode === "favorites" || hasTriggeredSearch;
-  const query = useQuery({
-    ...customersQueryOptions(),
-    enabled: shouldLoadCustomers,
-  });
+  const query = useCustomersQuery(shouldLoadCustomers);
   const favorites = useCustomerFavorites();
   const customers = useMemo(() => query.data ?? [], [query.data]);
   const visibleCustomers = useMemo(() => {

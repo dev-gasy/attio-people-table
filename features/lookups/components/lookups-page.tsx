@@ -1,5 +1,4 @@
 import { Suspense, useMemo, useTransition } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { ListTree } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -13,17 +12,17 @@ import { Combobox, type ComboOption } from "@/components/ui/combobox";
 import { Pagination } from "@/components/ui/pagination";
 import { LookupsControls } from "@/features/lookups/components/lookups-controls";
 import { LookupsTable } from "@/features/lookups/components/lookups-table";
-import {
-  getStaticLookupNames,
-  lookupNameQueryOptions,
-} from "@/features/lookups/lookup-service";
 import { useLookupsTable } from "@/features/lookups/use-lookups-table";
 import { EmptyView } from "@/components/empty-view";
+import {
+  useLookupNameQuery,
+  useLookupNamesQuery,
+} from "@/features/lookups/services/lookups.queries";
 
 export function LookupsPage({ lookupName }: { lookupName?: string }) {
   const navigate = useNavigate();
   const [, startTransition] = useTransition();
-  const lookupNames = useMemo(() => getStaticLookupNames(), []);
+  const { data: lookupNames = [] } = useLookupNamesQuery();
 
   const lookupNameOptions = useMemo<ComboOption[]>(
     () =>
@@ -78,7 +77,7 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
 }
 
 function LookupsDataLayer({ lookupName }: { lookupName: string }) {
-  const { data } = useSuspenseQuery(lookupNameQueryOptions(lookupName));
+  const { data } = useLookupNameQuery(lookupName);
   const table = useLookupsTable(data.lookups);
 
   return (

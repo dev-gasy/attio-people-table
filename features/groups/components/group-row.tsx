@@ -1,6 +1,6 @@
 import { TableBodyCell } from "@/components/ui/table";
 import { Avatar } from "@/components/avatar";
-import type { Group } from "@/features/groups/group-mappers";
+import type { Group } from "@/features/groups/services/groups.types";
 
 export function GroupRow({ group }: { group: Group }) {
   return (

@@ -8,7 +8,7 @@ import {
   groupCustomerProductsByBusinessDimension,
   type CustomerProductActivityFilter,
 } from "@/features/customers/domain/customer-detail";
-import type { CustomerProduct } from "@/features/customers/data/customer-mappers";
+import type { CustomerProduct } from "@/features/customers/services/customers.types";
 
 export function CustomerProductsTab({
   products,

@@ -11,7 +11,7 @@ import {
   insuranceRouteLabels,
 } from "@/features/insurance/components/insurance-detail-constants";
 import { InsuranceDetailTabs } from "@/features/insurance/components/insurance-detail-tabs";
-import type { InsuranceRecordKind } from "@/features/insurance/insurance-mappers";
+import type { InsuranceRecordKind } from "@/features/insurance/services/insurance.types";
 import { cn } from "@/lib/utils";
 
 export function InsuranceDetailError({

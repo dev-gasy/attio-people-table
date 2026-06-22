@@ -1,6 +1,6 @@
 import { Languages, MapPin } from "lucide-react";
 import { Avatar } from "@/components/avatar";
-import type { Group } from "@/features/groups/group-mappers";
+import type { Group } from "@/features/groups/services/groups.types";
 
 export function GroupCard({ group }: { group: Group }) {
   return (

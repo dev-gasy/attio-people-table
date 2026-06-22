@@ -1,55 +1,25 @@
 import { faker } from "@faker-js/faker";
+import type {
+  CustomerContactKind as CustomerContactKindDto,
+  CustomerContactDto,
+  CustomerDto,
+  CustomerProductActivity as CustomerProductActivityDto,
+  CustomerProductBusinessDimension as CustomerProductBusinessDimensionDto,
+  CustomerProductDto,
+  CustomerProductType as CustomerProductTypeDto,
+  CustomerStatus as CustomerStatusDto,
+} from "@/features/customers/services/customers.types";
 
-export type CustomerStatusDto = "Active" | "Prospect" | "At risk" | "Inactive";
-
-export type CustomerContactKindDto = "phone" | "email" | "address";
-
-export type CustomerProductTypeDto = "Policy" | "Quote" | "Claim" | "Renewal";
-export type CustomerProductActivityDto = "Active" | "Inactive";
-export type CustomerProductBusinessDimensionDto =
-  | "Personal lines"
-  | "Commercial"
-  | "Life and health"
-  | "Claims"
-  | "Pipeline";
-
-export type CustomerDto = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  name: string;
-  dateOfBirth: string;
-  status: CustomerStatusDto;
-  segment: string;
-  owner: string;
-  location: string;
-  since: string;
-  summary: string;
-  lifetimeValue: string;
-  risk: "Low" | "Medium" | "High";
-};
-
-export type CustomerContactDto = {
-  id: number;
-  customerId: number;
-  kind: CustomerContactKindDto;
-  label: string;
-  value: string;
-  preferred: boolean;
-};
-
-export type CustomerProductDto = {
-  id: number;
-  customerId: number;
-  type: CustomerProductTypeDto;
-  referenceNumber: string;
-  businessDimension: CustomerProductBusinessDimensionDto;
-  activity: CustomerProductActivityDto;
-  name: string;
-  status: string;
-  amount: string;
-  effectiveDate: string;
-};
+export type {
+  CustomerContactKind as CustomerContactKindDto,
+  CustomerContactDto,
+  CustomerDto,
+  CustomerProductActivity as CustomerProductActivityDto,
+  CustomerProductBusinessDimension as CustomerProductBusinessDimensionDto,
+  CustomerProductDto,
+  CustomerProductType as CustomerProductTypeDto,
+  CustomerStatus as CustomerStatusDto,
+} from "@/features/customers/services/customers.types";
 
 const customerStatusSeeds = [
   "Active",

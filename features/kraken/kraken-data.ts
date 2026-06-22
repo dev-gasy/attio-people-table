@@ -1,18 +1,15 @@
+import type {
+  KrakenRuleDto,
+  RuleType,
+} from "@/features/kraken/services/kraken.types";
+
 export type Entrypoint = {
   id: number;
   name: string;
 };
 
-export type RuleType = "Required" | "Validation" | "Reset" | "Set";
-
-export type Rule = {
-  id: number;
-  entrypointId: number;
-  name: string;
-  code: string;
-  message: string;
-  type: RuleType;
-};
+export type { RuleType } from "@/features/kraken/services/kraken.types";
+export type Rule = KrakenRuleDto;
 
 export const entrypoints: Entrypoint[] = [
   { id: 1, name: "Customer onboarding" },

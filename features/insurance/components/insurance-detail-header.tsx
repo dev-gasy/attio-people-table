@@ -8,7 +8,7 @@ import {
 import type {
   InsuranceRecord,
   InsuranceRecordKind,
-} from "@/features/insurance/insurance-mappers";
+} from "@/features/insurance/services/insurance.types";
 import { cn } from "@/lib/utils";
 
 export function InsuranceDetailHeader({

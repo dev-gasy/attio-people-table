@@ -4,48 +4,20 @@ import {
   customersSeed,
   type CustomerProductDto,
 } from "@/features/customers/data/customer-dtos";
+import type {
+  InsuranceCoverageDto,
+  InsuranceRecordDto,
+  InsuranceRecordKind as InsuranceRecordKindDto,
+  InsuranceVehicleDto,
+} from "@/features/insurance/services/insurance.types";
 
-export type InsuranceRecordKindDto = "policy" | "quote";
-
-export type InsurancePartyDto = {
-  id: number;
-  role: "Customer";
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-};
-
-export type InsuranceVehicleDto = {
-  id: number;
-  year: number;
-  make: string;
-  model: string;
-  vin: string;
-  garagingAddress: string;
-};
-
-export type InsuranceCoverageDto = {
-  id: number;
-  name: string;
-  limit: string;
-  deductible: string;
-  premium: string;
-};
-
-export type InsuranceRecordDto = {
-  kind: InsuranceRecordKindDto;
-  businessKey: string;
-  productName: string;
-  status: string;
-  activity: string;
-  amount: string;
-  effectiveDate: string;
-  customerName: string;
-  parties: InsurancePartyDto[];
-  vehicles: InsuranceVehicleDto[];
-  coverages: InsuranceCoverageDto[];
-};
+export type {
+  InsuranceCoverageDto,
+  InsurancePartyDto,
+  InsuranceRecordDto,
+  InsuranceRecordKind as InsuranceRecordKindDto,
+  InsuranceVehicleDto,
+} from "@/features/insurance/services/insurance.types";
 
 const vehicleMakes = ["Toyota", "Honda", "Ford", "Subaru", "Mazda"];
 const vehicleModels = ["RAV4", "Accord", "F-150", "Outback", "CX-5"];
