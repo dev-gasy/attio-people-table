@@ -52,7 +52,13 @@ export function InsuranceDetailPage({
   }
 
   if (!record) {
-    return <InsuranceNotFound title={label.missing} />;
+    return (
+      <InsuranceNotFound
+        businessKey={businessKey}
+        kind={kind}
+        title={label.missing}
+      />
+    );
   }
 
   return (

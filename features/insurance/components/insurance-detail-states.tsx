@@ -1,11 +1,18 @@
 import { DataErrorView } from "@/components/data-error-view";
+import { FileQuestion, FileText } from "lucide-react";
 import {
   PageFrame,
   PageFrameBody,
   PageFrameHeader,
 } from "@/components/page-frame";
 import { InsuranceDetailBackLink } from "@/features/insurance/components/insurance-detail-back-link";
+import {
+  insuranceKindStyles,
+  insuranceRouteLabels,
+} from "@/features/insurance/components/insurance-detail-constants";
 import { InsuranceDetailTabs } from "@/features/insurance/components/insurance-detail-tabs";
+import type { InsuranceRecordKind } from "@/features/insurance/insurance-mappers";
+import { cn } from "@/lib/utils";
 
 export function InsuranceDetailError({
   title,
@@ -68,15 +75,45 @@ export function InsuranceDetailLoading() {
   );
 }
 
-export function InsuranceNotFound({ title }: { title: string }) {
+export function InsuranceNotFound({
+  businessKey,
+  kind,
+  title,
+}: {
+  businessKey: string;
+  kind: InsuranceRecordKind;
+  title: string;
+}) {
+  const label = insuranceRouteLabels[kind];
+  const style = insuranceKindStyles[kind];
+
   return (
     <PageFrame>
       <PageFrameHeader>
-        <InsuranceDetailBackLink />
+        <div className="flex flex-wrap items-center gap-4">
+          <InsuranceDetailBackLink />
+          <div
+            className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-lg",
+              style.iconBackground,
+              style.iconText,
+            )}
+          >
+            <FileText className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h1 className="truncate text-2xl font-semibold text-foreground">
+            {label.title} {businessKey}
+          </h1>
+        </div>
       </PageFrameHeader>
-      <PageFrameBody className="flex items-center justify-center">
+      <PageFrameBody className="flex min-h-[calc(100%-var(--page-frame-header-height))] items-center justify-center">
         <div className="max-w-sm text-center">
-          <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+            <FileQuestion className="h-6 w-6" aria-hidden="true" />
+          </div>
+          <h2 className="mt-4 text-xl font-semibold text-foreground">
+            {title}
+          </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             This record does not exist or is no longer available.
           </p>

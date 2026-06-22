@@ -4,7 +4,22 @@ import { RouteErrorFallback } from "@/components/route-error-fallback";
 import { insuranceRecordQueryOptions } from "@/features/insurance/insurance-service";
 import { buildPageMeta } from "@/src/lib/page-meta";
 
-export const Route = createFileRoute("/_app/quotes_/$businessKey")({
+export const Route = createFileRoute(
+  "/_app/quotes_/$businessKey/$revisionNumber",
+)({
+  params: {
+    parse: (params) => {
+      const revisionNumber = Number(params.revisionNumber);
+
+      if (!Number.isFinite(revisionNumber)) return false;
+
+      return { ...params, revisionNumber };
+    },
+    stringify: (params) => ({
+      ...params,
+      revisionNumber: String(params.revisionNumber),
+    }),
+  },
   loader: ({ context, params }) =>
     context.queryClient.ensureQueryData(
       insuranceRecordQueryOptions("quote", params.businessKey),
@@ -21,12 +36,6 @@ export const Route = createFileRoute("/_app/quotes_/$businessKey")({
       }),
     };
   },
-  validateSearch: (search): { revisionNumber?: string } => ({
-    revisionNumber:
-      typeof search.revisionNumber === "string"
-        ? search.revisionNumber
-        : undefined,
-  }),
   errorComponent: (props) => <RouteErrorFallback title="Quote" {...props} />,
   component: QuoteRoute,
 });

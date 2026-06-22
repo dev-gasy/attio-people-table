@@ -13,6 +13,7 @@ export function DrivingLicencePage() {
     form,
     handleRandomize,
     handleReset,
+    isFormEmpty,
     result,
     totalFields,
   } = useDrivingLicencePage();
@@ -27,7 +28,12 @@ export function DrivingLicencePage() {
               <Shuffle className="h-4 w-4" />
               Randomize
             </Button>
-            <Button type="button" variant="outline" onClick={handleReset}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleReset}
+              disabled={isFormEmpty}
+            >
               <RotateCcw className="h-4 w-4" />
               Reset
             </Button>

@@ -80,6 +80,14 @@ export function useDrivingLicencePage() {
 
   const totalFields = licenceFormFields.length;
 
+  const isFormEmpty = useMemo(
+    () =>
+      licenceFormFields.every(
+        (field) => values[field] === emptyLicenceForm[field],
+      ),
+    [values],
+  );
+
   const resetMeta = useCallback(() => {
     setFieldMeta({});
   }, []);
@@ -104,22 +112,10 @@ export function useDrivingLicencePage() {
           meta,
         },
         handleBlur: () => {
-          const currentValues = valuesRef.current;
-          // Per-field validation
-          const fieldError = validateLicenceField(name, currentValues[name]);
-          // Cross-field errors from the full parse, attributed to this field
-          const crossErrors = extractCrossFieldErrors(currentValues);
-
           setFieldMeta((currentMeta) => ({
             ...currentMeta,
             [name]: {
               ...currentMeta[name],
-              errors: (() => {
-                const errs: string[] = [];
-                if (fieldError) errs.push(fieldError);
-                else if (crossErrors[name]) errs.push(crossErrors[name]!);
-                return errs;
-              })(),
               isBlurred: true,
             },
           }));
@@ -198,6 +194,7 @@ export function useDrivingLicencePage() {
     form,
     handleRandomize,
     handleReset,
+    isFormEmpty,
     result,
     totalFields,
   };

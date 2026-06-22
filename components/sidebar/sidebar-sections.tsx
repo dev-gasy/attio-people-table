@@ -57,14 +57,14 @@ function PinnedViews() {
   return (
     <div className="flex flex-col gap-0.5">
       <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/60">
-        <Table2 className="h-[18px] w-[18px] shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <Table2 className="h-4.5 w-4.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
         <span className="font-medium">Candidate Pipeline</span>
         <span className="truncate text-xs text-muted-foreground">
           Ready for r...
         </span>
       </button>
       <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/60">
-        <Table2 className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
+        <Table2 className="h-4.5 w-4.5 shrink-0 text-muted-foreground" />
         <span className="font-medium">Sales</span>
         <span className="truncate text-xs text-muted-foreground">Top PQLs</span>
       </button>

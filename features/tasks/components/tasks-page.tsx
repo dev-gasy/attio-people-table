@@ -37,12 +37,14 @@ export function TasksPage() {
           </div>
         }
       />
-      <PageFrameBody className="pb-8">
-        <div className="w-full divide-y divide-border/60 overflow-hidden rounded-xl border border-border">
-          {visibleTasks.length === 0 ? (
-            <EmptyView message={`No ${filter} tasks`} />
-          ) : (
-            visibleTasks.map((t) => (
+      {visibleTasks.length === 0 ? (
+        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+          <EmptyView message={`No ${filter} tasks`} />
+        </PageFrameBody>
+      ) : (
+        <PageFrameBody className="pb-8">
+          <div className="w-full divide-y divide-border/60 overflow-hidden rounded-xl border border-border">
+            {visibleTasks.map((t) => (
               <div
                 key={t.id}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30"
@@ -70,10 +72,10 @@ export function TasksPage() {
                   {t.title}
                 </span>
               </div>
-            ))
-          )}
-        </div>
-      </PageFrameBody>
+            ))}
+          </div>
+        </PageFrameBody>
+      )}
     </PageFrame>
   );
 }

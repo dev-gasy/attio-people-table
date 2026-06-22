@@ -16,7 +16,14 @@ const policySchema = z.object({
 
 const quoteSchema = z.object({
   businessKey: z.string().trim().min(1, "Quote business key is required"),
-  revisionNumber: z.string().trim().min(1, "Revision number is required"),
+  revisionNumber: z
+    .string()
+    .trim()
+    .min(1, "Revision number is required")
+    .refine(
+      (value) => Number.isFinite(Number(value)),
+      "Revision number must be a number",
+    ),
 });
 
 function LookupForm({
@@ -60,10 +67,10 @@ export function InsuranceLookupPage() {
   const policyForm = useForm({
     defaultValues: { businessKey: "" },
     validationLogic: revalidateLogic({
-      mode: "blur",
+      mode: "change",
       modeAfterSubmission: "change",
     }),
-    validators: { onDynamic: policySchema },
+    validators: { onMount: policySchema, onDynamic: policySchema },
     onSubmit: ({ value }) =>
       navigate({
         to: "/policies/$businessKey",
@@ -74,15 +81,17 @@ export function InsuranceLookupPage() {
   const quoteForm = useForm({
     defaultValues: { businessKey: "", revisionNumber: "" },
     validationLogic: revalidateLogic({
-      mode: "blur",
+      mode: "change",
       modeAfterSubmission: "change",
     }),
-    validators: { onDynamic: quoteSchema },
+    validators: { onMount: quoteSchema, onDynamic: quoteSchema },
     onSubmit: ({ value }) =>
       navigate({
-        to: "/quotes/$businessKey",
-        params: { businessKey: normalize(value.businessKey) },
-        search: { revisionNumber: normalize(value.revisionNumber) },
+        to: "/quotes/$businessKey/$revisionNumber",
+        params: {
+          businessKey: normalize(value.businessKey),
+          revisionNumber: Number(value.revisionNumber),
+        },
       }),
   });
 

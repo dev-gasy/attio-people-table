@@ -469,14 +469,13 @@ export function CommandSearch({
 
   function loadQuoteRecord(value: string, revisionValue: string) {
     const businessKey = normalizeBusinessKey(value);
-    const revisionNumber = revisionValue.trim();
+    const revisionNumber = Number(revisionValue.trim());
 
-    if (!businessKey || !revisionNumber) return;
+    if (!businessKey || !Number.isFinite(revisionNumber)) return;
 
     navigate({
-      to: "/quotes/$businessKey",
-      params: { businessKey },
-      search: { revisionNumber },
+      to: "/quotes/$businessKey/$revisionNumber",
+      params: { businessKey, revisionNumber },
     });
     onClose();
   }
