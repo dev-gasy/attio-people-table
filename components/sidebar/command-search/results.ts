@@ -14,8 +14,8 @@ import {
   normalizeBusinessKey,
 } from "@/components/sidebar/command-search/helpers";
 import type {
+  CommandConfig,
   CommandResult,
-  CommandStep,
   CustomerSearchField,
 } from "@/components/sidebar/command-search/types";
 import type { getStaticKrakenEntrypoints } from "@/features/kraken/kraken-service";
@@ -26,247 +26,325 @@ type StaticKrakenEntrypoint = ReturnType<
 >[number];
 type StaticLookupName = ReturnType<typeof getStaticLookupNames>[number];
 
-type RootResultActions = {
+type CommandConfigActions = {
   close: () => void;
+  loadPolicyRecord: (businessKey: string) => void;
+  loadQuoteRecord: (businessKey: string, revisionNumber: string) => void;
   navigateToCustomerFavorites: () => void;
+  navigateToKrakenEntrypoint: (entrypointName: string) => void;
+  navigateToLookupName: (lookupName: string) => void;
   navigateToPage: (to: PagePath) => void;
-  openCustomerFieldStep: () => void;
-  openInsuranceRecordStep: (kind: "policy" | "quote") => void;
-  openKrakenStep: () => void;
-  openLookupsStep: () => void;
+  runCustomerSearch: (field: CustomerSearchField, value: string) => void;
   setTheme: (theme: "dark" | "light") => void;
   toggleCollapse: () => void;
 };
 
-export function createRootResults({
+export function createCommandConfig({
   actions,
   collapsed,
+  krakenEntrypoints,
+  lookupNames,
   resolvedTheme,
 }: {
-  actions: RootResultActions;
+  actions: CommandConfigActions;
   collapsed: boolean;
+  krakenEntrypoints: StaticKrakenEntrypoint[];
+  lookupNames: StaticLookupName[];
   resolvedTheme: "dark" | "light";
+}): CommandConfig {
+  const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
+  const themeLabel =
+    resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+
+  return {
+    id: "root",
+    name: "Command search",
+    group: "Commands",
+    keywords: "command search",
+    icon: Search,
+    type: "fields",
+    placeholder: "Search pages and actions...",
+    children: [
+      ...createPageCommands(actions),
+      {
+        id: "workflow-customer-search",
+        name: "Search customers",
+        group: "Workflows",
+        keywords:
+          "customer search crm find group policy quote email phone address",
+        icon: navIcons.customers,
+        type: "fields",
+        title: "Choose customer field",
+        placeholder: "Choose a customer field...",
+        children: createCustomerSearchCommands(actions),
+      },
+      {
+        id: "workflow-customer-favorites",
+        name: "Favorite customers",
+        group: "Workflows",
+        keywords: "customer favorites favorite saved starred",
+        icon: Star,
+        type: "redirect",
+        action: actions.navigateToCustomerFavorites,
+      },
+      {
+        id: "workflow-kraken-entrypoint",
+        name: "Load Kraken entrypoint",
+        group: "Workflows",
+        keywords: "kraken entrypoint load rules",
+        icon: navIcons.kraken,
+        type: "fields",
+        title: "Load Kraken entrypoint",
+        placeholder: "Search entrypoint names...",
+        children: krakenEntrypoints.map((entrypoint) => ({
+          id: `kraken-entrypoint-${entrypoint.slug}`,
+          name: entrypoint.name,
+          group: `${entrypoint.rulesCount} rules`,
+          keywords: `${entrypoint.name} ${entrypoint.slug}`,
+          icon: navIcons.kraken,
+          type: "redirect",
+          action: () => actions.navigateToKrakenEntrypoint(entrypoint.slug),
+        })),
+      },
+      {
+        id: "workflow-policy-load",
+        name: "Load policy",
+        group: "Workflows",
+        keywords: "policy load business key policy number",
+        icon: navIcons.load,
+        type: "fields",
+        title: "Load policy",
+        placeholder: "POLICY-000000",
+        emptyMessage: "Enter a policy business key",
+        resultGroup: "Policies",
+        resultName: (businessKey) => `Load policy "${businessKey}"`,
+        resultKeywords: (businessKey) => `policy ${businessKey}`,
+        normalizeValue: normalizeBusinessKey,
+        action: actions.loadPolicyRecord,
+      },
+      {
+        id: "workflow-quote-load",
+        name: "Load quote",
+        group: "Workflows",
+        keywords: "quote load business key quote number",
+        icon: navIcons.load,
+        type: "fields",
+        title: "Load quote",
+        placeholder: "QUOTE-000000",
+        emptyMessage: "Enter a quote business key",
+        resultGroup: "Quotes",
+        resultName: (businessKey) => `Continue with quote "${businessKey}"`,
+        resultKeywords: (businessKey) => `quote ${businessKey}`,
+        normalizeValue: normalizeBusinessKey,
+        children: (businessKey) => [
+          {
+            id: `quote-revision-${businessKey}`,
+            name: "Load quote",
+            group: "Quotes",
+            keywords: `quote ${businessKey} revision`,
+            icon: navIcons.load,
+            type: "fields",
+            title: "Load quote",
+            placeholder: "Revision number",
+            emptyMessage: "Enter a quote revision number",
+            resultGroup: "Quotes",
+            resultName: (revisionNumber) =>
+              `Load quote "${businessKey}" revision "${revisionNumber}"`,
+            resultKeywords: (revisionNumber) =>
+              `quote ${businessKey} revision ${revisionNumber}`,
+            action: (revisionNumber) =>
+              actions.loadQuoteRecord(businessKey, revisionNumber),
+          },
+        ],
+      },
+      {
+        id: "workflow-lookup-name",
+        name: "Load lookup name",
+        group: "Workflows",
+        keywords: "lookup lookup name load lookups",
+        icon: navIcons.lookups,
+        type: "fields",
+        title: "Load lookup name",
+        placeholder: "Search lookup names...",
+        children: lookupNames.map((lookupName) => ({
+          id: `lookup-name-${lookupName.slug}`,
+          name: lookupName.name,
+          group: `${lookupName.lookupsCount} lookups`,
+          keywords: `${lookupName.name} ${lookupName.slug}`,
+          icon: navIcons.lookups,
+          type: "redirect",
+          action: () => actions.navigateToLookupName(lookupName.slug),
+        })),
+      },
+      {
+        id: "action-theme",
+        name: themeLabel,
+        group: "Actions",
+        keywords: `theme ${nextTheme} ${themeLabel}`,
+        icon: resolvedTheme === "dark" ? Sun : Moon,
+        type: "redirect",
+        action: () => {
+          actions.setTheme(nextTheme);
+          actions.close();
+        },
+      },
+      {
+        id: "action-sidebar",
+        name: collapsed ? "Expand sidebar" : "Collapse sidebar",
+        group: "Actions",
+        keywords: `sidebar side menu ${
+          collapsed ? "expand open show" : "collapse close hide"
+        }`,
+        icon: collapsed ? PanelLeftOpen : PanelLeftClose,
+        type: "redirect",
+        action: () => {
+          actions.toggleCollapse();
+          actions.close();
+        },
+      },
+    ],
+  };
+}
+
+export function createFilteredResults({
+  command,
+  onOpenCommand,
+  query,
+}: {
+  command: CommandConfig;
+  onOpenCommand: (command: CommandConfig) => void;
+  query: string;
 }): CommandResult[] {
-  const pageResults = navSections.flatMap((section) =>
+  if (command.type === "redirect") return [];
+
+  const normalizedQuery = query.trim().toLowerCase();
+
+  if (Array.isArray(command.children)) {
+    return filterResults(
+      command.children.map((child) => createChildResult(child, onOpenCommand)),
+      normalizedQuery,
+    );
+  }
+
+  const value = getCommandValue(command, query);
+  if (!value) return [];
+
+  return [
+    {
+      id: `${command.id}-submit-${value}`,
+      label: command.resultName?.(value) ?? `${command.name} "${value}"`,
+      group: command.resultGroup ?? command.group,
+      keywords:
+        command.resultKeywords?.(value) ??
+        `${command.name} ${command.keywords ?? ""} ${value}`,
+      icon: command.resultIcon ?? command.icon,
+      run: () => runFieldsCommand(command, value, onOpenCommand),
+    },
+  ];
+}
+
+export function hasEmptyStaticChildren(command: CommandConfig) {
+  return (
+    command.type === "fields" &&
+    Array.isArray(command.children) &&
+    command.children.length === 0
+  );
+}
+
+function createPageCommands(actions: CommandConfigActions): CommandConfig[] {
+  return navSections.flatMap((section) =>
     section.items.map((item) => ({
       id: `page-${item.id}`,
-      label: item.label,
+      name: item.label,
       group: section.label,
       keywords: `${item.label} ${section.label} ${item.id}`,
       icon: item.icon,
-      run: () => {
+      type: "redirect" as const,
+      action: () => {
         actions.navigateToPage(item.to as PagePath);
         actions.close();
       },
     })),
   );
-  const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
-  const themeLabel =
-    resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
-
-  return [
-    ...pageResults,
-    {
-      id: "workflow-customer-search",
-      label: "Search customers",
-      group: "Workflows",
-      keywords:
-        "customer search crm find group policy quote email phone address",
-      icon: navIcons.customers,
-      run: actions.openCustomerFieldStep,
-    },
-    {
-      id: "workflow-customer-favorites",
-      label: "Favorite customers",
-      group: "Workflows",
-      keywords: "customer favorites favorite saved starred",
-      icon: Star,
-      run: actions.navigateToCustomerFavorites,
-    },
-    {
-      id: "workflow-kraken-entrypoint",
-      label: "Load Kraken entrypoint",
-      group: "Workflows",
-      keywords: "kraken entrypoint load rules",
-      icon: navIcons.kraken,
-      run: actions.openKrakenStep,
-    },
-    {
-      id: "workflow-policy-load",
-      label: "Load policy",
-      group: "Workflows",
-      keywords: "policy load business key policy number",
-      icon: navIcons.load,
-      run: () => actions.openInsuranceRecordStep("policy"),
-    },
-    {
-      id: "workflow-quote-load",
-      label: "Load quote",
-      group: "Workflows",
-      keywords: "quote load business key quote number",
-      icon: navIcons.load,
-      run: () => actions.openInsuranceRecordStep("quote"),
-    },
-    {
-      id: "workflow-lookup-name",
-      label: "Load lookup name",
-      group: "Workflows",
-      keywords: "lookup lookup name load lookups",
-      icon: navIcons.lookups,
-      run: actions.openLookupsStep,
-    },
-    {
-      id: "action-theme",
-      label: themeLabel,
-      group: "Actions",
-      keywords: `theme ${nextTheme} ${themeLabel}`,
-      icon: resolvedTheme === "dark" ? Sun : Moon,
-      run: () => {
-        actions.setTheme(nextTheme);
-        actions.close();
-      },
-    },
-    {
-      id: "action-sidebar",
-      label: collapsed ? "Expand sidebar" : "Collapse sidebar",
-      group: "Actions",
-      keywords: `sidebar side menu ${
-        collapsed ? "expand open show" : "collapse close hide"
-      }`,
-      icon: collapsed ? PanelLeftOpen : PanelLeftClose,
-      run: () => {
-        actions.toggleCollapse();
-        actions.close();
-      },
-    },
-  ];
 }
 
-type StepResultActions = {
-  continueQuoteLoad: (businessKey: string) => void;
-  loadPolicyRecord: (businessKey: string) => void;
-  loadQuoteRecord: (businessKey: string, revisionNumber: string) => void;
-  navigateToKrakenEntrypoint: (entrypointName: string) => void;
-  navigateToLookupName: (lookupName: string) => void;
-  openCustomerValueStep: (field: CustomerSearchField) => void;
-  runCustomerSearch: (field: CustomerSearchField, value: string) => void;
-};
+function createCustomerSearchCommands(
+  actions: CommandConfigActions,
+): CommandConfig[] {
+  return customerSearchFields.map((field) => ({
+    id: `customer-field-${field.id}`,
+    name: field.label,
+    group: "Customer field",
+    keywords: `${field.label} ${field.id}`,
+    icon: navIcons.customers,
+    type: "fields" as const,
+    title: `Search by ${field.label}`,
+    placeholder: field.placeholder,
+    inputType: field.inputType,
+    emptyMessage: `Enter a ${field.label.toLowerCase()} value`,
+    resultIcon: Search,
+    resultGroup: "Customers",
+    resultName: (value) =>
+      `Search ${field.label.toLowerCase()} for "${value}"`,
+    resultKeywords: (value) => `${field.label} ${value}`,
+    action: (value) => actions.runCustomerSearch(field, value),
+  }));
+}
 
-export function createFilteredResults({
-  actions,
-  krakenEntrypoints,
-  lookupNames,
-  query,
-  rootResults,
-  step,
-}: {
-  actions: StepResultActions;
-  krakenEntrypoints: StaticKrakenEntrypoint[];
-  lookupNames: StaticLookupName[];
-  query: string;
-  rootResults: CommandResult[];
-  step: CommandStep;
-}): CommandResult[] {
-  const normalizedQuery = query.trim().toLowerCase();
+function createChildResult(
+  command: CommandConfig,
+  onOpenCommand: (command: CommandConfig) => void,
+): CommandResult {
+  return {
+    id: command.id,
+    label: command.name,
+    group: command.group,
+    keywords: command.keywords ?? "",
+    icon: command.icon,
+    run: () => {
+      if (command.type === "redirect") {
+        command.action();
+        return;
+      }
 
-  if (step.id === "customer-field") {
-    const fieldResults = customerSearchFields.map((field) => ({
-      id: `customer-field-${field.id}`,
-      label: field.label,
-      group: "Customer field",
-      keywords: `${field.label} ${field.id}`,
-      icon: navIcons.customers,
-      run: () => actions.openCustomerValueStep(field),
-    }));
+      onOpenCommand(command);
+    },
+  };
+}
 
-    return filterResults(fieldResults, normalizedQuery);
+function runFieldsCommand(
+  command: Extract<CommandConfig, { type: "fields" }>,
+  value: string,
+  onOpenCommand: (command: CommandConfig) => void,
+) {
+  if (typeof command.children === "function") {
+    const children = command.children(value);
+
+    if (children.length === 1) {
+      onOpenCommand(children[0]);
+      return;
+    }
+
+    if (children.length > 1) {
+      onOpenCommand({
+        ...command,
+        id: `${command.id}-${value}`,
+        children,
+      });
+    }
+
+    return;
   }
 
-  if (step.id === "customer-value") {
-    const value = query.trim();
-    if (!value) return [];
+  command.action?.(value);
+}
 
-    return [
-      {
-        id: `customer-search-${step.field.id}`,
-        label: `Search ${step.field.label.toLowerCase()} for "${value}"`,
-        group: "Customers",
-        keywords: `${step.field.label} ${value}`,
-        icon: Search,
-        run: () => actions.runCustomerSearch(step.field, value),
-      },
-    ];
-  }
-
-  if (step.id === "insurance-record") {
-    const businessKey = normalizeBusinessKey(query);
-    if (!businessKey) return [];
-
-    return [
-      {
-        id: `${step.kind}-load-${businessKey}`,
-        label:
-          step.kind === "policy"
-            ? `Load policy "${businessKey}"`
-            : `Continue with quote "${businessKey}"`,
-        group: step.kind === "policy" ? "Policies" : "Quotes",
-        keywords: `${step.kind} ${businessKey}`,
-        icon: navIcons.load,
-        run: () => {
-          if (step.kind === "policy") {
-            actions.loadPolicyRecord(businessKey);
-            return;
-          }
-
-          actions.continueQuoteLoad(businessKey);
-        },
-      },
-    ];
-  }
-
-  if (step.id === "quote-revision") {
-    const revisionNumber = query.trim();
-    if (!revisionNumber) return [];
-
-    return [
-      {
-        id: `quote-load-${step.businessKey}-${revisionNumber}`,
-        label: `Load quote "${step.businessKey}" revision "${revisionNumber}"`,
-        group: "Quotes",
-        keywords: `quote ${step.businessKey} revision ${revisionNumber}`,
-        icon: navIcons.load,
-        run: () => actions.loadQuoteRecord(step.businessKey, revisionNumber),
-      },
-    ];
-  }
-
-  if (step.id === "kraken") {
-    const entrypointResults = krakenEntrypoints.map((entrypoint) => ({
-      id: `kraken-entrypoint-${entrypoint.slug}`,
-      label: entrypoint.name,
-      group: `${entrypoint.rulesCount} rules`,
-      keywords: `${entrypoint.name} ${entrypoint.slug}`,
-      icon: navIcons.kraken,
-      run: () => actions.navigateToKrakenEntrypoint(entrypoint.slug),
-    }));
-
-    return filterResults(entrypointResults, normalizedQuery);
-  }
-
-  if (step.id === "lookups") {
-    const lookupResults = lookupNames.map((lookupName) => ({
-      id: `lookup-name-${lookupName.slug}`,
-      label: lookupName.name,
-      group: `${lookupName.lookupsCount} lookups`,
-      keywords: `${lookupName.name} ${lookupName.slug}`,
-      icon: navIcons.lookups,
-      run: () => actions.navigateToLookupName(lookupName.slug),
-    }));
-
-    return filterResults(lookupResults, normalizedQuery);
-  }
-
-  return filterResults(rootResults, normalizedQuery);
+function getCommandValue(
+  command: Extract<CommandConfig, { type: "fields" }>,
+  query: string,
+) {
+  const value = command.normalizeValue?.(query) ?? query.trim();
+  return value.trim();
 }
 
 function filterResults(results: CommandResult[], query: string) {

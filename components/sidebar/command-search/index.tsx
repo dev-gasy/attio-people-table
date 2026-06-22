@@ -9,18 +9,22 @@ import {
   type KeyboardEvent,
 } from "react";
 import { useTheme } from "@/components/theme-provider";
-import { createFilteredResults, createRootResults } from "./results";
 import {
-  getStepPlaceholder,
-  getStepTitle,
+  createCommandConfig,
+  createFilteredResults,
+  hasEmptyStaticChildren,
+} from "./results";
+import {
+  getCommandEmptyMessage,
+  getCommandPlaceholder,
+  getCommandTitle,
   groupCommandResults,
   normalizeBusinessKey,
 } from "./helpers";
 import type {
+  CommandConfig,
   CommandResult,
-  CommandStep,
   CustomerSearchField,
-  InsuranceCommandKind,
 } from "./types";
 import type { PagePath } from "@/components/sidebar/types";
 import { useCustomerSearchStore } from "@/features/customers/stores/customer-search-store";
@@ -45,59 +49,29 @@ export function CommandSearch({
   const { resolvedTheme, setTheme } = useTheme();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
-  const [step, setStep] = useState<CommandStep>({ id: "root" });
+  const [commandStack, setCommandStack] = useState<CommandConfig[]>([]);
   const krakenEntrypoints = useMemo(() => getStaticKrakenEntrypoints(), []);
   const lookupNames = useMemo(() => getStaticLookupNames(), []);
 
-  const resetStepInput = useCallback(() => {
+  const resetCommandInput = useCallback(() => {
     setQuery("");
     setActiveIndex(0);
   }, []);
 
-  const openCustomerFieldStep = useCallback(() => {
-    setStep({ id: "customer-field" });
-    resetStepInput();
-  }, [resetStepInput]);
-
-  const openCustomerValueStep = useCallback(
-    (field: CustomerSearchField) => {
-      setStep({ id: "customer-value", field });
-      resetStepInput();
+  const openCommand = useCallback(
+    (command: CommandConfig) => {
+      setCommandStack((stack) => [...stack, command]);
+      resetCommandInput();
+      requestAnimationFrame(() => inputRef.current?.focus());
     },
-    [resetStepInput],
+    [resetCommandInput],
   );
-
-  const openInsuranceRecordStep = useCallback(
-    (kind: InsuranceCommandKind) => {
-      setStep({ id: "insurance-record", kind });
-      resetStepInput();
-    },
-    [resetStepInput],
-  );
-
-  const continueQuoteLoad = useCallback(
-    (businessKey: string) => {
-      setStep({ id: "quote-revision", businessKey });
-      resetStepInput();
-    },
-    [resetStepInput],
-  );
-
-  const openKrakenStep = useCallback(() => {
-    setStep({ id: "kraken" });
-    resetStepInput();
-  }, [resetStepInput]);
-
-  const openLookupsStep = useCallback(() => {
-    setStep({ id: "lookups" });
-    resetStepInput();
-  }, [resetStepInput]);
 
   const goBack = useCallback(() => {
-    setStep({ id: "root" });
-    resetStepInput();
+    setCommandStack((stack) => stack.slice(0, -1));
+    resetCommandInput();
     requestAnimationFrame(() => inputRef.current?.focus());
-  }, [resetStepInput]);
+  }, [resetCommandInput]);
 
   const runCustomerSearch = useCallback(
     (field: CustomerSearchField, value: string) => {
@@ -165,6 +139,47 @@ export function CommandSearch({
     [navigate, onClose],
   );
 
+  const commandConfig = useMemo(
+    () =>
+      createCommandConfig({
+        actions: {
+          close: onClose,
+          loadPolicyRecord,
+          loadQuoteRecord,
+          navigateToCustomerFavorites: () => {
+            navigate({ to: "/customers/favorites" });
+            onClose();
+          },
+          navigateToKrakenEntrypoint,
+          navigateToLookupName,
+          navigateToPage: (to: PagePath) => navigate({ to }),
+          runCustomerSearch,
+          setTheme,
+          toggleCollapse: onToggleCollapse,
+        },
+        collapsed,
+        krakenEntrypoints,
+        lookupNames,
+        resolvedTheme,
+      }),
+    [
+      collapsed,
+      krakenEntrypoints,
+      loadPolicyRecord,
+      loadQuoteRecord,
+      lookupNames,
+      navigate,
+      navigateToKrakenEntrypoint,
+      navigateToLookupName,
+      onClose,
+      onToggleCollapse,
+      resolvedTheme,
+      runCustomerSearch,
+      setTheme,
+    ],
+  );
+  const currentCommand = commandStack.at(-1) ?? commandConfig;
+
   useEffect(() => {
     function onKeyDown(event: globalThis.KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
@@ -180,83 +195,25 @@ export function CommandSearch({
   useEffect(() => {
     if (!open) return;
 
-    setStep({ id: "root" });
-    resetStepInput();
+    setCommandStack([]);
+    resetCommandInput();
     requestAnimationFrame(() => inputRef.current?.focus());
-  }, [open, resetStepInput]);
+  }, [open, resetCommandInput]);
 
   useEffect(() => {
     if (!open) return;
 
     requestAnimationFrame(() => inputRef.current?.focus());
-  }, [open, step.id]);
-
-  const rootResults = useMemo(
-    () =>
-      createRootResults({
-        actions: {
-          close: onClose,
-          navigateToCustomerFavorites: () => {
-            navigate({ to: "/customers/favorites" });
-            onClose();
-          },
-          navigateToPage: (to: PagePath) => navigate({ to }),
-          openCustomerFieldStep,
-          openInsuranceRecordStep,
-          openKrakenStep,
-          openLookupsStep,
-          setTheme,
-          toggleCollapse: onToggleCollapse,
-        },
-        collapsed,
-        resolvedTheme,
-      }),
-    [
-      collapsed,
-      navigate,
-      onClose,
-      onToggleCollapse,
-      openCustomerFieldStep,
-      openInsuranceRecordStep,
-      openKrakenStep,
-      openLookupsStep,
-      resolvedTheme,
-      setTheme,
-    ],
-  );
+  }, [currentCommand.id, open]);
 
   const filteredResults = useMemo(
     () =>
       createFilteredResults({
-        actions: {
-          continueQuoteLoad,
-          loadPolicyRecord,
-          loadQuoteRecord,
-          navigateToKrakenEntrypoint,
-          navigateToLookupName,
-          openCustomerValueStep,
-          runCustomerSearch,
-        },
-        krakenEntrypoints,
-        lookupNames,
+        command: currentCommand,
+        onOpenCommand: openCommand,
         query,
-        rootResults,
-        step,
       }),
-    [
-      continueQuoteLoad,
-      krakenEntrypoints,
-      loadPolicyRecord,
-      loadQuoteRecord,
-      lookupNames,
-      navigateToKrakenEntrypoint,
-      navigateToLookupName,
-      openCustomerValueStep,
-      query,
-      rootResults,
-      runCustomerSearch,
-      step,
-    ],
+    [currentCommand, openCommand, query],
   );
   const resultGroups = useMemo(
     () => groupCommandResults(filteredResults),
@@ -265,7 +222,7 @@ export function CommandSearch({
 
   useEffect(() => {
     setActiveIndex(0);
-  }, [query, step.id]);
+  }, [currentCommand.id, query]);
 
   useEffect(() => {
     if (activeIndex >= filteredResults.length) {
@@ -275,12 +232,10 @@ export function CommandSearch({
 
   if (!open) return null;
 
-  const title = getStepTitle(step);
-  const placeholder = getStepPlaceholder(step);
-  const showBack = step.id !== "root";
-  const loadedEmpty =
-    (step.id === "kraken" && krakenEntrypoints.length === 0) ||
-    (step.id === "lookups" && lookupNames.length === 0);
+  const title = getCommandTitle(currentCommand);
+  const placeholder = getCommandPlaceholder(currentCommand);
+  const showBack = commandStack.length > 0;
+  const loadedEmpty = hasEmptyStaticChildren(currentCommand);
 
   function onPaletteKeyDown(event: KeyboardEvent) {
     if (event.key === "Escape") {
@@ -314,29 +269,6 @@ export function CommandSearch({
   }
 
   function runActiveCommand() {
-    if (step.id === "customer-value") {
-      runCustomerSearch(step.field, query);
-      return;
-    }
-
-    if (step.id === "insurance-record") {
-      const businessKey = normalizeBusinessKey(query);
-      if (!businessKey) return;
-
-      if (step.kind === "policy") {
-        loadPolicyRecord(businessKey);
-        return;
-      }
-
-      continueQuoteLoad(businessKey);
-      return;
-    }
-
-    if (step.id === "quote-revision") {
-      loadQuoteRecord(step.businessKey, query);
-      return;
-    }
-
     filteredResults[activeIndex]?.run();
   }
 
@@ -378,7 +310,11 @@ export function CommandSearch({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={placeholder}
-            type={step.id === "customer-value" ? step.field.inputType : "text"}
+            type={
+              currentCommand.type === "fields"
+                ? currentCommand.inputType ?? "text"
+                : "text"
+            }
             className="h-8 min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
           <kbd className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
@@ -433,7 +369,9 @@ export function CommandSearch({
               ))}
             </div>
           ) : (
-            <EmptyCommandState message={getEmptyResultMessage(step)} />
+            <EmptyCommandState
+              message={getCommandEmptyMessage(currentCommand)}
+            />
           )}
         </div>
       </div>
@@ -447,20 +385,4 @@ function EmptyCommandState({ message }: { message: string }) {
       {message}
     </div>
   );
-}
-
-function getEmptyResultMessage(step: CommandStep) {
-  if (step.id === "customer-value") {
-    return `Enter a ${step.field.label.toLowerCase()} value`;
-  }
-
-  if (step.id === "insurance-record") {
-    return `Enter a ${step.kind} business key`;
-  }
-
-  if (step.id === "quote-revision") {
-    return "Enter a quote revision number";
-  }
-
-  return "No results found";
 }

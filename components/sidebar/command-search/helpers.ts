@@ -1,7 +1,7 @@
 import type {
+  CommandConfig,
   CommandResult,
   CommandResultGroup,
-  CommandStep,
 } from "@/components/sidebar/command-search/types";
 
 export function groupCommandResults(
@@ -26,27 +26,26 @@ export function groupCommandResults(
   return groups;
 }
 
-export function getStepTitle(step: CommandStep) {
-  if (step.id === "customer-field") return "Choose customer field";
-  if (step.id === "customer-value") return `Search by ${step.field.label}`;
-  if (step.id === "insurance-record") return `Load ${step.kind}`;
-  if (step.id === "quote-revision") return "Load quote";
-  if (step.id === "kraken") return "Load Kraken entrypoint";
-  if (step.id === "lookups") return "Load lookup name";
-
-  return "Command search";
+export function getCommandTitle(command: CommandConfig) {
+  return command.type === "fields" && command.title
+    ? command.title
+    : command.name;
 }
 
-export function getStepPlaceholder(step: CommandStep) {
-  if (step.id === "customer-field") return "Choose a customer field...";
-  if (step.id === "customer-value") return step.field.placeholder;
-  if (step.id === "insurance-record")
-    return `${step.kind.toUpperCase()}-000000`;
-  if (step.id === "quote-revision") return "Revision number";
-  if (step.id === "kraken") return "Search entrypoint names...";
-  if (step.id === "lookups") return "Search lookup names...";
+export function getCommandPlaceholder(command: CommandConfig) {
+  if (command.type === "fields" && command.placeholder) {
+    return command.placeholder;
+  }
 
   return "Search pages and actions...";
+}
+
+export function getCommandEmptyMessage(command: CommandConfig) {
+  if (command.type === "fields" && command.emptyMessage) {
+    return command.emptyMessage;
+  }
+
+  return "No results found";
 }
 
 export function normalizeBusinessKey(value: string) {
