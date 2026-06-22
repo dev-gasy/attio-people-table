@@ -196,21 +196,12 @@ export function useGroupsPage(filters: GroupsSearch) {
     getRowId: (row) => String(row.id),
   });
 
-  const tableGridStyle = useMemo(
-    () => ({
-      gridTemplateColumns: table.visibleColumns
-        .map((column) => column.columnDef.meta?.width ?? "minmax(0, 1fr)")
-        .join(" "),
-    }),
-    [table.visibleColumns],
-  );
-
   return {
     filteredTotal: table.sortedRows.length,
     pageRows: table.pageRows,
     pagination: table.pagination,
     table: table.table,
-    tableGridStyle,
+    tableGridStyle: table.tableGridStyle,
     visibleColumns: table.visibleColumns,
   };
 }

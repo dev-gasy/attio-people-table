@@ -1,4 +1,4 @@
-import type { Rule, RuleType } from "@/lib/workspace-data";
+import type { Rule, RuleType } from "@/features/kraken/kraken-data";
 
 export type RuleSortKey = "name" | "code" | "message" | "type";
 

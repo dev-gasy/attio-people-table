@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { notes } from "@/lib/workspace-data";
+import { notes } from "@/features/notes/notes-data";
 
 export function useNotesPage() {
   const [query, setQuery] = useState("");

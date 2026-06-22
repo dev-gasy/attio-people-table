@@ -1,7 +1,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { FileText, Hash, MessageSquareText, Tags } from "lucide-react";
-import { type Rule, type RuleType } from "@/lib/workspace-data";
+import { type Rule, type RuleType } from "@/features/kraken/kraken-data";
 import { filterRules, type RuleSortKey } from "@/features/kraken/domain/rules";
 import { useColumnVisibility } from "@/hooks/use-column-visibility";
 import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
@@ -128,20 +128,6 @@ export function useKrakenRulesTable(rules: Rule[]) {
     getRowId: (row) => String(row.id),
   });
 
-  const tableGridStyle = useMemo(
-    () => ({
-      gridTemplateColumns: table.visibleColumns
-        .map((column) => column.columnDef.meta?.width ?? "minmax(0, 1fr)")
-        .join(" "),
-    }),
-    [table.visibleColumns],
-  );
-
-  const tableMinWidth = table.visibleColumns.reduce(
-    (total, column) => total + (column.columnDef.meta?.minWidth ?? 0),
-    0,
-  );
-
   function setQuery(value: string) {
     setQueryState(value);
   }
@@ -168,8 +154,8 @@ export function useKrakenRulesTable(rules: Rule[]) {
     sort: table.sort,
     sortedRows: table.sortedRows,
     table: table.table,
-    tableGridStyle,
-    tableMinWidth,
+    tableGridStyle: table.tableGridStyle,
+    tableMinWidth: table.tableMinWidth,
     typeFilter,
     visibleColumns: table.visibleColumns,
   };

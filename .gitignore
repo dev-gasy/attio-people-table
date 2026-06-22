@@ -21,3 +21,4 @@ dist/
 *.log
 *.lock
 example.tsx
+tsconfig.tsbuildinfo

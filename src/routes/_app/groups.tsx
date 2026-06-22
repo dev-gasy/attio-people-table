@@ -13,10 +13,11 @@ export const Route = createFileRoute("/_app/groups")({
     province: typeof search.province === "string" ? search.province : undefined,
     search: typeof search.search === "string" ? search.search : undefined,
   }),
-  loader: ({ context, search }) => {
-    if (!shouldFetchGroups(search)) return;
+  loaderDeps: ({ search }) => search,
+  loader: ({ context, deps }) => {
+    if (!shouldFetchGroups(deps)) return;
 
-    return context.queryClient.ensureQueryData(groupsQueryOptions(search));
+    return context.queryClient.ensureQueryData(groupsQueryOptions(deps));
   },
   head: () => ({
     meta: buildPageMeta({

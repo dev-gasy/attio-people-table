@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import {
   getCoreRowModel,
   getPaginationRowModel,
@@ -65,6 +65,24 @@ export function useTanStackClientTable<TData>({
   const pageItems = table.getPaginationRowModel().rows;
   const sortedRows = table.getSortedRowModel().rows;
   const sortedColumn = sorting[0];
+  const visibleColumns = table.getVisibleLeafColumns();
+  const tableGridStyle = useMemo(
+    () =>
+      ({
+        gridTemplateColumns: visibleColumns
+          .map((column) => column.columnDef.meta?.width ?? "minmax(0, 1fr)")
+          .join(" "),
+      }) satisfies CSSProperties,
+    [visibleColumns],
+  );
+  const tableMinWidth = useMemo(
+    () =>
+      visibleColumns.reduce(
+        (total, column) => total + (column.columnDef.meta?.minWidth ?? 0),
+        0,
+      ),
+    [visibleColumns],
+  );
 
   return {
     pageRows: pageItems,
@@ -89,6 +107,8 @@ export function useTanStackClientTable<TData>({
     },
     sortedRows,
     table,
-    visibleColumns: table.getVisibleLeafColumns(),
+    tableGridStyle,
+    tableMinWidth,
+    visibleColumns,
   };
 }

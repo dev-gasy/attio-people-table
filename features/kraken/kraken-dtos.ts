@@ -1,4 +1,4 @@
-import type { Rule } from "@/lib/workspace-data";
+import type { Rule } from "@/features/kraken/kraken-data";
 
 export type KrakenEntrypointDto = {
   id: number;

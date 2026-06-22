@@ -4,14 +4,17 @@ import { cn } from "@/lib/utils";
 export function EmptyView({
   message,
   className,
+  expanded = false,
 }: {
   message: string;
   className?: string;
+  expanded?: boolean;
 }) {
   return (
     <div
       className={cn(
         "flex flex-col items-center justify-center px-4 py-10 text-center",
+        expanded && "px-0 py-0",
         className,
       )}
     >

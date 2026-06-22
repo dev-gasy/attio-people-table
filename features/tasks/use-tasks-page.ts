@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { tasksSeed, type Task } from "@/lib/workspace-data";
+import { tasksSeed, type Task } from "@/features/tasks/tasks-data";
 
 export type TaskFilter = "all" | "open" | "done";
 

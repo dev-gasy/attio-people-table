@@ -131,21 +131,14 @@ export function useCustomerTable({
     columns,
     getRowId: (row) => String(row.id),
   });
-  const tableGridStyle = useMemo(
-    () => ({
-      gridTemplateColumns: table.visibleColumns
-        .map((column) => column.columnDef.meta?.width ?? "minmax(0, 1fr)")
-        .join(" "),
-    }),
-    [table.visibleColumns],
-  );
 
   return {
     pagination: table.pagination,
     sortedRows: table.sortedRows,
     sort: table.sort,
     table: table.table,
-    tableGridStyle,
+    tableGridStyle: table.tableGridStyle,
+    tableMinWidth: table.tableMinWidth,
     visibleColumns: table.visibleColumns,
   };
 }

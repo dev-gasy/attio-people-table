@@ -18,7 +18,7 @@ import {
   krakenEntrypointRulesQueryOptions,
   getStaticKrakenEntrypoints,
 } from "@/features/kraken/kraken-service";
-import { ruleTypes } from "@/lib/workspace-data";
+import { ruleTypes } from "@/features/kraken/kraken-data";
 import { useKrakenRulesTable } from "@/features/kraken/use-kraken-rules-table";
 
 export function KrakenPage({ entrypointName }: { entrypointName?: string }) {

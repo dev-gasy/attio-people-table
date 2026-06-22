@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { entrypoints, rules } from "@/lib/workspace-data";
+import { entrypoints, rules } from "@/features/kraken/kraken-data";
 import { createSlug } from "@/features/shared/slugs";
 import {
   createServiceSimulationMiddleware,

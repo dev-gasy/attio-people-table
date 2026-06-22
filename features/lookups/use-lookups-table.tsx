@@ -150,20 +150,6 @@ export function useLookupsTable(lookups: Lookup[]) {
     getRowId: (row) => String(row.id),
   });
 
-  const tableGridStyle = useMemo(
-    () => ({
-      gridTemplateColumns: table.visibleColumns
-        .map((column) => column.columnDef.meta?.width ?? "minmax(0, 1fr)")
-        .join(" "),
-    }),
-    [table.visibleColumns],
-  );
-
-  const tableMinWidth = table.visibleColumns.reduce(
-    (total, column) => total + (column.columnDef.meta?.minWidth ?? 0),
-    0,
-  );
-
   function setQuery(value: string) {
     setQueryState(value);
   }
@@ -185,8 +171,8 @@ export function useLookupsTable(lookups: Lookup[]) {
     sort: table.sort,
     sortedRows: table.sortedRows,
     table: table.table,
-    tableGridStyle,
-    tableMinWidth,
+    tableGridStyle: table.tableGridStyle,
+    tableMinWidth: table.tableMinWidth,
     visibleColumns: table.visibleColumns,
   };
 }
