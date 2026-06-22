@@ -5,11 +5,11 @@ import { contactIcons } from "@/features/customers/components/detail/customer-de
 import { getCustomerContactGroups } from "@/features/customers/domain/customer-detail";
 import type { CustomerContact } from "@/features/customers/services/customers.types";
 
-export function CustomerContactsTab({
-  contacts,
-}: {
+type CustomerContactsTabProps = {
   contacts: CustomerContact[];
-}) {
+};
+
+export function CustomerContactsTab({ contacts }: CustomerContactsTabProps) {
   const contactsByKind = useMemo(
     () => getCustomerContactGroups(contacts),
     [contacts],

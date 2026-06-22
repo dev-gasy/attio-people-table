@@ -2,6 +2,16 @@ import type { ComponentType } from "react";
 import { Link } from "@tanstack/react-router";
 import type { PagePath } from "@/components/sidebar/types";
 
+type NavItemProps = {
+  icon: ComponentType<{ className?: string }>;
+  iconColorClass?: string;
+  label: string;
+  active?: boolean;
+  collapsed?: boolean;
+  to?: PagePath;
+  onClick?: () => void;
+};
+
 export function NavItem({
   icon: Icon,
   iconColorClass,
@@ -10,15 +20,7 @@ export function NavItem({
   collapsed,
   to,
   onClick,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  iconColorClass?: string;
-  label: string;
-  active?: boolean;
-  collapsed?: boolean;
-  to?: PagePath;
-  onClick?: () => void;
-}) {
+}: NavItemProps) {
   const className = `flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
     collapsed ? "justify-center" : ""
   } ${

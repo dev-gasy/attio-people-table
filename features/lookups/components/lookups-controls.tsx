@@ -5,15 +5,17 @@ import {
   type LookupsTableState,
 } from "@/features/lookups/use-lookups-table";
 
+type LookupsControlsProps = {
+  disabled: boolean;
+  hasLookupName: boolean;
+  table: LookupsTableState;
+};
+
 export function LookupsControls({
   disabled,
   hasLookupName,
   table,
-}: {
-  disabled: boolean;
-  hasLookupName: boolean;
-  table: LookupsTableState;
-}) {
+}: LookupsControlsProps) {
   return (
     <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
       <SearchBar

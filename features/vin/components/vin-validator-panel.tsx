@@ -7,15 +7,17 @@ import {
 import type { VinValidationResult } from "@/features/vin/domain/vin";
 import { cn } from "@/lib/utils";
 
+type VinValidatorPanelProps = {
+  onChange: (value: string) => void;
+  result: VinValidationResult | null;
+  value: string;
+};
+
 export function VinValidatorPanel({
   onChange,
   result,
   value,
-}: {
-  onChange: (value: string) => void;
-  result: VinValidationResult | null;
-  value: string;
-}) {
+}: VinValidatorPanelProps) {
   return (
     <Collapsible title="Validator" subtitle="Check VIN format and check digit">
       <div className="grid gap-5 p-4 lg:grid-cols-[1fr_320px]">
@@ -41,7 +43,9 @@ export function VinValidatorPanel({
   );
 }
 
-function ValidationSummary({ result }: { result: VinValidationResult | null }) {
+type ValidationSummaryProps = { result: VinValidationResult | null };
+
+function ValidationSummary({ result }: ValidationSummaryProps) {
   if (!result) {
     return (
       <div className="rounded-lg border border-border bg-muted/20 p-4 text-sm text-muted-foreground">
@@ -93,7 +97,9 @@ function ValidationSummary({ result }: { result: VinValidationResult | null }) {
   );
 }
 
-function SummaryRow({ label, value }: { label: string; value: string }) {
+type SummaryRowProps = { label: string; value: string };
+
+function SummaryRow({ label, value }: SummaryRowProps) {
   return (
     <div className="flex justify-between gap-3">
       <dt className="text-muted-foreground">{label}</dt>

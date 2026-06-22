@@ -2,7 +2,9 @@ import { TableBodyCell } from "@/components/ui/table";
 import { Avatar } from "@/components/avatar";
 import type { Group } from "@/features/groups/services/groups.types";
 
-export function GroupRow({ group }: { group: Group }) {
+type GroupRowProps = { group: Group };
+
+export function GroupRow({ group }: GroupRowProps) {
   return (
     <button
       type="button"

@@ -19,13 +19,15 @@ import { InsuranceVehiclesSection } from "@/features/insurance/components/insura
 import { useInsuranceRecordQuery } from "@/features/insurance/services/insurance.queries";
 import type { InsuranceRecordKind } from "@/features/insurance/services/insurance.types";
 
+type InsuranceDetailPageProps = {
+  businessKey: string;
+  kind: InsuranceRecordKind;
+};
+
 export function InsuranceDetailPage({
   businessKey,
   kind,
-}: {
-  businessKey: string;
-  kind: InsuranceRecordKind;
-}) {
+}: InsuranceDetailPageProps) {
   const [activeTab, setActiveTab] = useState<InsuranceTab>("details");
   const { data, error, isError, isFetching, isPending, refetch } =
     useInsuranceRecordQuery(kind, businessKey);

@@ -4,13 +4,12 @@ import { CopyToClipboard } from "@/components/copy-to-clipboard";
 import { EmptyView } from "@/components/empty-view";
 import type { VinGenerationResult } from "@/features/vin/domain/vin";
 
-export function VinResultCard({
-  message,
-  result,
-}: {
+type VinResultCardProps = {
   message: string | null;
   result: VinGenerationResult | null;
-}) {
+};
+
+export function VinResultCard({ message, result }: VinResultCardProps) {
   if (!result) {
     return (
       <section
@@ -84,15 +83,13 @@ export function VinResultCard({
   );
 }
 
-function DetailCell({
-  icon: Icon,
-  label,
-  value,
-}: {
+type DetailCellProps = {
   icon: ComponentType<{ className?: string }>;
   label: string;
   value: string;
-}) {
+};
+
+function DetailCell({ icon: Icon, label, value }: DetailCellProps) {
   return (
     <div className="group bg-background px-4 py-3">
       <dt className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">

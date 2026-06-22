@@ -1,12 +1,11 @@
 import { Search } from "lucide-react";
 
-export function SidebarSearch({
-  collapsed,
-  onOpen,
-}: {
+type SidebarSearchProps = {
   collapsed: boolean;
   onOpen: () => void;
-}) {
+};
+
+export function SidebarSearch({ collapsed, onOpen }: SidebarSearchProps) {
   return (
     <div className="px-3 py-3">
       {collapsed ? (

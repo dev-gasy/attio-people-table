@@ -5,15 +5,17 @@ import { CustomerFavoriteButton } from "@/features/customers/components/shared/c
 import { CustomerStatusBadge } from "@/features/customers/components/shared/customer-status-badge";
 import type { Customer } from "@/features/customers/services/customers.types";
 
+type CustomerDetailHeaderProps = {
+  customer: Customer;
+  favorite: boolean;
+  onFavoriteToggle: () => void;
+};
+
 export function CustomerDetailHeader({
   customer,
   favorite,
   onFavoriteToggle,
-}: {
-  customer: Customer;
-  favorite: boolean;
-  onFavoriteToggle: () => void;
-}) {
+}: CustomerDetailHeaderProps) {
   return (
     <PageFrameHeader>
       <div className="flex flex-wrap items-center gap-4">

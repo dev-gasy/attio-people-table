@@ -1,15 +1,17 @@
 import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+type EmptyViewProps = {
+  message: string;
+  className?: string;
+  expanded?: boolean;
+};
+
 export function EmptyView({
   message,
   className,
   expanded = false,
-}: {
-  message: string;
-  className?: string;
-  expanded?: boolean;
-}) {
+}: EmptyViewProps) {
   return (
     <div
       className={cn(

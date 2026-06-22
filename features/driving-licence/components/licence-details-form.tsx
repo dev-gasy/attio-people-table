@@ -29,15 +29,17 @@ type LicenceDetailsFormApi = {
   handleSubmit: () => void;
 };
 
+type LicenceDetailsFormProps = {
+  filledCount: number;
+  form: LicenceDetailsFormApi;
+  totalFields: number;
+};
+
 export function LicenceDetailsForm({
   filledCount,
   form,
   totalFields,
-}: {
-  filledCount: number;
-  form: LicenceDetailsFormApi;
-  totalFields: number;
-}) {
+}: LicenceDetailsFormProps) {
   const isComplete = filledCount === totalFields;
 
   return (
@@ -129,24 +131,25 @@ export function LicenceDetailsForm({
               Canada only
             </div>
           </FieldGroup>
-
         </div>
       </Collapsible>
     </form>
   );
 }
 
+type FieldGroupProps = {
+  children: ReactNode;
+  className?: string;
+  icon: ElementType;
+  title: string;
+};
+
 function FieldGroup({
   children,
   className = "",
   icon: Icon,
   title,
-}: {
-  children: ReactNode;
-  className?: string;
-  icon: ElementType;
-  title: string;
-}) {
+}: FieldGroupProps) {
   return (
     <section className={`min-w-0 space-y-4 ${className}`}>
       <div className="flex items-center gap-2 border-b border-border/60 pb-2">

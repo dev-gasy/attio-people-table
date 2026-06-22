@@ -3,13 +3,12 @@ export type FieldGridField = {
   value: string;
 };
 
-export function FieldGrid({
-  fields,
-  inset = true,
-}: {
+type FieldGridProps = {
   fields: FieldGridField[];
   inset?: boolean;
-}) {
+};
+
+export function FieldGrid({ fields, inset = true }: FieldGridProps) {
   return (
     <dl
       className={`grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 ${

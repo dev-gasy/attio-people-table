@@ -20,11 +20,11 @@ import {
 import { useCustomerTable } from "@/features/customers/hooks/use-customer-table";
 import { CustomerFavoritesActions } from "./customer-favorites-actions";
 
-export function CustomersPage({
-  mode = "search",
-}: {
+type CustomersPageProps = {
   mode?: CustomersPageMode;
-}) {
+};
+
+export function CustomersPage({ mode = "search" }: CustomersPageProps) {
   const [searchOpen, setSearchOpen] = useState(true);
   const {
     favorites: { isFavorite, toggleFavorite },

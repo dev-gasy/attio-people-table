@@ -2,6 +2,20 @@ import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+type CollapsibleProps = {
+  title: string;
+  subtitle?: string;
+  count?: number;
+  defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  icon?: React.ComponentType<{ className?: string }>;
+  headerClassName?: string;
+  iconClassName?: string;
+  countClassName?: string;
+  children: React.ReactNode;
+};
+
 export function Collapsible({
   title,
   subtitle,
@@ -14,19 +28,7 @@ export function Collapsible({
   iconClassName,
   countClassName,
   children,
-}: {
-  title: string;
-  subtitle?: string;
-  count?: number;
-  defaultOpen?: boolean;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  icon?: React.ComponentType<{ className?: string }>;
-  headerClassName?: string;
-  iconClassName?: string;
-  countClassName?: string;
-  children: React.ReactNode;
-}) {
+}: CollapsibleProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const open = controlledOpen ?? uncontrolledOpen;
 

@@ -1,12 +1,14 @@
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
+type WorkspaceHeaderProps = {
+  collapsed: boolean;
+  onToggleCollapse: () => void;
+};
+
 export function WorkspaceHeader({
   collapsed,
   onToggleCollapse,
-}: {
-  collapsed: boolean;
-  onToggleCollapse: () => void;
-}) {
+}: WorkspaceHeaderProps) {
   return (
     <div
       className={`flex h-[var(--page-frame-header-height,4.5rem)] border-b border-sidebar-border px-4 ${

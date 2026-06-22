@@ -26,17 +26,14 @@ const quoteSchema = z.object({
     ),
 });
 
-function LookupForm({
-  title,
-  fields,
-  canSubmit,
-  onSubmit,
-}: {
+type LookupFormProps = {
   title: string;
   fields: React.ReactNode;
   canSubmit: boolean;
   onSubmit: (e: React.FormEvent) => void;
-}) {
+};
+
+function LookupForm({ title, fields, canSubmit, onSubmit }: LookupFormProps) {
   return (
     <form
       onSubmit={onSubmit}

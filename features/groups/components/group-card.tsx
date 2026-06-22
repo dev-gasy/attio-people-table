@@ -2,7 +2,9 @@ import { Languages, MapPin } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import type { Group } from "@/features/groups/services/groups.types";
 
-export function GroupCard({ group }: { group: Group }) {
+type GroupCardProps = { group: Group };
+
+export function GroupCard({ group }: GroupCardProps) {
   return (
     <button
       type="button"

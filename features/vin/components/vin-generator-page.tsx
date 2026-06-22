@@ -7,11 +7,13 @@ import { VinResultCard } from "@/features/vin/components/vin-result-card";
 import { VinValidatorPanel } from "@/features/vin/components/vin-validator-panel";
 import { useVinGenerator } from "@/features/vin/use-vin-generator";
 
+type VinGeneratorPageProps = {
+  initialValidatorInput?: string;
+};
+
 export function VinGeneratorPage({
   initialValidatorInput,
-}: {
-  initialValidatorInput?: string;
-}) {
+}: VinGeneratorPageProps) {
   const generator = useVinGenerator({ initialValidatorInput });
 
   return (

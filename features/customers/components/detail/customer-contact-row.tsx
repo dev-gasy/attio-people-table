@@ -1,7 +1,9 @@
 import { Check } from "lucide-react";
 import type { CustomerContact } from "@/features/customers/services/customers.types";
 
-export function CustomerContactRow({ contact }: { contact: CustomerContact }) {
+type CustomerContactRowProps = { contact: CustomerContact };
+
+export function CustomerContactRow({ contact }: CustomerContactRowProps) {
   return (
     <div className="flex min-h-11 items-center gap-4 px-4 py-2.5">
       <span className="w-28 shrink-0 text-xs font-medium uppercase tracking-normal text-muted-foreground">

@@ -15,7 +15,9 @@ import type { CustomerTab } from "@/features/customers/components/detail/custome
 import { useCustomerFavorites } from "@/features/customers/hooks/use-customer-favorites";
 import { useCustomerQuery } from "@/features/customers/services/customers.queries";
 
-export function CustomerDetailPage({ customerId }: { customerId: string }) {
+type CustomerDetailPageProps = { customerId: string };
+
+export function CustomerDetailPage({ customerId }: CustomerDetailPageProps) {
   const [activeTab, setActiveTab] = useState<CustomerTab>("details");
   const { isFavorite, toggleFavorite } = useCustomerFavorites();
   const numericCustomerId = Number(customerId);

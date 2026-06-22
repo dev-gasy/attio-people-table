@@ -1,6 +1,8 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export function SidebarFooter({ collapsed }: { collapsed: boolean }) {
+type SidebarFooterProps = { collapsed: boolean };
+
+export function SidebarFooter({ collapsed }: SidebarFooterProps) {
   return (
     <div className="mt-auto border-t border-sidebar-border px-4 py-2.75">
       {collapsed ? (

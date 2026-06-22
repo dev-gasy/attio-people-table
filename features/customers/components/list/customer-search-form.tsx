@@ -57,11 +57,7 @@ type CustomerFieldApi = {
   Field: ElementType;
 };
 
-function SearchField({
-  form,
-  searchField,
-  disabled,
-}: {
+type SearchFieldProps = {
   form: CustomerFieldApi;
   searchField: {
     name: keyof CustomerSearchValues;
@@ -70,7 +66,9 @@ function SearchField({
     type?: string;
   };
   disabled?: boolean;
-}) {
+};
+
+function SearchField({ form, searchField, disabled }: SearchFieldProps) {
   return (
     <form.Field
       name={searchField.name}
@@ -87,6 +85,15 @@ function SearchField({
   );
 }
 
+type CustomerSearchFormProps = {
+  values?: CustomerSearchValues;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSearch: (values: CustomerSearchValues) => void;
+  onReset: () => void;
+  disabled?: boolean;
+};
+
 export function CustomerSearchForm({
   values = emptyCustomerSearchValues,
   open,
@@ -94,14 +101,7 @@ export function CustomerSearchForm({
   onSearch,
   onReset,
   disabled = false,
-}: {
-  values?: CustomerSearchValues;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  onSearch: (values: CustomerSearchValues) => void;
-  onReset: () => void;
-  disabled?: boolean;
-}) {
+}: CustomerSearchFormProps) {
   const form = useForm({
     defaultValues: values,
     validationLogic: revalidateLogic({

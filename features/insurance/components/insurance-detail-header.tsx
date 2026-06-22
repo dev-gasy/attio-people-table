@@ -11,13 +11,15 @@ import type {
 } from "@/features/insurance/services/insurance.types";
 import { cn } from "@/lib/utils";
 
+type InsuranceDetailHeaderProps = {
+  kind: InsuranceRecordKind;
+  record: InsuranceRecord;
+};
+
 export function InsuranceDetailHeader({
   kind,
   record,
-}: {
-  kind: InsuranceRecordKind;
-  record: InsuranceRecord;
-}) {
+}: InsuranceDetailHeaderProps) {
   const label = insuranceRouteLabels[kind];
   const style = insuranceKindStyles[kind];
 

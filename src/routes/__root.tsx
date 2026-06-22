@@ -62,7 +62,9 @@ function RootComponent() {
   );
 }
 
-function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+type RootDocumentProps = Readonly<{ children: ReactNode }>;
+
+function RootDocument({ children }: RootDocumentProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

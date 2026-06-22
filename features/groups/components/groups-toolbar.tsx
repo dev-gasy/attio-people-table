@@ -4,6 +4,15 @@ import type { GroupsView } from "@/features/groups/components/types";
 import { Combobox } from "@/components/ui/combobox";
 import { SearchBar } from "@/components/ui/search-bar";
 
+type GroupsToolbarProps = {
+  province?: string;
+  search: string;
+  view: GroupsView;
+  onProvinceChange: (province: string | null) => void;
+  onSearchChange: (search: string) => void;
+  onViewChange: (view: GroupsView) => void;
+};
+
 export function GroupsToolbar({
   province,
   search,
@@ -11,14 +20,7 @@ export function GroupsToolbar({
   onProvinceChange,
   onSearchChange,
   onViewChange,
-}: {
-  province?: string;
-  search: string;
-  view: GroupsView;
-  onProvinceChange: (province: string | null) => void;
-  onSearchChange: (search: string) => void;
-  onViewChange: (view: GroupsView) => void;
-}) {
+}: GroupsToolbarProps) {
   return (
     <>
       <SearchBar

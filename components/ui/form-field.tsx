@@ -48,15 +48,13 @@ function shouldShowFieldErrors(meta: FieldMeta) {
   return Boolean(meta.isTouched || meta.isBlurred);
 }
 
-export function FieldErrors({
-  errors,
-  id,
-  show = true,
-}: {
+type FieldErrorsProps = {
   errors: unknown[];
   id?: string;
   show?: boolean;
-}) {
+};
+
+export function FieldErrors({ errors, id, show = true }: FieldErrorsProps) {
   const messages = show ? uniqueMessages(errors) : [];
   if (messages.length === 0) return null;
 
@@ -71,15 +69,17 @@ export function FieldErrors({
   );
 }
 
+type FormErrorsProps = {
+  errors: unknown[];
+  show?: boolean;
+  className?: string;
+};
+
 export function FormErrors({
   errors,
   show = true,
   className,
-}: {
-  errors: unknown[];
-  show?: boolean;
-  className?: string;
-}) {
+}: FormErrorsProps) {
   const messages = show ? uniqueMessages(errors) : [];
   if (messages.length === 0) return null;
 
@@ -95,6 +95,15 @@ export function FormErrors({
   );
 }
 
+type TextInputFieldProps<TValue extends string = string> = {
+  field: StringFieldApi<TValue>;
+  label: string;
+  placeholder?: string;
+  type?: string;
+  autoFocus?: boolean;
+  disabled?: boolean;
+};
+
 export function TextInputField<TValue extends string = string>({
   field,
   label,
@@ -102,14 +111,7 @@ export function TextInputField<TValue extends string = string>({
   type = "text",
   autoFocus,
   disabled,
-}: {
-  field: StringFieldApi<TValue>;
-  label: string;
-  placeholder?: string;
-  type?: string;
-  autoFocus?: boolean;
-  disabled?: boolean;
-}) {
+}: TextInputFieldProps<TValue>) {
   const inputId = useId();
   const errorId = `${inputId}-error`;
   const showErrors = shouldShowFieldErrors(field.state.meta);
@@ -145,19 +147,21 @@ export function TextInputField<TValue extends string = string>({
   );
 }
 
+type SelectFieldProps<TValue extends string = string> = {
+  field: StringFieldApi<TValue>;
+  label: string;
+  options: Array<FieldOption<TValue>>;
+  placeholder?: string;
+  disabled?: boolean;
+};
+
 export function SelectField<TValue extends string = string>({
   field,
   label,
   options,
   placeholder,
   disabled,
-}: {
-  field: StringFieldApi<TValue>;
-  label: string;
-  options: Array<FieldOption<TValue>>;
-  placeholder?: string;
-  disabled?: boolean;
-}) {
+}: SelectFieldProps<TValue>) {
   const inputId = useId();
   const errorId = `${inputId}-error`;
   const showErrors = shouldShowFieldErrors(field.state.meta);
@@ -198,20 +202,22 @@ export function SelectField<TValue extends string = string>({
   );
 }
 
-export function RadioGroupField<TValue extends string = string>({
-  field,
-  label,
-  options,
-  disabled,
-  columns,
-}: {
+type RadioGroupFieldProps<TValue extends string = string> = {
   field: StringFieldApi<TValue>;
   label: string;
   options: Array<FieldOption<TValue>>;
   disabled?: boolean;
   /** Number of columns in the radio grid. Defaults to 2. */
   columns?: number;
-}) {
+};
+
+export function RadioGroupField<TValue extends string = string>({
+  field,
+  label,
+  options,
+  disabled,
+  columns,
+}: RadioGroupFieldProps<TValue>) {
   const groupId = useId();
   const errorId = `${groupId}-error`;
   const showErrors = shouldShowFieldErrors(field.state.meta);

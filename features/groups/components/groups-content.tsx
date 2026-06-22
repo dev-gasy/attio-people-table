@@ -5,20 +5,22 @@ import { TanStackGridHeader, TanStackGridRows } from "@/components/ui/table";
 import type { Group } from "@/features/groups/services/groups.types";
 import type { useGroupsPage } from "@/features/groups/use-groups-page";
 
-export function GroupsContent({
-  isStale = false,
-  rows,
-  table,
-  tableGridStyle,
-  view,
-}: {
+type GroupsContentProps = {
   isStale?: boolean;
   rows: Row<Group>[];
   table: ReturnType<typeof useGroupsPage>["table"];
   tableGridStyle: ReturnType<typeof useGroupsPage>["tableGridStyle"];
   visibleColumns: ReturnType<typeof useGroupsPage>["visibleColumns"];
   view: GroupsView;
-}) {
+};
+
+export function GroupsContent({
+  isStale = false,
+  rows,
+  table,
+  tableGridStyle,
+  view,
+}: GroupsContentProps) {
   return (
     <div
       style={{ transition: "opacity 0.2s ease" }}

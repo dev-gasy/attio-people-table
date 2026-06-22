@@ -4,11 +4,13 @@ import { InsuranceRecordBlock } from "@/features/insurance/components/insurance-
 import { getVehicleFields } from "@/features/insurance/domain/insurance-detail";
 import type { InsuranceVehicle } from "@/features/insurance/services/insurance.types";
 
+type InsuranceVehiclesSectionProps = {
+  vehicles: InsuranceVehicle[];
+};
+
 export function InsuranceVehiclesSection({
   vehicles,
-}: {
-  vehicles: InsuranceVehicle[];
-}) {
+}: InsuranceVehiclesSectionProps) {
   return (
     <Collapsible title="Vehicles" count={vehicles.length} icon={CarFront}>
       <div className="divide-y divide-border/60">

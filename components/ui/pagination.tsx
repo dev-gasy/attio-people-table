@@ -7,6 +7,19 @@ import {
 } from "lucide-react";
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/hooks/use-pagination";
 
+type PaginationProps = {
+  page: number;
+  pageCount: number;
+  total: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  pageSizeOptions?: number[];
+  className?: string;
+  bordered?: boolean;
+  padded?: boolean;
+};
+
 export function Pagination({
   page,
   pageCount,
@@ -18,18 +31,7 @@ export function Pagination({
   className = "",
   bordered = true,
   padded = true,
-}: {
-  page: number;
-  pageCount: number;
-  total: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-  onPageSizeChange?: (pageSize: number) => void;
-  pageSizeOptions?: number[];
-  className?: string;
-  bordered?: boolean;
-  padded?: boolean;
-}) {
+}: PaginationProps) {
   const showPageSize = Boolean(onPageSizeChange);
   const paddingClass = padded ? "px-6 py-3" : "px-0 py-3";
 

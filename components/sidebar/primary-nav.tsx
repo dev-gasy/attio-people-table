@@ -2,13 +2,12 @@ import { NavItem } from "@/components/sidebar/nav-item";
 import { navSections } from "@/components/sidebar/nav-items";
 import type { PageId } from "@/components/sidebar/types";
 
-export function PrimaryNav({
-  activePage,
-  collapsed,
-}: {
+type PrimaryNavProps = {
   activePage: PageId;
   collapsed: boolean;
-}) {
+};
+
+export function PrimaryNav({ activePage, collapsed }: PrimaryNavProps) {
   return (
     <nav className="flex flex-col gap-5 px-3 py-2">
       {navSections.map((section) => (

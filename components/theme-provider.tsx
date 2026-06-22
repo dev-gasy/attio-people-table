@@ -28,15 +28,17 @@ function getSystemTheme() {
   return "light";
 }
 
+type ThemeProviderProps = {
+  children: ReactNode;
+  defaultTheme?: Theme;
+  enableSystem?: boolean;
+};
+
 export function ThemeProvider({
   children,
   defaultTheme = "system",
   enableSystem = true,
-}: {
-  children: ReactNode;
-  defaultTheme?: Theme;
-  enableSystem?: boolean;
-}) {
+}: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
   const [systemTheme, setSystemTheme] = useState<"light" | "dark">("light");
 

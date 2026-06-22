@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 
+type RouteErrorFallbackProps = ErrorComponentProps & { title: string };
+
 export function RouteErrorFallback({
   error,
   reset,
   title,
-}: ErrorComponentProps & { title: string }) {
+}: RouteErrorFallbackProps) {
   const queryClient = useQueryClient();
   const message =
     error instanceof Error && error.message

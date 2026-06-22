@@ -1,6 +1,8 @@
 import { type ReactNode } from "react";
 
-export function PageFrame({ children }: { children: ReactNode }) {
+type PageFrameProps = { children: ReactNode };
+
+export function PageFrame({ children }: PageFrameProps) {
   return (
     <div className="relative h-full min-w-0 flex-1 overflow-auto bg-background [--page-frame-header-height:4.5rem]">
       {children}
@@ -8,17 +10,19 @@ export function PageFrame({ children }: { children: ReactNode }) {
   );
 }
 
+type PageFrameHeaderProps = {
+  title?: string;
+  actions?: ReactNode;
+  badge?: ReactNode;
+  children?: ReactNode;
+};
+
 export function PageFrameHeader({
   title,
   actions,
   badge,
   children,
-}: {
-  title?: string;
-  actions?: ReactNode;
-  badge?: ReactNode;
-  children?: ReactNode;
-}) {
+}: PageFrameHeaderProps) {
   return (
     <header className="sticky top-0 z-50 min-h-(--page-frame-header-height) border-b border-border bg-background/70 px-6 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       {children ?? (
@@ -40,7 +44,9 @@ export function PageFrameHeader({
   );
 }
 
-export function PageFrameControls({ children }: { children: ReactNode }) {
+type PageFrameControlsProps = { children: ReactNode };
+
+export function PageFrameControls({ children }: PageFrameControlsProps) {
   return (
     <div className="sticky top-(--page-frame-header-height) z-40 border-b border-border bg-background/70 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       {children}
@@ -48,17 +54,21 @@ export function PageFrameControls({ children }: { children: ReactNode }) {
   );
 }
 
+type PageFrameBodyProps = {
+  children: ReactNode;
+  className?: string;
+};
+
 export function PageFrameBody({
   children,
   className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+}: PageFrameBodyProps) {
   return <div className={`px-6 py-6 ${className}`}>{children}</div>;
 }
 
-export function PageFrameFooter({ children }: { children: ReactNode }) {
+type PageFrameFooterProps = { children: ReactNode };
+
+export function PageFrameFooter({ children }: PageFrameFooterProps) {
   return (
     <footer className="sticky bottom-0 z-20 border-t border-border bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       {children}

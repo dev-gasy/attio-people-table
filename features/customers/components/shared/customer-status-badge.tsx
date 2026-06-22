@@ -17,7 +17,9 @@ const customerStatusStyles: Record<
   Error: { dot: "bg-red-500", text: "text-red-700 dark:text-red-300" },
 };
 
-export function CustomerStatusBadge({ status }: { status: CustomerStatus }) {
+type CustomerStatusBadgeProps = { status: CustomerStatus };
+
+export function CustomerStatusBadge({ status }: CustomerStatusBadgeProps) {
   const style = customerStatusStyles[status] ?? customerStatusStyles.Error;
 
   return (

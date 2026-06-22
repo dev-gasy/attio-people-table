@@ -1,11 +1,11 @@
 import { CustomerProductRow } from "@/features/customers/components/detail/customer-product-row";
 import type { CustomerProduct } from "@/features/customers/services/customers.types";
 
-export function CustomerProductRows({
-  products,
-}: {
+type CustomerProductRowsProps = {
   products: CustomerProduct[];
-}) {
+};
+
+export function CustomerProductRows({ products }: CustomerProductRowsProps) {
   return (
     <div>
       <div className="flex items-center gap-4 border-b border-border/60 px-4 py-2 text-xs font-medium text-muted-foreground">

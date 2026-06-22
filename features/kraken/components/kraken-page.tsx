@@ -20,7 +20,9 @@ import {
   useKrakenEntrypointsQuery,
 } from "@/features/kraken/services/kraken.queries";
 
-export function KrakenPage({ entrypointName }: { entrypointName?: string }) {
+type KrakenPageProps = { entrypointName?: string };
+
+export function KrakenPage({ entrypointName }: KrakenPageProps) {
   const navigate = useNavigate();
   const { data: entrypoints = [] } = useKrakenEntrypointsQuery();
   const {

@@ -20,7 +20,9 @@ import { Pagination } from "@/components/ui/pagination";
 const CENTERED_BODY =
   "flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8";
 
-export function GroupsPage({ filters = {} }: { filters?: GroupsSearch }) {
+type GroupsPageProps = { filters?: GroupsSearch };
+
+export function GroupsPage({ filters = {} }: GroupsPageProps) {
   const controls = useGroupsPageControls(filters);
 
   return (
@@ -67,13 +69,12 @@ export function GroupsPage({ filters = {} }: { filters?: GroupsSearch }) {
   );
 }
 
-function GroupsDataLayer({
-  activeFilters,
-  controls,
-}: {
+type GroupsDataLayerProps = {
   activeFilters: GroupsSearch;
   controls: GroupsPageControls;
-}) {
+};
+
+function GroupsDataLayer({ activeFilters, controls }: GroupsDataLayerProps) {
   const { filteredTotal, pagination, table, tableGridStyle, visibleColumns } =
     useGroupsPage(activeFilters);
 

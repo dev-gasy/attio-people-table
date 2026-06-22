@@ -1,12 +1,14 @@
 import { Star } from "lucide-react";
 
+type CustomerFavoriteButtonProps = {
+  favorite: boolean;
+  onClick: () => void;
+};
+
 export function CustomerFavoriteButton({
   favorite,
   onClick,
-}: {
-  favorite: boolean;
-  onClick: () => void;
-}) {
+}: CustomerFavoriteButtonProps) {
   return (
     <button
       type="button"

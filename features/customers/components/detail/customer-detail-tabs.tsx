@@ -4,15 +4,17 @@ import {
   type CustomerTab,
 } from "@/features/customers/components/detail/customer-detail-constants";
 
+type CustomerDetailTabsProps = {
+  activeTab: CustomerTab;
+  disabled?: boolean;
+  onTabChange: (tab: CustomerTab) => void;
+};
+
 export function CustomerDetailTabs({
   activeTab,
   disabled = false,
   onTabChange,
-}: {
-  activeTab: CustomerTab;
-  disabled?: boolean;
-  onTabChange: (tab: CustomerTab) => void;
-}) {
+}: CustomerDetailTabsProps) {
   return (
     <PageFrameControls>
       <div className="flex gap-1 overflow-x-auto py-2">

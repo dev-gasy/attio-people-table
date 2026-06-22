@@ -19,7 +19,9 @@ import {
   useLookupNamesQuery,
 } from "@/features/lookups/services/lookups.queries";
 
-export function LookupsPage({ lookupName }: { lookupName?: string }) {
+type LookupsPageProps = { lookupName?: string };
+
+export function LookupsPage({ lookupName }: LookupsPageProps) {
   const navigate = useNavigate();
   const [, startTransition] = useTransition();
   const { data: lookupNames = [] } = useLookupNamesQuery();
@@ -76,7 +78,9 @@ export function LookupsPage({ lookupName }: { lookupName?: string }) {
   );
 }
 
-function LookupsDataLayer({ lookupName }: { lookupName: string }) {
+type LookupsDataLayerProps = { lookupName: string };
+
+function LookupsDataLayer({ lookupName }: LookupsDataLayerProps) {
   const { data } = useLookupNameQuery(lookupName);
   const table = useLookupsTable(data.lookups);
 

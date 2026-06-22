@@ -7,15 +7,17 @@ import {
 import { CustomerDetailBackLink } from "@/features/customers/components/detail/customer-detail-back-link";
 import { CustomerDetailTabs } from "@/features/customers/components/detail/customer-detail-tabs";
 
+type CustomerDetailErrorProps = {
+  message: string;
+  isRetrying: boolean;
+  onRetry: () => void;
+};
+
 export function CustomerDetailError({
   message,
   isRetrying,
   onRetry,
-}: {
-  message: string;
-  isRetrying: boolean;
-  onRetry: () => void;
-}) {
+}: CustomerDetailErrorProps) {
   return (
     <PageFrame>
       <PageFrameHeader>

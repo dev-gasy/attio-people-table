@@ -4,11 +4,13 @@ import { InsuranceRecordBlock } from "@/features/insurance/components/insurance-
 import { getPartyFields } from "@/features/insurance/domain/insurance-detail";
 import type { InsuranceParty } from "@/features/insurance/services/insurance.types";
 
+type InsurancePartiesSectionProps = {
+  parties: InsuranceParty[];
+};
+
 export function InsurancePartiesSection({
   parties,
-}: {
-  parties: InsuranceParty[];
-}) {
+}: InsurancePartiesSectionProps) {
   return (
     <Collapsible title="Parties" count={parties.length} icon={UserRound}>
       <div className="divide-y divide-border/60">

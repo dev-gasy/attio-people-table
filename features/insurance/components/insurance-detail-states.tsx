@@ -14,17 +14,19 @@ import { InsuranceDetailTabs } from "@/features/insurance/components/insurance-d
 import type { InsuranceRecordKind } from "@/features/insurance/services/insurance.types";
 import { cn } from "@/lib/utils";
 
+type InsuranceDetailErrorProps = {
+  title: string;
+  message: string;
+  isRetrying: boolean;
+  onRetry: () => void;
+};
+
 export function InsuranceDetailError({
   title,
   message,
   isRetrying,
   onRetry,
-}: {
-  title: string;
-  message: string;
-  isRetrying: boolean;
-  onRetry: () => void;
-}) {
+}: InsuranceDetailErrorProps) {
   return (
     <PageFrame>
       <PageFrameHeader>
@@ -75,15 +77,17 @@ export function InsuranceDetailLoading() {
   );
 }
 
+type InsuranceNotFoundProps = {
+  businessKey: string;
+  kind: InsuranceRecordKind;
+  title: string;
+};
+
 export function InsuranceNotFound({
   businessKey,
   kind,
   title,
-}: {
-  businessKey: string;
-  kind: InsuranceRecordKind;
-  title: string;
-}) {
+}: InsuranceNotFoundProps) {
   const label = insuranceRouteLabels[kind];
   const style = insuranceKindStyles[kind];
 

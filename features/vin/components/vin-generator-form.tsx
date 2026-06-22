@@ -27,6 +27,16 @@ type WmiStatus = {
   tone: "default" | "error";
 };
 
+type VinGeneratorFormProps = {
+  brands: QueryState<VinBrandModel[]>;
+  formValues: VinGeneratorFormValues;
+  generatedVinError: string | null;
+  models: QueryState<VinVehicleModel[]>;
+  onValueChange: (field: VinFieldName, value: string) => void;
+  selectedWmi: VinWmiModel | null;
+  wmis: QueryState<VinWmiModel[]>;
+};
+
 export function VinGeneratorForm({
   brands,
   formValues,
@@ -35,15 +45,7 @@ export function VinGeneratorForm({
   onValueChange,
   selectedWmi,
   wmis,
-}: {
-  brands: QueryState<VinBrandModel[]>;
-  formValues: VinGeneratorFormValues;
-  generatedVinError: string | null;
-  models: QueryState<VinVehicleModel[]>;
-  onValueChange: (field: VinFieldName, value: string) => void;
-  selectedWmi: VinWmiModel | null;
-  wmis: QueryState<VinWmiModel[]>;
-}) {
+}: VinGeneratorFormProps) {
   const brandOptions = toOptions(brands.data ?? [], (brand) => brand.name);
   const modelOptions = toOptions(models.data ?? [], (model) => model.name);
   const yearOptions = createVinYearOptions();
@@ -123,13 +125,12 @@ export function VinGeneratorForm({
   );
 }
 
-function ComboField({
-  children,
-  label,
-}: {
+type ComboFieldProps = {
   children: ReactNode;
   label: string;
-}) {
+};
+
+function ComboField({ children, label }: ComboFieldProps) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
@@ -138,7 +139,9 @@ function ComboField({
   );
 }
 
-function StatusMessages({ messages }: { messages: string[] }) {
+type StatusMessagesProps = { messages: string[] };
+
+function StatusMessages({ messages }: StatusMessagesProps) {
   if (messages.length === 0) return null;
 
   return (

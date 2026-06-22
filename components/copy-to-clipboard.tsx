@@ -3,15 +3,17 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+type CopyToClipboardProps = {
+  className?: string;
+  label?: string;
+  value: string;
+};
+
 export function CopyToClipboard({
   className,
   label = "Copy to clipboard",
   value,
-}: {
-  className?: string;
-  label?: string;
-  value: string;
-}) {
+}: CopyToClipboardProps) {
   const [copied, setCopied] = useState(false);
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 

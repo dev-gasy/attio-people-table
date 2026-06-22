@@ -1,19 +1,21 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 
+type ModalProps = {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+};
+
 export function Modal({
   open,
   onClose,
   title,
   description,
   children,
-}: {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) {
+}: ModalProps) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();

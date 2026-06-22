@@ -6,19 +6,21 @@ type TableInstance = ReturnType<typeof useGroupsPage>["table"];
 type TableGridStyle = ReturnType<typeof useGroupsPage>["tableGridStyle"];
 type VisibleColumns = ReturnType<typeof useGroupsPage>["visibleColumns"];
 
+type GroupsLoadingSkeletonProps = {
+  pageSize: number;
+  table: TableInstance | null;
+  tableGridStyle: Partial<TableGridStyle>;
+  visibleColumns: VisibleColumns;
+  view: GroupsView;
+};
+
 export function GroupsLoadingSkeleton({
   pageSize,
   table,
   tableGridStyle,
   visibleColumns,
   view,
-}: {
-  pageSize: number;
-  table: TableInstance | null;
-  tableGridStyle: Partial<TableGridStyle>;
-  visibleColumns: VisibleColumns;
-  view: GroupsView;
-}) {
+}: GroupsLoadingSkeletonProps) {
   if (view === "grid" || !table || visibleColumns.length === 0) {
     return <GridSkeleton pageSize={pageSize} />;
   }
@@ -43,7 +45,9 @@ export function GroupsLoadingSkeleton({
   );
 }
 
-function GridSkeleton({ pageSize }: { pageSize: number }) {
+type GridSkeletonProps = { pageSize: number };
+
+function GridSkeleton({ pageSize }: GridSkeletonProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: pageSize }).map((_, index) => (

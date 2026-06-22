@@ -7,6 +7,19 @@ export type ComboOption = {
   hint?: string;
 };
 
+type ComboboxProps = {
+  options: ComboOption[];
+  value: string | null;
+  onChange: (value: string | null) => void;
+  placeholder?: string;
+  searchPlaceholder?: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  className?: string;
+  align?: "left" | "right";
+  clearable?: boolean;
+  disabled?: boolean;
+};
+
 export function Combobox({
   options,
   value,
@@ -18,18 +31,7 @@ export function Combobox({
   align = "left",
   clearable = true,
   disabled = false,
-}: {
-  options: ComboOption[];
-  value: string | null;
-  onChange: (value: string | null) => void;
-  placeholder?: string;
-  searchPlaceholder?: string;
-  icon?: React.ComponentType<{ className?: string }>;
-  className?: string;
-  align?: "left" | "right";
-  clearable?: boolean;
-  disabled?: boolean;
-}) {
+}: ComboboxProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const ref = useRef<HTMLDivElement>(null);

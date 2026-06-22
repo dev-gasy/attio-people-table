@@ -34,7 +34,9 @@ export function LicencePreview({ canGenerate, result }: LicencePreviewProps) {
 // Populated card
 // ---------------------------------------------------------------------------
 
-function LicenceCard({ result }: { result: LicenceResult }) {
+type LicenceCardProps = { result: LicenceResult };
+
+function LicenceCard({ result }: LicenceCardProps) {
   return (
     <div>
       {/* Header strip */}
@@ -111,17 +113,19 @@ function LicenceCard({ result }: { result: LicenceResult }) {
   );
 }
 
+type DetailCellProps = {
+  className?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+};
+
 function DetailCell({
   className = "",
   icon: Icon,
   label,
   value,
-}: {
-  className?: string;
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-}) {
+}: DetailCellProps) {
   return (
     <div className={`group bg-background px-4 py-3 ${className}`}>
       <dt className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -140,7 +144,9 @@ function DetailCell({
 // Empty state
 // ---------------------------------------------------------------------------
 
-function EmptyState({ canGenerate }: { canGenerate: boolean }) {
+type EmptyStateProps = { canGenerate: boolean };
+
+function EmptyState({ canGenerate }: EmptyStateProps) {
   return (
     <div className="flex min-h-40 items-center justify-center p-6 text-center">
       <div className="max-w-64 space-y-2">

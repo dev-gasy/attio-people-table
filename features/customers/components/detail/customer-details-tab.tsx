@@ -8,7 +8,9 @@ import {
 } from "@/features/customers/domain/customer-detail";
 import type { Customer } from "@/features/customers/services/customers.types";
 
-export function CustomerDetailsTab({ customer }: { customer: Customer }) {
+type CustomerDetailsTabProps = { customer: Customer };
+
+export function CustomerDetailsTab({ customer }: CustomerDetailsTabProps) {
   const fields = getCustomerProfileFields(customer);
   const preferredContacts = getPreferredCustomerContacts(customer);
 

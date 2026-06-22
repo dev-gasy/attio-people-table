@@ -74,7 +74,9 @@ function resolveCustomerSearchPatch(
 
 const EMPTY_CONTEXT: CommandContext = {};
 
-function EmptyCommandState({ message }: { message: string }) {
+type EmptyCommandStateProps = { message: string };
+
+function EmptyCommandState({ message }: EmptyCommandStateProps) {
   return (
     <div className="px-3 py-8 text-center text-sm text-muted-foreground">
       {message}
@@ -82,17 +84,19 @@ function EmptyCommandState({ message }: { message: string }) {
   );
 }
 
+type CommandResultListProps = {
+  resultGroups: ReturnType<typeof groupCommandSearchResults>;
+  activeIndex: number;
+  onHover: (index: number) => void;
+  onRun: (result: CommandSearchResult) => void;
+};
+
 function CommandResultList({
   resultGroups,
   activeIndex,
   onHover,
   onRun,
-}: {
-  resultGroups: ReturnType<typeof groupCommandSearchResults>;
-  activeIndex: number;
-  onHover: (index: number) => void;
-  onRun: (result: CommandSearchResult) => void;
-}) {
+}: CommandResultListProps) {
   return (
     <div className="flex flex-col gap-2">
       {resultGroups.map((group, groupIndex) => (
@@ -131,19 +135,21 @@ function CommandResultList({
   );
 }
 
+type CommandSearchProps = {
+  open: boolean;
+  collapsed: boolean;
+  onClose: () => void;
+  onOpen: () => void;
+  onToggleCollapse: () => void;
+};
+
 export function CommandSearch({
   open,
   collapsed,
   onClose,
   onOpen,
   onToggleCollapse,
-}: {
-  open: boolean;
-  collapsed: boolean;
-  onClose: () => void;
-  onOpen: () => void;
-  onToggleCollapse: () => void;
-}) {
+}: CommandSearchProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { resolvedTheme, setTheme } = useTheme();

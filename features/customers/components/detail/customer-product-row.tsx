@@ -1,6 +1,8 @@
 import type { CustomerProduct } from "@/features/customers/services/customers.types";
 
-export function CustomerProductRow({ product }: { product: CustomerProduct }) {
+type CustomerProductRowProps = { product: CustomerProduct };
+
+export function CustomerProductRow({ product }: CustomerProductRowProps) {
   return (
     <div className="flex min-h-12 items-center gap-4 px-4 py-2.5 text-sm">
       <span className={`w-20 shrink-0 font-medium`}>{product.type}</span>

@@ -21,15 +21,13 @@ export function getAccessibleAvatarColor(color: string) {
   return accessibleAvatarColors[color] ?? color;
 }
 
-export function Avatar({
-  initial,
-  color,
-  size = "sm",
-}: {
+type AvatarProps = {
   initial: string;
   color: string;
   size?: "sm" | "md";
-}) {
+};
+
+export function Avatar({ initial, color, size = "sm" }: AvatarProps) {
   const dim = size === "md" ? "h-9 w-9 text-sm" : "h-6 w-6 text-[11px]";
   const colorClass = getAccessibleAvatarColor(color);
   return (

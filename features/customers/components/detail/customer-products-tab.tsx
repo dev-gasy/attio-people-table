@@ -10,11 +10,11 @@ import {
 } from "@/features/customers/domain/customer-detail";
 import type { CustomerProduct } from "@/features/customers/services/customers.types";
 
-export function CustomerProductsTab({
-  products,
-}: {
+type CustomerProductsTabProps = {
   products: CustomerProduct[];
-}) {
+};
+
+export function CustomerProductsTab({ products }: CustomerProductsTabProps) {
   const [activityFilter, setActivityFilter] =
     useState<CustomerProductActivityFilter>("All");
   const filteredProducts = useMemo(

@@ -24,6 +24,17 @@ declare module "@tanstack/react-table" {
   }
 }
 
+type SortableTableHeaderProps<SortKey extends string> = {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  sparkle?: boolean;
+  sortKey?: SortKey;
+  activeSort?: SortKey | null;
+  direction?: TableSortDirection;
+  onSort?: (key: SortKey) => void;
+  className?: string;
+};
+
 export function SortableTableHeader<SortKey extends string>({
   icon: Icon,
   label,
@@ -33,16 +44,7 @@ export function SortableTableHeader<SortKey extends string>({
   direction,
   onSort,
   className,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  sparkle?: boolean;
-  sortKey?: SortKey;
-  activeSort?: SortKey | null;
-  direction?: TableSortDirection;
-  onSort?: (key: SortKey) => void;
-  className?: string;
-}) {
+}: SortableTableHeaderProps<SortKey>) {
   const isSortable = Boolean(sortKey && onSort);
   const isActive = Boolean(sortKey && activeSort === sortKey);
   const sortIcon =
@@ -88,13 +90,15 @@ export function SortableTableHeader<SortKey extends string>({
   );
 }
 
+type TanStackTableHeaderProps<TData> = {
+  column: Column<TData>;
+  className?: string;
+};
+
 export function TanStackTableHeader<TData>({
   column,
   className,
-}: {
-  column: Column<TData>;
-  className?: string;
-}) {
+}: TanStackTableHeaderProps<TData>) {
   const Icon = column.columnDef.meta?.icon;
   const label =
     column.columnDef.meta?.label ??
@@ -147,11 +151,13 @@ export function TanStackTableHeader<TData>({
   );
 }
 
+type TanStackGridHeaderProps<TData> = {
+  table: TanStackTable<TData>;
+};
+
 export function TanStackGridHeader<TData>({
   table,
-}: {
-  table: TanStackTable<TData>;
-}) {
+}: TanStackGridHeaderProps<TData>) {
   const columns = table.getVisibleLeafColumns();
 
   return (
@@ -165,13 +171,15 @@ export function TanStackGridHeader<TData>({
   );
 }
 
+type TanStackGridRowsProps<TData> = {
+  gridStyle?: CSSProperties;
+  rows: Row<TData>[];
+};
+
 export function TanStackGridRows<TData>({
   gridStyle,
   rows,
-}: {
-  gridStyle?: CSSProperties;
-  rows: Row<TData>[];
-}) {
+}: TanStackGridRowsProps<TData>) {
   return (
     <>
       {rows.map((row) => {
@@ -199,15 +207,17 @@ export function TanStackGridRows<TData>({
   );
 }
 
+type TableHeaderCellProps = {
+  children: ReactNode;
+  className?: string;
+  last?: boolean;
+};
+
 export function TableHeaderCell({
   children,
   className,
   last,
-}: {
-  children: ReactNode;
-  className?: string;
-  last?: boolean;
-}) {
+}: TableHeaderCellProps) {
   return (
     <div
       className={cn(
@@ -221,17 +231,19 @@ export function TableHeaderCell({
   );
 }
 
+type TableBodyCellProps = {
+  as?: "div" | "span";
+  children: ReactNode;
+  className?: string;
+  last?: boolean;
+};
+
 export function TableBodyCell({
   as = "div",
   children,
   className,
   last,
-}: {
-  as?: "div" | "span";
-  children: ReactNode;
-  className?: string;
-  last?: boolean;
-}) {
+}: TableBodyCellProps) {
   const Component = as;
 
   return (
@@ -247,15 +259,17 @@ export function TableBodyCell({
   );
 }
 
+type TableLoadingCellProps = {
+  className?: string;
+  last?: boolean;
+  widths: readonly string[];
+};
+
 export function TableLoadingCell({
   className,
   last,
   widths,
-}: {
-  className?: string;
-  last?: boolean;
-  widths: readonly string[];
-}) {
+}: TableLoadingCellProps) {
   return (
     <TableBodyCell className={cn("gap-2.5", className)} last={last}>
       {widths.map((width) => (
@@ -274,17 +288,19 @@ export type TableLoadingColumn = {
   widths: readonly string[];
 };
 
+type TableLoadingRowsProps = {
+  columns: readonly TableLoadingColumn[];
+  gridClassName?: string;
+  gridStyle?: CSSProperties;
+  rowCount: number;
+};
+
 export function TableLoadingRows({
   columns,
   gridClassName,
   gridStyle,
   rowCount,
-}: {
-  columns: readonly TableLoadingColumn[];
-  gridClassName?: string;
-  gridStyle?: CSSProperties;
-  rowCount: number;
-}) {
+}: TableLoadingRowsProps) {
   return (
     <>
       {Array.from({ length: rowCount }).map((_, rowIndex) => (

@@ -1,13 +1,15 @@
 import { productFilterOptions } from "@/features/customers/components/detail/customer-detail-constants";
 import type { CustomerProductActivityFilter } from "@/features/customers/domain/customer-detail";
 
+type CustomerProductFilterProps = {
+  value: CustomerProductActivityFilter;
+  onChange: (value: CustomerProductActivityFilter) => void;
+};
+
 export function CustomerProductFilter({
   value,
   onChange,
-}: {
-  value: CustomerProductActivityFilter;
-  onChange: (value: CustomerProductActivityFilter) => void;
-}) {
+}: CustomerProductFilterProps) {
   return (
     <div className="flex rounded-lg border border-border bg-muted/10 p-0.5">
       {productFilterOptions.map((option) => {

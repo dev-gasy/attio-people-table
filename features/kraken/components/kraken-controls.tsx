@@ -7,17 +7,19 @@ import {
   type KrakenRulesTableState,
 } from "@/features/kraken/use-kraken-rules-table";
 
+type KrakenControlsProps = {
+  disabled: boolean;
+  hasEntrypoint: boolean;
+  ruleTypeOptions: ComboOption[];
+  table: KrakenRulesTableState;
+};
+
 export function KrakenControls({
   disabled,
   hasEntrypoint,
   ruleTypeOptions,
   table,
-}: {
-  disabled: boolean;
-  hasEntrypoint: boolean;
-  ruleTypeOptions: ComboOption[];
-  table: KrakenRulesTableState;
-}) {
+}: KrakenControlsProps) {
   return (
     <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
       <SearchBar

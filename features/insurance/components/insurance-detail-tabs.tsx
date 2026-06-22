@@ -4,15 +4,17 @@ import {
   type InsuranceTab,
 } from "@/features/insurance/components/insurance-detail-constants";
 
+type InsuranceDetailTabsProps = {
+  activeTab: InsuranceTab;
+  disabled?: boolean;
+  onTabChange: (tab: InsuranceTab) => void;
+};
+
 export function InsuranceDetailTabs({
   activeTab,
   disabled = false,
   onTabChange,
-}: {
-  activeTab: InsuranceTab;
-  disabled?: boolean;
-  onTabChange: (tab: InsuranceTab) => void;
-}) {
+}: InsuranceDetailTabsProps) {
   return (
     <PageFrameControls>
       <div className="flex gap-1 overflow-x-auto py-2">

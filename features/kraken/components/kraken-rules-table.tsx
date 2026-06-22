@@ -7,6 +7,16 @@ import {
 } from "@/components/ui/table";
 import { type KrakenRulesTableState } from "@/features/kraken/use-kraken-rules-table";
 
+type KrakenRulesTableProps = {
+  entrypointName?: string;
+  error: unknown;
+  isError: boolean;
+  isLoading: boolean;
+  isRetrying: boolean;
+  onRetry: () => void;
+  table: KrakenRulesTableState;
+};
+
 export function KrakenRulesTable({
   entrypointName,
   error,
@@ -15,15 +25,7 @@ export function KrakenRulesTable({
   isRetrying,
   onRetry,
   table,
-}: {
-  entrypointName?: string;
-  error: unknown;
-  isError: boolean;
-  isLoading: boolean;
-  isRetrying: boolean;
-  onRetry: () => void;
-  table: KrakenRulesTableState;
-}) {
+}: KrakenRulesTableProps) {
   const showHeader =
     entrypointName && (isLoading || isError || table.sortedRows.length > 0);
   return (

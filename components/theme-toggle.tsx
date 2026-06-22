@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
-export function ThemeToggle({ collapsed }: { collapsed?: boolean }) {
+type ThemeToggleProps = { collapsed?: boolean };
+
+export function ThemeToggle({ collapsed }: ThemeToggleProps) {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 

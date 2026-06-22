@@ -2,19 +2,21 @@ import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+type DataErrorViewProps = {
+  title: string;
+  message: string;
+  onRetry: () => void;
+  isRetrying?: boolean;
+  className?: string;
+};
+
 export function DataErrorView({
   title,
   message,
   onRetry,
   isRetrying = false,
   className,
-}: {
-  title: string;
-  message: string;
-  onRetry: () => void;
-  isRetrying?: boolean;
-  className?: string;
-}) {
+}: DataErrorViewProps) {
   return (
     <div
       role="alert"

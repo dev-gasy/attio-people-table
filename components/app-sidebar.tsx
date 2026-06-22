@@ -8,15 +8,17 @@ import type { PageId } from "@/components/sidebar/types";
 
 export type { PageId, PagePath } from "@/components/sidebar/types";
 
+type AppSidebarProps = {
+  activePage: PageId;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
+};
+
 export function AppSidebar({
   activePage,
   collapsed,
   onToggleCollapse,
-}: {
-  activePage: PageId;
-  collapsed: boolean;
-  onToggleCollapse: () => void;
-}) {
+}: AppSidebarProps) {
   const [commandOpen, setCommandOpen] = useState(false);
 
   return (

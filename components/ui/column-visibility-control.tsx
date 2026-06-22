@@ -7,17 +7,19 @@ export type ColumnVisibilityOption<T extends string> = {
   alwaysVisible?: boolean;
 };
 
+type ColumnVisibilityControlProps<T extends string> = {
+  columns: ColumnVisibilityOption<T>[];
+  visibleColumns: Set<T>;
+  onToggle: (column: T) => void;
+  onReset: () => void;
+};
+
 export function ColumnVisibilityControl<T extends string>({
   columns,
   visibleColumns,
   onToggle,
   onReset,
-}: {
-  columns: ColumnVisibilityOption<T>[];
-  visibleColumns: Set<T>;
-  onToggle: (column: T) => void;
-  onReset: () => void;
-}) {
+}: ColumnVisibilityControlProps<T>) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
