@@ -1,13 +1,13 @@
 import type {
-  CommandConfig,
-  CommandResult,
-  CommandResultGroup,
+  CommandNode,
+  CommandSearchResult,
+  CommandSearchResultGroup,
 } from "@/components/sidebar/command-search/types";
 
-export function groupCommandResults(
-  results: CommandResult[],
-): CommandResultGroup[] {
-  const groups: CommandResultGroup[] = [];
+export function groupCommandSearchResults(
+  results: CommandSearchResult[],
+): CommandSearchResultGroup[] {
+  const groups: CommandSearchResultGroup[] = [];
 
   results.forEach((result, index) => {
     const group = groups.find((item) => item.name === result.group);
@@ -26,22 +26,22 @@ export function groupCommandResults(
   return groups;
 }
 
-export function getCommandTitle(command: CommandConfig) {
-  return command.type === "fields" && command.title
+export function getCommandTitle(command: CommandNode) {
+  return command.type === "input" && command.title
     ? command.title
     : command.name;
 }
 
-export function getCommandPlaceholder(command: CommandConfig) {
-  if (command.type === "fields" && command.placeholder) {
+export function getCommandPlaceholder(command: CommandNode) {
+  if (command.type === "input" && command.placeholder) {
     return command.placeholder;
   }
 
   return "Search pages and actions...";
 }
 
-export function getCommandEmptyMessage(command: CommandConfig) {
-  if (command.type === "fields" && command.emptyMessage) {
+export function getCommandEmptyMessage(command: CommandNode) {
+  if (command.type === "input" && command.emptyMessage) {
     return command.emptyMessage;
   }
 
@@ -52,7 +52,10 @@ export function normalizeBusinessKey(value: string) {
   return value.trim().toUpperCase();
 }
 
-export function matchesCommandQuery(result: CommandResult, query: string) {
+export function matchesCommandQuery(
+  result: CommandSearchResult,
+  query: string,
+) {
   return `${result.label} ${result.group} ${result.keywords}`
     .toLowerCase()
     .includes(query);

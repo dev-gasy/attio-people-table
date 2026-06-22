@@ -3,7 +3,48 @@ import type { CustomerSearchValues } from "@/features/customers/domain/customers
 
 type CommandIcon = ComponentType<{ className?: string }>;
 
-type CommandConfigBase = {
+export type CommandContextValue = string | number | URL;
+export type CommandContext = Record<string, CommandContextValue>;
+
+export type CommandValueRef = {
+  valueKey: string;
+};
+
+export type CommandRouteValue = string | number | CommandValueRef;
+export type CommandUrlValue = URL | CommandValueRef;
+
+export type CommandEffect =
+  | {
+      type: "navigate";
+      to: string;
+      params?: Record<string, CommandRouteValue>;
+    }
+  | {
+      type: "openURL";
+      url: CommandUrlValue;
+      target?: "_blank" | "_self";
+    }
+  | {
+      type: "patchStore";
+      store: "customerSearch";
+      values: Partial<Record<keyof CustomerSearchValues, CommandRouteValue>>;
+    }
+  | {
+      type: "setTheme";
+      theme: "dark" | "light";
+    }
+  | {
+      type: "toggleSidebar";
+    }
+  | {
+      type: "close";
+    }
+  | {
+      type: "sequence";
+      effects: CommandEffect[];
+    };
+
+type CommandNodeBase = {
   id: string;
   name: string;
   group: string;
@@ -11,29 +52,39 @@ type CommandConfigBase = {
   icon: CommandIcon;
 };
 
-export type RedirectCommandConfig = CommandConfigBase & {
-  type: "redirect";
-  action: () => void;
+export type CommandActionNode = CommandNodeBase & {
+  type: "action";
+  effect: CommandEffect;
 };
 
-export type FieldsCommandConfig = CommandConfigBase & {
-  type: "fields";
+export type CommandInputNode = CommandNodeBase & {
+  type: "input";
   title?: string;
   placeholder?: string;
   inputType?: string;
   emptyMessage?: string;
-  resultIcon?: CommandIcon;
-  resultGroup?: string;
-  resultName?: (value: string) => string;
-  resultKeywords?: (value: string) => string;
-  normalizeValue?: (value: string) => string;
-  action?: (value: string) => void;
-  children?: CommandConfig[] | ((value: string) => CommandConfig[]);
+  submitIcon?: CommandIcon;
+  submitGroup?: string;
+  formatSubmitLabel?: (
+    value: CommandContextValue,
+    context: CommandContext,
+  ) => string;
+  formatSubmitKeywords?: (
+    value: CommandContextValue,
+    context: CommandContext,
+  ) => string;
+  parseInput?: (
+    value: string,
+    context: CommandContext,
+  ) => CommandContextValue | undefined;
+  valueKey?: string;
+  effect?: CommandEffect;
+  subcommands?: CommandNode[];
 };
 
-export type CommandConfig = RedirectCommandConfig | FieldsCommandConfig;
+export type CommandNode = CommandActionNode | CommandInputNode;
 
-export type CommandResult = {
+export type CommandSearchResult = {
   id: string;
   label: string;
   group: string;
@@ -49,7 +100,7 @@ export type CustomerSearchField = {
   inputType?: string;
 };
 
-export type CommandResultGroup = {
+export type CommandSearchResultGroup = {
   name: string;
-  results: Array<{ result: CommandResult; index: number }>;
+  results: Array<{ result: CommandSearchResult; index: number }>;
 };

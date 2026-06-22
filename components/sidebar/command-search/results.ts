@@ -7,16 +7,18 @@ import {
   Sun,
 } from "lucide-react";
 import { navIcons, navSections } from "@/components/sidebar/nav-items";
-import type { PagePath } from "@/components/sidebar/types";
 import { customerSearchFields } from "@/components/sidebar/command-search/customer-fields";
 import {
   matchesCommandQuery,
   normalizeBusinessKey,
 } from "@/components/sidebar/command-search/helpers";
 import type {
-  CommandConfig,
-  CommandResult,
-  CustomerSearchField,
+  CommandContext,
+  CommandContextValue,
+  CommandEffect,
+  CommandNode,
+  CommandRouteValue,
+  CommandSearchResult,
 } from "@/components/sidebar/command-search/types";
 import type { getStaticKrakenEntrypoints } from "@/features/kraken/kraken-service";
 import type { getStaticLookupNames } from "@/features/lookups/lookup-service";
@@ -26,32 +28,17 @@ type StaticKrakenEntrypoint = ReturnType<
 >[number];
 type StaticLookupName = ReturnType<typeof getStaticLookupNames>[number];
 
-type CommandConfigActions = {
-  close: () => void;
-  loadPolicyRecord: (businessKey: string) => void;
-  loadQuoteRecord: (businessKey: string, revisionNumber: string) => void;
-  navigateToCustomerFavorites: () => void;
-  navigateToKrakenEntrypoint: (entrypointName: string) => void;
-  navigateToLookupName: (lookupName: string) => void;
-  navigateToPage: (to: PagePath) => void;
-  runCustomerSearch: (field: CustomerSearchField, value: string) => void;
-  setTheme: (theme: "dark" | "light") => void;
-  toggleCollapse: () => void;
-};
-
-export function createCommandConfig({
-  actions,
+export function createCommandTree({
   collapsed,
   krakenEntrypoints,
   lookupNames,
   resolvedTheme,
 }: {
-  actions: CommandConfigActions;
   collapsed: boolean;
   krakenEntrypoints: StaticKrakenEntrypoint[];
   lookupNames: StaticLookupName[];
   resolvedTheme: "dark" | "light";
-}): CommandConfig {
+}): CommandNode {
   const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
   const themeLabel =
     resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
@@ -62,10 +49,10 @@ export function createCommandConfig({
     group: "Commands",
     keywords: "command search",
     icon: Search,
-    type: "fields",
+    type: "input",
     placeholder: "Search pages and actions...",
-    children: [
-      ...createPageCommands(actions),
+    subcommands: [
+      ...createPageCommands(),
       {
         id: "workflow-customer-search",
         name: "Search customers",
@@ -73,10 +60,10 @@ export function createCommandConfig({
         keywords:
           "customer search crm find group policy quote email phone address",
         icon: navIcons.customers,
-        type: "fields",
+        type: "input",
         title: "Choose customer field",
         placeholder: "Choose a customer field...",
-        children: createCustomerSearchCommands(actions),
+        subcommands: createCustomerSearchCommands(),
       },
       {
         id: "workflow-customer-favorites",
@@ -84,8 +71,8 @@ export function createCommandConfig({
         group: "Workflows",
         keywords: "customer favorites favorite saved starred",
         icon: Star,
-        type: "redirect",
-        action: actions.navigateToCustomerFavorites,
+        type: "action",
+        effect: sequence(navigate("/customers/favorites"), close()),
       },
       {
         id: "workflow-kraken-entrypoint",
@@ -93,17 +80,22 @@ export function createCommandConfig({
         group: "Workflows",
         keywords: "kraken entrypoint load rules",
         icon: navIcons.kraken,
-        type: "fields",
+        type: "input",
         title: "Load Kraken entrypoint",
         placeholder: "Search entrypoint names...",
-        children: krakenEntrypoints.map((entrypoint) => ({
+        subcommands: krakenEntrypoints.map((entrypoint) => ({
           id: `kraken-entrypoint-${entrypoint.slug}`,
           name: entrypoint.name,
           group: `${entrypoint.rulesCount} rules`,
           keywords: `${entrypoint.name} ${entrypoint.slug}`,
           icon: navIcons.kraken,
-          type: "redirect",
-          action: () => actions.navigateToKrakenEntrypoint(entrypoint.slug),
+          type: "action",
+          effect: sequence(
+            navigate("/kraken/$entrypointName", {
+              entrypointName: entrypoint.slug,
+            }),
+            close(),
+          ),
         })),
       },
       {
@@ -112,15 +104,21 @@ export function createCommandConfig({
         group: "Workflows",
         keywords: "policy load business key policy number",
         icon: navIcons.load,
-        type: "fields",
+        type: "input",
         title: "Load policy",
         placeholder: "POLICY-000000",
         emptyMessage: "Enter a policy business key",
-        resultGroup: "Policies",
-        resultName: (businessKey) => `Load policy "${businessKey}"`,
-        resultKeywords: (businessKey) => `policy ${businessKey}`,
-        normalizeValue: normalizeBusinessKey,
-        action: actions.loadPolicyRecord,
+        submitGroup: "Policies",
+        formatSubmitLabel: (businessKey) => `Load policy "${businessKey}"`,
+        formatSubmitKeywords: (businessKey) => `policy ${businessKey}`,
+        parseInput: parseBusinessKey,
+        valueKey: "businessKey",
+        effect: sequence(
+          navigate("/policies/$businessKey", {
+            businessKey: { valueKey: "businessKey" },
+          }),
+          close(),
+        ),
       },
       {
         id: "workflow-quote-load",
@@ -128,32 +126,41 @@ export function createCommandConfig({
         group: "Workflows",
         keywords: "quote load business key quote number",
         icon: navIcons.load,
-        type: "fields",
+        type: "input",
         title: "Load quote",
         placeholder: "QUOTE-000000",
         emptyMessage: "Enter a quote business key",
-        resultGroup: "Quotes",
-        resultName: (businessKey) => `Continue with quote "${businessKey}"`,
-        resultKeywords: (businessKey) => `quote ${businessKey}`,
-        normalizeValue: normalizeBusinessKey,
-        children: (businessKey) => [
+        submitGroup: "Quotes",
+        formatSubmitLabel: (businessKey) =>
+          `Continue with quote "${businessKey}"`,
+        formatSubmitKeywords: (businessKey) => `quote ${businessKey}`,
+        parseInput: parseBusinessKey,
+        valueKey: "businessKey",
+        subcommands: [
           {
-            id: `quote-revision-${businessKey}`,
+            id: "quote-revision",
             name: "Load quote",
             group: "Quotes",
-            keywords: `quote ${businessKey} revision`,
+            keywords: "quote revision",
             icon: navIcons.load,
-            type: "fields",
+            type: "input",
             title: "Load quote",
             placeholder: "Revision number",
             emptyMessage: "Enter a quote revision number",
-            resultGroup: "Quotes",
-            resultName: (revisionNumber) =>
-              `Load quote "${businessKey}" revision "${revisionNumber}"`,
-            resultKeywords: (revisionNumber) =>
-              `quote ${businessKey} revision ${revisionNumber}`,
-            action: (revisionNumber) =>
-              actions.loadQuoteRecord(businessKey, revisionNumber),
+            submitGroup: "Quotes",
+            formatSubmitLabel: (revisionNumber, context) =>
+              `Load quote "${context.businessKey}" revision "${revisionNumber}"`,
+            formatSubmitKeywords: (revisionNumber, context) =>
+              `quote ${context.businessKey} revision ${revisionNumber}`,
+            parseInput: parseRevisionNumber,
+            valueKey: "revisionNumber",
+            effect: sequence(
+              navigate("/quotes/$businessKey/$revisionNumber", {
+                businessKey: { valueKey: "businessKey" },
+                revisionNumber: { valueKey: "revisionNumber" },
+              }),
+              close(),
+            ),
           },
         ],
       },
@@ -163,17 +170,22 @@ export function createCommandConfig({
         group: "Workflows",
         keywords: "lookup lookup name load lookups",
         icon: navIcons.lookups,
-        type: "fields",
+        type: "input",
         title: "Load lookup name",
         placeholder: "Search lookup names...",
-        children: lookupNames.map((lookupName) => ({
+        subcommands: lookupNames.map((lookupName) => ({
           id: `lookup-name-${lookupName.slug}`,
           name: lookupName.name,
           group: `${lookupName.lookupsCount} lookups`,
           keywords: `${lookupName.name} ${lookupName.slug}`,
           icon: navIcons.lookups,
-          type: "redirect",
-          action: () => actions.navigateToLookupName(lookupName.slug),
+          type: "action",
+          effect: sequence(
+            navigate("/lookups/$lookupName", {
+              lookupName: lookupName.slug,
+            }),
+            close(),
+          ),
         })),
       },
       {
@@ -182,11 +194,8 @@ export function createCommandConfig({
         group: "Actions",
         keywords: `theme ${nextTheme} ${themeLabel}`,
         icon: resolvedTheme === "dark" ? Sun : Moon,
-        type: "redirect",
-        action: () => {
-          actions.setTheme(nextTheme);
-          actions.close();
-        },
+        type: "action",
+        effect: sequence({ type: "setTheme", theme: nextTheme }, close()),
       },
       {
         id: "action-sidebar",
@@ -196,62 +205,74 @@ export function createCommandConfig({
           collapsed ? "expand open show" : "collapse close hide"
         }`,
         icon: collapsed ? PanelLeftOpen : PanelLeftClose,
-        type: "redirect",
-        action: () => {
-          actions.toggleCollapse();
-          actions.close();
-        },
+        type: "action",
+        effect: sequence({ type: "toggleSidebar" }, close()),
       },
     ],
   };
 }
 
-export function createFilteredResults({
-  command,
-  onOpenCommand,
+export function createCommandResults({
+  context,
+  node,
+  onOpenNode,
+  onRunEffect,
   query,
 }: {
-  command: CommandConfig;
-  onOpenCommand: (command: CommandConfig) => void;
+  context: CommandContext;
+  node: CommandNode;
+  onOpenNode: (node: CommandNode, context: CommandContext) => void;
+  onRunEffect: (effect: CommandEffect, context: CommandContext) => void;
   query: string;
-}): CommandResult[] {
-  if (command.type === "redirect") return [];
+}): CommandSearchResult[] {
+  if (node.type === "action") return [];
 
   const normalizedQuery = query.trim().toLowerCase();
 
-  if (Array.isArray(command.children)) {
+  if (isSubcommandListNode(node)) {
     return filterResults(
-      command.children.map((child) => createChildResult(child, onOpenCommand)),
+      node.subcommands.map((subcommand) =>
+        createSubcommandResult({
+          context,
+          node: subcommand,
+          onOpenNode,
+          onRunEffect,
+        }),
+      ),
       normalizedQuery,
     );
   }
 
-  const value = getCommandValue(command, query);
-  if (!value) return [];
+  const value = getParsedInput(node, query, context);
+  if (value === undefined) return [];
 
   return [
     {
-      id: `${command.id}-submit-${value}`,
-      label: command.resultName?.(value) ?? `${command.name} "${value}"`,
-      group: command.resultGroup ?? command.group,
+      id: `${node.id}-submit-${value}`,
+      label:
+        node.formatSubmitLabel?.(value, context) ?? `${node.name} "${value}"`,
+      group: node.submitGroup ?? node.group,
       keywords:
-        command.resultKeywords?.(value) ??
-        `${command.name} ${command.keywords ?? ""} ${value}`,
-      icon: command.resultIcon ?? command.icon,
-      run: () => runFieldsCommand(command, value, onOpenCommand),
+        node.formatSubmitKeywords?.(value, context) ??
+        `${node.name} ${node.keywords ?? ""} ${value}`,
+      icon: node.submitIcon ?? node.icon,
+      run: () =>
+        submitInputNode({
+          context,
+          node,
+          onOpenNode,
+          onRunEffect,
+          value,
+        }),
     },
   ];
 }
 
-export function hasEmptyStaticChildren(command: CommandConfig) {
-  return (
-    command.type === "fields" &&
-    Array.isArray(command.children) &&
-    command.children.length === 0
-  );
+export function hasNoSubcommands(node: CommandNode) {
+  return isSubcommandListNode(node) && node.subcommands.length === 0;
 }
 
-function createPageCommands(actions: CommandConfigActions): CommandConfig[] {
+function createPageCommands(): CommandNode[] {
   return navSections.flatMap((section) =>
     section.items.map((item) => ({
       id: `page-${item.id}`,
@@ -259,95 +280,175 @@ function createPageCommands(actions: CommandConfigActions): CommandConfig[] {
       group: section.label,
       keywords: `${item.label} ${section.label} ${item.id}`,
       icon: item.icon,
-      type: "redirect" as const,
-      action: () => {
-        actions.navigateToPage(item.to as PagePath);
-        actions.close();
-      },
+      type: "action" as const,
+      effect: sequence(navigate(item.to), close()),
     })),
   );
 }
 
-function createCustomerSearchCommands(
-  actions: CommandConfigActions,
-): CommandConfig[] {
+function createCustomerSearchCommands(): CommandNode[] {
   return customerSearchFields.map((field) => ({
     id: `customer-field-${field.id}`,
     name: field.label,
     group: "Customer field",
     keywords: `${field.label} ${field.id}`,
     icon: navIcons.customers,
-    type: "fields" as const,
+    type: "input" as const,
     title: `Search by ${field.label}`,
     placeholder: field.placeholder,
     inputType: field.inputType,
     emptyMessage: `Enter a ${field.label.toLowerCase()} value`,
-    resultIcon: Search,
-    resultGroup: "Customers",
-    resultName: (value) =>
+    submitIcon: Search,
+    submitGroup: "Customers",
+    formatSubmitLabel: (value) =>
       `Search ${field.label.toLowerCase()} for "${value}"`,
-    resultKeywords: (value) => `${field.label} ${value}`,
-    action: (value) => actions.runCustomerSearch(field, value),
+    formatSubmitKeywords: (value) => `${field.label} ${value}`,
+    parseInput: parseRequiredText,
+    valueKey: "customerSearchValue",
+    effect: sequence(
+      {
+        type: "patchStore",
+        store: "customerSearch",
+        values: { [field.id]: { valueKey: "customerSearchValue" } },
+      },
+      navigate("/customers"),
+      close(),
+    ),
   }));
 }
 
-function createChildResult(
-  command: CommandConfig,
-  onOpenCommand: (command: CommandConfig) => void,
-): CommandResult {
+function createSubcommandResult({
+  context,
+  node,
+  onOpenNode,
+  onRunEffect,
+}: {
+  context: CommandContext;
+  node: CommandNode;
+  onOpenNode: (node: CommandNode, context: CommandContext) => void;
+  onRunEffect: (effect: CommandEffect, context: CommandContext) => void;
+}): CommandSearchResult {
   return {
-    id: command.id,
-    label: command.name,
-    group: command.group,
-    keywords: command.keywords ?? "",
-    icon: command.icon,
+    id: node.id,
+    label: node.name,
+    group: node.group,
+    keywords: node.keywords ?? "",
+    icon: node.icon,
     run: () => {
-      if (command.type === "redirect") {
-        command.action();
+      if (node.type === "action") {
+        onRunEffect(node.effect, context);
         return;
       }
 
-      onOpenCommand(command);
+      onOpenNode(node, context);
     },
   };
 }
 
-function runFieldsCommand(
-  command: Extract<CommandConfig, { type: "fields" }>,
-  value: string,
-  onOpenCommand: (command: CommandConfig) => void,
-) {
-  if (typeof command.children === "function") {
-    const children = command.children(value);
+function submitInputNode({
+  context,
+  node,
+  onOpenNode,
+  onRunEffect,
+  value,
+}: {
+  context: CommandContext;
+  node: Extract<CommandNode, { type: "input" }>;
+  onOpenNode: (node: CommandNode, context: CommandContext) => void;
+  onRunEffect: (effect: CommandEffect, context: CommandContext) => void;
+  value: CommandContextValue;
+}) {
+  const nextContext = node.valueKey
+    ? { ...context, [node.valueKey]: value }
+    : context;
 
-    if (children.length === 1) {
-      onOpenCommand(children[0]);
-      return;
-    }
-
-    if (children.length > 1) {
-      onOpenCommand({
-        ...command,
-        id: `${command.id}-${value}`,
-        children,
-      });
-    }
-
+  if (node.subcommands && node.subcommands.length === 1) {
+    onOpenNode(node.subcommands[0], nextContext);
     return;
   }
 
-  command.action?.(value);
+  if (node.subcommands && node.subcommands.length > 1) {
+    onOpenNode(
+      {
+        id: `${node.id}-${value}`,
+        name: node.name,
+        group: node.group,
+        keywords: node.keywords,
+        icon: node.icon,
+        type: "input",
+        title: node.title,
+        placeholder: node.placeholder,
+        subcommands: node.subcommands,
+      },
+      nextContext,
+    );
+    return;
+  }
+
+  if (node.effect) {
+    onRunEffect(node.effect, nextContext);
+  }
 }
 
-function getCommandValue(
-  command: Extract<CommandConfig, { type: "fields" }>,
+function isSubcommandListNode(node: CommandNode): node is Extract<
+  CommandNode,
+  { type: "input" }
+> & {
+  subcommands: CommandNode[];
+} {
+  return (
+    node.type === "input" &&
+    Array.isArray(node.subcommands) &&
+    !node.valueKey &&
+    !node.effect
+  );
+}
+
+function getParsedInput(
+  node: Extract<CommandNode, { type: "input" }>,
   query: string,
+  context: CommandContext,
 ) {
-  const value = command.normalizeValue?.(query) ?? query.trim();
-  return value.trim();
+  const value = node.parseInput?.(query, context) ?? query.trim();
+
+  if (typeof value === "string" && value.trim().length === 0) {
+    return undefined;
+  }
+
+  return value;
 }
 
-function filterResults(results: CommandResult[], query: string) {
+function parseRequiredText(value: string) {
+  const trimmedValue = value.trim();
+  return trimmedValue.length > 0 ? trimmedValue : undefined;
+}
+
+function parseBusinessKey(value: string) {
+  const businessKey = normalizeBusinessKey(value);
+  return businessKey.length > 0 ? businessKey : undefined;
+}
+
+function parseRevisionNumber(value: string) {
+  const revisionNumber = Number(value.trim());
+  return Number.isFinite(revisionNumber) ? revisionNumber : undefined;
+}
+
+function navigate(
+  to: string,
+  params?: Record<string, CommandRouteValue>,
+): CommandEffect {
+  return { type: "navigate", to, params };
+}
+
+function close(): CommandEffect {
+  return { type: "close" };
+}
+
+function sequence(...effects: CommandEffect[]): CommandEffect {
+  return { type: "sequence", effects };
+}
+
+function filterResults(results: CommandSearchResult[], query: string) {
   if (!query) return results;
 
   return results.filter((result) => matchesCommandQuery(result, query));

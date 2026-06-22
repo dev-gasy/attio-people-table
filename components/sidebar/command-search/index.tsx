@@ -10,26 +10,35 @@ import {
 } from "react";
 import { useTheme } from "@/components/theme-provider";
 import {
-  createCommandConfig,
-  createFilteredResults,
-  hasEmptyStaticChildren,
+  createCommandResults,
+  createCommandTree,
+  hasNoSubcommands,
 } from "./results";
 import {
   getCommandEmptyMessage,
   getCommandPlaceholder,
   getCommandTitle,
-  groupCommandResults,
-  normalizeBusinessKey,
+  groupCommandSearchResults,
 } from "./helpers";
 import type {
-  CommandConfig,
-  CommandResult,
-  CustomerSearchField,
+  CommandContext,
+  CommandEffect,
+  CommandNode,
+  CommandRouteValue,
+  CommandSearchResult,
+  CommandUrlValue,
 } from "./types";
-import type { PagePath } from "@/components/sidebar/types";
+import type { CustomerSearchValues } from "@/features/customers/domain/customers-list";
 import { useCustomerSearchStore } from "@/features/customers/stores/customer-search-store";
 import { getStaticKrakenEntrypoints } from "@/features/kraken/kraken-service";
 import { getStaticLookupNames } from "@/features/lookups/lookup-service";
+
+type NavigationEntry = {
+  node: CommandNode;
+  context: CommandContext;
+};
+
+const EMPTY_COMMAND_CONTEXT: CommandContext = {};
 
 export function CommandSearch({
   open,
@@ -49,7 +58,7 @@ export function CommandSearch({
   const { resolvedTheme, setTheme } = useTheme();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
-  const [commandStack, setCommandStack] = useState<CommandConfig[]>([]);
+  const [navigationStack, setNavigationStack] = useState<NavigationEntry[]>([]);
   const krakenEntrypoints = useMemo(() => getStaticKrakenEntrypoints(), []);
   const lookupNames = useMemo(() => getStaticLookupNames(), []);
 
@@ -58,9 +67,9 @@ export function CommandSearch({
     setActiveIndex(0);
   }, []);
 
-  const openCommand = useCallback(
-    (command: CommandConfig) => {
-      setCommandStack((stack) => [...stack, command]);
+  const openNode = useCallback(
+    (node: CommandNode, context: CommandContext) => {
+      setNavigationStack((stack) => [...stack, { node, context }]);
       resetCommandInput();
       requestAnimationFrame(() => inputRef.current?.focus());
     },
@@ -68,117 +77,82 @@ export function CommandSearch({
   );
 
   const goBack = useCallback(() => {
-    setCommandStack((stack) => stack.slice(0, -1));
+    setNavigationStack((stack) => stack.slice(0, -1));
     resetCommandInput();
     requestAnimationFrame(() => inputRef.current?.focus());
   }, [resetCommandInput]);
 
-  const runCustomerSearch = useCallback(
-    (field: CustomerSearchField, value: string) => {
-      const trimmedValue = value.trim();
+  const runCommandEffect = useCallback(
+    (effect: CommandEffect, context: CommandContext) => {
+      if (effect.type === "sequence") {
+        effect.effects.forEach((childEffect) =>
+          runCommandEffect(childEffect, context),
+        );
+        return;
+      }
 
-      if (!trimmedValue) return;
+      if (effect.type === "navigate") {
+        const params = resolveEffectParams(effect.params, context);
 
-      useCustomerSearchStore.getState().setSearch({ [field.id]: trimmedValue });
-      navigate({ to: "/customers" });
+        return navigate({ to: effect.to, params } as never);
+      }
+
+      if (effect.type === "openURL") {
+        const url = resolveUrlEffectValue(effect.url, context);
+
+        if (url.origin === window.location.origin) {
+          return navigate({
+            to: `${url.pathname}${url.search}${url.hash}`,
+          } as never);
+        }
+
+        if (effect.target === "_self") {
+          return window.location.assign(url);
+        }
+
+        return window.open(
+          url,
+          effect.target ?? "_blank",
+          "noopener,noreferrer",
+        );
+      }
+
+      if (effect.type === "patchStore") {
+        if (effect.store === "customerSearch") {
+          useCustomerSearchStore
+            .getState()
+            .setSearch(resolveCustomerSearchPatch(effect.values, context));
+        }
+
+        return;
+      }
+
+      if (effect.type === "setTheme") {
+        return setTheme(effect.theme);
+      }
+
+      if (effect.type === "toggleSidebar") {
+        return onToggleCollapse();
+      }
+
       onClose();
     },
-    [navigate, onClose],
+    [navigate, onClose, onToggleCollapse, setTheme],
   );
 
-  const loadPolicyRecord = useCallback(
-    (value: string) => {
-      const businessKey = normalizeBusinessKey(value);
-
-      if (!businessKey) return;
-
-      navigate({
-        to: "/policies/$businessKey",
-        params: { businessKey },
-      });
-      onClose();
-    },
-    [navigate, onClose],
-  );
-
-  const loadQuoteRecord = useCallback(
-    (value: string, revisionValue: string) => {
-      const businessKey = normalizeBusinessKey(value);
-      const revisionNumber = Number(revisionValue.trim());
-
-      if (!businessKey || !Number.isFinite(revisionNumber)) return;
-
-      navigate({
-        to: "/quotes/$businessKey/$revisionNumber",
-        params: { businessKey, revisionNumber },
-      });
-      onClose();
-    },
-    [navigate, onClose],
-  );
-
-  const navigateToKrakenEntrypoint = useCallback(
-    (entrypointName: string) => {
-      navigate({
-        to: "/kraken/$entrypointName",
-        params: { entrypointName },
-      });
-      onClose();
-    },
-    [navigate, onClose],
-  );
-
-  const navigateToLookupName = useCallback(
-    (lookupName: string) => {
-      navigate({
-        to: "/lookups/$lookupName",
-        params: { lookupName },
-      });
-      onClose();
-    },
-    [navigate, onClose],
-  );
-
-  const commandConfig = useMemo(
+  const commandTree = useMemo(
     () =>
-      createCommandConfig({
-        actions: {
-          close: onClose,
-          loadPolicyRecord,
-          loadQuoteRecord,
-          navigateToCustomerFavorites: () => {
-            navigate({ to: "/customers/favorites" });
-            onClose();
-          },
-          navigateToKrakenEntrypoint,
-          navigateToLookupName,
-          navigateToPage: (to: PagePath) => navigate({ to }),
-          runCustomerSearch,
-          setTheme,
-          toggleCollapse: onToggleCollapse,
-        },
+      createCommandTree({
         collapsed,
         krakenEntrypoints,
         lookupNames,
         resolvedTheme,
       }),
-    [
-      collapsed,
-      krakenEntrypoints,
-      loadPolicyRecord,
-      loadQuoteRecord,
-      lookupNames,
-      navigate,
-      navigateToKrakenEntrypoint,
-      navigateToLookupName,
-      onClose,
-      onToggleCollapse,
-      resolvedTheme,
-      runCustomerSearch,
-      setTheme,
-    ],
+    [collapsed, krakenEntrypoints, lookupNames, resolvedTheme],
   );
-  const currentCommand = commandStack.at(-1) ?? commandConfig;
+  const activeEntry = navigationStack.at(-1);
+  const activeNode = activeEntry?.node ?? commandTree;
+  const activeContext = activeEntry?.context ?? EMPTY_COMMAND_CONTEXT;
 
   useEffect(() => {
     function onKeyDown(event: globalThis.KeyboardEvent) {
@@ -195,7 +169,7 @@ export function CommandSearch({
   useEffect(() => {
     if (!open) return;
 
-    setCommandStack([]);
+    setNavigationStack([]);
     resetCommandInput();
     requestAnimationFrame(() => inputRef.current?.focus());
   }, [open, resetCommandInput]);
@@ -204,25 +178,27 @@ export function CommandSearch({
     if (!open) return;
 
     requestAnimationFrame(() => inputRef.current?.focus());
-  }, [currentCommand.id, open]);
+  }, [activeNode.id, open]);
 
   const filteredResults = useMemo(
     () =>
-      createFilteredResults({
-        command: currentCommand,
-        onOpenCommand: openCommand,
+      createCommandResults({
+        context: activeContext,
+        node: activeNode,
+        onOpenNode: openNode,
+        onRunEffect: runCommandEffect,
         query,
       }),
-    [currentCommand, openCommand, query],
+    [activeContext, activeNode, openNode, query, runCommandEffect],
   );
   const resultGroups = useMemo(
-    () => groupCommandResults(filteredResults),
+    () => groupCommandSearchResults(filteredResults),
     [filteredResults],
   );
 
   useEffect(() => {
     setActiveIndex(0);
-  }, [currentCommand.id, query]);
+  }, [activeNode.id, query]);
 
   useEffect(() => {
     if (activeIndex >= filteredResults.length) {
@@ -232,10 +208,10 @@ export function CommandSearch({
 
   if (!open) return null;
 
-  const title = getCommandTitle(currentCommand);
-  const placeholder = getCommandPlaceholder(currentCommand);
-  const showBack = commandStack.length > 0;
-  const loadedEmpty = hasEmptyStaticChildren(currentCommand);
+  const title = getCommandTitle(activeNode);
+  const placeholder = getCommandPlaceholder(activeNode);
+  const showBack = navigationStack.length > 0;
+  const loadedEmpty = hasNoSubcommands(activeNode);
 
   function onPaletteKeyDown(event: KeyboardEvent) {
     if (event.key === "Escape") {
@@ -272,7 +248,7 @@ export function CommandSearch({
     filteredResults[activeIndex]?.run();
   }
 
-  function runResult(result: CommandResult) {
+  function runResult(result: CommandSearchResult) {
     result.run();
   }
 
@@ -311,8 +287,8 @@ export function CommandSearch({
             onChange={(event) => setQuery(event.target.value)}
             placeholder={placeholder}
             type={
-              currentCommand.type === "fields"
-                ? currentCommand.inputType ?? "text"
+              activeNode.type === "input"
+                ? (activeNode.inputType ?? "text")
                 : "text"
             }
             className="h-8 min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
@@ -369,14 +345,63 @@ export function CommandSearch({
               ))}
             </div>
           ) : (
-            <EmptyCommandState
-              message={getCommandEmptyMessage(currentCommand)}
-            />
+            <EmptyCommandState message={getCommandEmptyMessage(activeNode)} />
           )}
         </div>
       </div>
     </div>
   );
+}
+
+function resolveCustomerSearchPatch(
+  values: Partial<Record<keyof CustomerSearchValues, CommandRouteValue>>,
+  context: CommandContext,
+) {
+  return Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [
+      key,
+      resolveEffectValue(value, context),
+    ]),
+  ) as Partial<CustomerSearchValues>;
+}
+
+function resolveEffectParams(
+  params: Record<string, CommandRouteValue> | undefined,
+  context: CommandContext,
+) {
+  if (!params) return undefined;
+
+  return Object.fromEntries(
+    Object.entries(params).map(([key, value]) => [
+      key,
+      resolveEffectValue(value, context),
+    ]),
+  );
+}
+
+function resolveEffectValue(value: CommandRouteValue, context: CommandContext) {
+  if (typeof value === "object" && "valueKey" in value) {
+    return context[value.valueKey];
+  }
+
+  return value;
+}
+
+function resolveUrlEffectValue(
+  value: CommandUrlValue,
+  context: CommandContext,
+) {
+  if ("valueKey" in value) {
+    const contextValue = context[value.valueKey];
+
+    if (contextValue instanceof URL) {
+      return contextValue;
+    }
+
+    return new URL(String(contextValue), window.location.href);
+  }
+
+  return value;
 }
 
 function EmptyCommandState({ message }: { message: string }) {
