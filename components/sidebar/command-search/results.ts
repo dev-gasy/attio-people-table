@@ -1,4 +1,5 @@
 import {
+  BadgeCheck,
   Moon,
   PanelLeftClose,
   PanelLeftOpen,
@@ -22,6 +23,7 @@ import type {
 } from "@/components/sidebar/command-search/types";
 import type { KrakenEntrypoint } from "@/features/kraken/services/kraken.types";
 import type { LookupNameDto } from "@/features/lookups/services/lookups.types";
+import { normalizeVin } from "@/features/vin/domain/vin";
 
 type StaticKrakenEntrypoint = KrakenEntrypoint;
 type StaticLookupName = LookupNameDto;
@@ -71,6 +73,27 @@ export function createCommandTree({
         icon: Star,
         type: "action",
         effect: sequence(navigate("/customers/favorites"), close()),
+      },
+      {
+        id: "workflow-vin-validate",
+        name: "Validate VIN",
+        group: "Workflows",
+        keywords: "vin validate vehicle identification number check digit",
+        icon: navIcons.vin,
+        type: "input",
+        title: "Validate VIN",
+        placeholder: "Paste a VIN, e.g. 1FA-CP45E-X-LF192944",
+        emptyMessage: "Enter a VIN to validate",
+        submitIcon: BadgeCheck,
+        submitGroup: "VIN",
+        formatSubmitLabel: (vin) => `Validate VIN "${vin}"`,
+        formatSubmitKeywords: (vin) => `vin validate ${vin}`,
+        parseInput: parseVinInput,
+        valueKey: "vin",
+        effect: sequence(
+          navigate("/vin", undefined, { vin: { valueKey: "vin" } }),
+          close(),
+        ),
       },
       {
         id: "workflow-kraken-entrypoint",
@@ -431,11 +454,17 @@ function parseRevisionNumber(value: string) {
   return Number.isFinite(revisionNumber) ? revisionNumber : undefined;
 }
 
+function parseVinInput(value: string) {
+  const vin = normalizeVin(value);
+  return vin.length > 0 ? vin : undefined;
+}
+
 function navigate(
   to: string,
   params?: Record<string, CommandRouteValue>,
+  search?: Record<string, CommandRouteValue>,
 ): CommandEffect {
-  return { type: "navigate", to, params };
+  return { type: "navigate", to, params, search };
 }
 
 function close(): CommandEffect {

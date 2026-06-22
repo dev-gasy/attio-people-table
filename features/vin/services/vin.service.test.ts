@@ -1,32 +1,35 @@
-import { describe, expect, it } from "vitest";
-
-import {
-  calculateVinCheckDigit,
-  normalizeVin,
-  validateVin,
-} from "./vin.service";
+import { describe, expect, it, vi } from "vitest";
+import { VinService } from "./vin.service";
 
 describe("VIN service", () => {
-  it("normalizes whitespace, separators, and casing", () => {
-    expect(normalizeVin(" 1hg-cm8263 3a004352 ")).toBe(
-      "1HGCM82633A004352",
+  it("fetches brands from the VIN API route", async () => {
+    const httpClient = vi.fn().mockResolvedValue([]);
+    const service = new VinService(httpClient);
+
+    await expect(service.getBrands()).resolves.toEqual([]);
+
+    expect(httpClient).toHaveBeenCalledWith("/api/vin/brands");
+  });
+
+  it("fetches models with brand and year query params", async () => {
+    const httpClient = vi.fn().mockResolvedValue([]);
+    const service = new VinService(httpClient);
+
+    await service.getModels({ brand: "BMW", year: "2024" });
+
+    expect(httpClient).toHaveBeenCalledWith(
+      "/api/vin/models?brand=BMW&year=2024",
     );
   });
 
-  it("validates a VIN with a matching check digit", () => {
-    const result = validateVin("1HGCM82633A004352");
+  it("fetches WMIs with the brand query param", async () => {
+    const httpClient = vi.fn().mockResolvedValue([]);
+    const service = new VinService(httpClient);
 
-    expect(result).toMatchObject({
-      actualCheckDigit: "3",
-      expectedCheckDigit: "3",
-      isValid: true,
-      normalizedVin: "1HGCM82633A004352",
-      status: "valid",
-    });
-    expect(result.errors).toEqual([]);
-  });
+    await service.getWmis("Mercedes-Benz");
 
-  it("calculates X when the VIN check digit remainder is 10", () => {
-    expect(calculateVinCheckDigit("1M8GDM9AXKP042788")).toBe("X");
+    expect(httpClient).toHaveBeenCalledWith(
+      "/api/vin/wmis?brand=Mercedes-Benz",
+    );
   });
 });

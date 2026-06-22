@@ -53,6 +53,16 @@ function resolveEffectParams(
   );
 }
 
+function resolveEffectSearch(
+  search: Record<string, CommandRouteValue> | undefined,
+  context: CommandContext,
+) {
+  if (!search) return undefined;
+  return Object.fromEntries(
+    Object.entries(search).map(([k, v]) => [k, resolveEffectValue(v, context)]),
+  );
+}
+
 function resolveCustomerSearchPatch(
   values: Partial<Record<keyof CustomerSearchValues, CommandRouteValue>>,
   context: CommandContext,
@@ -192,6 +202,7 @@ export function CommandSearch({
           navigate({
             to: effect.to,
             params: resolveEffectParams(effect.params, context),
+            search: resolveEffectSearch(effect.search, context),
           } as never);
           break;
         case "patchStore":

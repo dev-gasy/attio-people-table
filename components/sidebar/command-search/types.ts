@@ -17,6 +17,7 @@ export type CommandEffect =
       type: "navigate";
       to: string;
       params?: Record<string, CommandRouteValue>;
+      search?: Record<string, CommandRouteValue>;
     }
   | {
       type: "patchStore";
