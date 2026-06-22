@@ -6,7 +6,9 @@ import {
 import {
   ServiceResponseError,
   serviceErrorResponse,
+  simulateServiceCall,
 } from "@/features/shared/service-latency";
+import { getApiSimulationRoute } from "@/features/shared/service-simulation-routes";
 import { APP_NAME } from "@/src/lib/page-meta";
 
 const appRequestMiddleware = createMiddleware({ type: "request" }).server(
@@ -25,13 +27,12 @@ const appRequestMiddleware = createMiddleware({ type: "request" }).server(
       throw error;
     }
 
-    const response = new Response(result.response.body, {
-      status: result.response.status,
-      statusText: result.response.statusText,
-      headers: result.response.headers,
-    });
+    if (result instanceof Response) {
+      result.headers.set("x-app-name", APP_NAME);
+      return result;
+    }
 
-    response.headers.set("x-app-name", APP_NAME);
+    const response = addAppNameHeader(result.response);
 
     return {
       ...result,
@@ -40,10 +41,45 @@ const appRequestMiddleware = createMiddleware({ type: "request" }).server(
   },
 );
 
+const apiSimulationMiddleware = createMiddleware({ type: "request" }).server(
+  async ({ next, pathname }) => {
+    const simulationConfig = getApiSimulationRoute(pathname);
+    if (!simulationConfig) return next();
+
+    try {
+      await simulateServiceCall(simulationConfig);
+    } catch (error) {
+      if (error instanceof ServiceResponseError) {
+        return addAppNameHeader(serviceErrorResponse(error));
+      }
+
+      throw error;
+    }
+
+    return next();
+  },
+);
+
 const csrfMiddleware = createCsrfMiddleware({
   filter: (ctx) => ctx.handlerType === "serverFn",
 });
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [csrfMiddleware, appRequestMiddleware],
+  requestMiddleware: [
+    csrfMiddleware,
+    appRequestMiddleware,
+    apiSimulationMiddleware,
+  ],
 }));
+
+function addAppNameHeader(source: Response) {
+  const response = new Response(source.body, {
+    status: source.status,
+    statusText: source.statusText,
+    headers: source.headers,
+  });
+
+  response.headers.set("x-app-name", APP_NAME);
+
+  return response;
+}

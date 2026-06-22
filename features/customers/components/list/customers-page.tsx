@@ -31,8 +31,6 @@ export function CustomersPage({
     handleResetSearch,
     handleSearch,
 
-    isSearching,
-
     query: { error, isError, isFetching, isLoading, refetch },
 
     searchValues,
@@ -77,7 +75,7 @@ export function CustomersPage({
             values={searchValues}
             open={searchOpen}
             onOpenChange={setSearchOpen}
-            disabled={isLoading || isSearching}
+            disabled={isLoading || isFetching}
             onSearch={async (values) => {
               const loaded = await handleSearch(values);
               if (loaded) setSearchOpen(false);

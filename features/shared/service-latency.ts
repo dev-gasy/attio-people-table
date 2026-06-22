@@ -1,10 +1,17 @@
-import { createMiddleware } from "@tanstack/react-start";
-import {
-  serviceSimulationConfig,
-  type ServiceSimulationRoute,
-} from "@/features/shared/service-simulation-config";
-
 export const SERVICE_LATENCY_MS = 600;
+
+export type ServiceErrorSimulation = {
+  enabled: boolean;
+  status: number;
+  statusText: string;
+  message: string;
+};
+
+export type ServiceSimulationConfig = {
+  enabled: boolean;
+  latencyMs: number;
+  error?: ServiceErrorSimulation;
+};
 
 export class ServiceResponseError extends Error {
   readonly status: number;
@@ -26,44 +33,13 @@ export class ServiceResponseError extends Error {
   }
 }
 
-export async function simulateServiceResponse(
-  routeKey: ServiceSimulationRoute,
-): Promise<Response | null> {
-  try {
-    await simulateServiceCall(routeKey);
-    return null;
-  } catch (error) {
-    if (error instanceof ServiceResponseError) {
-      return serviceErrorResponse(error);
-    }
-
-    throw error;
-  }
-}
-
-export function createServiceSimulationMiddleware(
-  routeKey:
-    | ServiceSimulationRoute
-    | ((data: unknown) => ServiceSimulationRoute),
-) {
-  return createMiddleware({ type: "function" }).server(
-    async ({ next, data }) => {
-      await simulateServiceCall(
-        typeof routeKey === "function" ? routeKey(data) : routeKey,
-      );
-      return next();
-    },
-  );
-}
-
-export async function simulateServiceCall(routeKey: ServiceSimulationRoute) {
-  const config = serviceSimulationConfig[routeKey];
+export async function simulateServiceCall(config: ServiceSimulationConfig) {
   if (!config.enabled) return null;
 
   await waitForServiceLatency(config.latencyMs);
 
-  if (config.failure?.enabled) {
-    throw new ServiceResponseError(config.failure);
+  if (config.error?.enabled) {
+    throw new ServiceResponseError(config.error);
   }
 
   return null;

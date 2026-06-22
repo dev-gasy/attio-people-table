@@ -3,12 +3,9 @@ import {
   mapLookupDtosToLookups,
   type Lookup,
 } from "@/features/lookups/lookup-mappers";
-import {
-  getLookupNameServer,
-  getLookupNamesServer,
-  getLookupsServer,
-  getStaticLookupNamesPayload,
-} from "@/features/lookups/lookup-server";
+import { getStaticLookupNamesPayload } from "@/features/lookups/lookup-server";
+import type { LookupDto } from "@/features/lookups/lookup-dtos";
+import { fetchJson } from "@/features/shared/fetch-json";
 
 export type LookupNameDto = {
   name: string;
@@ -40,17 +37,20 @@ export const lookupNameQueryOptions = (lookupName: string) =>
   });
 
 export function getLookups() {
-  return getLookupsServer().then(mapLookupDtosToLookups);
+  return fetchJson<LookupDto[]>("/api/lookups").then(mapLookupDtosToLookups);
 }
 
 export function getLookupNames() {
-  return getLookupNamesServer();
+  return fetchJson<LookupNameDto[]>("/api/lookups/names");
 }
 
 export async function getLookupName(
   lookupName: string,
 ): Promise<LookupNameResponse> {
-  const response = await getLookupNameServer({ data: { lookupName } });
+  const response = await fetchJson<{
+    lookupName: LookupNameDto;
+    lookups: LookupDto[];
+  }>(`/api/lookups/names/${encodeURIComponent(lookupName)}`);
 
   return {
     ...response,

@@ -1,25 +1,21 @@
 import { createServerFn } from "@tanstack/react-start";
 import { lookupSeed } from "@/features/lookups/lookup-dtos";
 import { createSlug } from "@/features/shared/slugs";
-import {
-  createServiceSimulationMiddleware,
-  ServiceResponseError,
-} from "@/features/shared/service-latency";
+import { ServiceResponseError } from "@/features/shared/service-latency";
 
-export const getLookupsServer = createServerFn({ method: "GET" })
-  .middleware([createServiceSimulationMiddleware("lookupsList")])
-  .handler(async () => {
+export const getLookupsServer = createServerFn({ method: "GET" }).handler(
+  async () => {
     return lookupSeed;
-  });
+  },
+);
 
-export const getLookupNamesServer = createServerFn({ method: "GET" })
-  .middleware([createServiceSimulationMiddleware("lookupNamesList")])
-  .handler(async () => {
+export const getLookupNamesServer = createServerFn({ method: "GET" }).handler(
+  async () => {
     return getStaticLookupNamesPayload();
-  });
+  },
+);
 
 export const getLookupNameServer = createServerFn({ method: "GET" })
-  .middleware([createServiceSimulationMiddleware("lookupNameDetail")])
   .validator((data: { lookupName: string }) => data)
   .handler(async ({ data }) => {
     const lookupName = getLookupNameBySlug(data.lookupName);

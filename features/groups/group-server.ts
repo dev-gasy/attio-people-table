@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { groupsSeed, type GroupDto } from "@/features/groups/group-dtos";
-import { createServiceSimulationMiddleware } from "@/features/shared/service-latency";
 
 export type GroupFilters = {
   province?: string;
@@ -8,7 +7,6 @@ export type GroupFilters = {
 };
 
 export const getGroupsServer = createServerFn({ method: "GET" })
-  .middleware([createServiceSimulationMiddleware("groupsList")])
   .validator((data: GroupFilters | undefined) => data ?? {})
   .handler(async ({ data }) => {
     return filterGroups(groupsSeed, data);

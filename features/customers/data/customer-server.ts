@@ -4,20 +4,18 @@ import {
   customerProductsSeed,
   customersSeed,
 } from "@/features/customers/data/customer-dtos";
-import { createServiceSimulationMiddleware } from "@/features/shared/service-latency";
 
-export const getCustomersServer = createServerFn({ method: "GET" })
-  .middleware([createServiceSimulationMiddleware("customersList")])
-  .handler(async () => {
+export const getCustomersServer = createServerFn({ method: "GET" }).handler(
+  async () => {
     return {
       customers: customersSeed,
       contacts: customerContactsSeed,
       products: customerProductsSeed,
     };
-  });
+  },
+);
 
 export const getCustomerServer = createServerFn({ method: "GET" })
-  .middleware([createServiceSimulationMiddleware("customerDetail")])
   .validator((data: { customerId: number }) => data)
   .handler(async ({ data }) => {
     return {

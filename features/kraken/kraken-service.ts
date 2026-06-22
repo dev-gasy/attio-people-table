@@ -1,10 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { KrakenEntrypointDto } from "@/features/kraken/kraken-dtos";
-import {
-  getKrakenEntrypointRulesServer,
-  getKrakenEntrypointsServer,
-  getStaticKrakenEntrypointsPayload,
-} from "@/features/kraken/kraken-server";
+import type {
+  KrakenEntrypointDto,
+  KrakenEntrypointRulesResponseDto,
+} from "@/features/kraken/kraken-dtos";
+import { getStaticKrakenEntrypointsPayload } from "@/features/kraken/kraken-server";
+import { fetchJson } from "@/features/shared/fetch-json";
 
 export const krakenEntrypointsQueryOptions = () =>
   queryOptions({
@@ -19,11 +19,13 @@ export const krakenEntrypointRulesQueryOptions = (entrypointName: string) =>
   });
 
 export function getKrakenEntrypoints() {
-  return getKrakenEntrypointsServer();
+  return fetchJson<KrakenEntrypointDto[]>("/api/kraken/entrypoints");
 }
 
 export function getKrakenEntrypointRules(entrypointName: string) {
-  return getKrakenEntrypointRulesServer({ data: { entrypointName } });
+  return fetchJson<KrakenEntrypointRulesResponseDto>(
+    `/api/kraken/entrypoints/${encodeURIComponent(entrypointName)}/rules`,
+  );
 }
 
 export function getStaticKrakenEntrypoints(): KrakenEntrypointDto[] {

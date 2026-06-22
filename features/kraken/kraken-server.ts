@@ -1,21 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { entrypoints, rules } from "@/features/kraken/kraken-data";
 import { createSlug } from "@/features/shared/slugs";
-import {
-  createServiceSimulationMiddleware,
-  ServiceResponseError,
-} from "@/features/shared/service-latency";
+import { ServiceResponseError } from "@/features/shared/service-latency";
 
 export const getKrakenEntrypointsServer = createServerFn({
   method: "GET",
-})
-  .middleware([createServiceSimulationMiddleware("krakenEntrypointsList")])
-  .handler(async () => {
-    return getStaticKrakenEntrypointsPayload();
-  });
+}).handler(async () => {
+  return getStaticKrakenEntrypointsPayload();
+});
 
 export const getKrakenEntrypointRulesServer = createServerFn({ method: "GET" })
-  .middleware([createServiceSimulationMiddleware("krakenEntrypointRules")])
   .validator((data: { entrypointName: string }) => data)
   .handler(async ({ data }) => {
     const entrypoint = entrypoints.find(
