@@ -89,11 +89,15 @@ function SearchField({
 
 export function CustomerSearchForm({
   values = emptyCustomerSearchValues,
+  open,
+  onOpenChange,
   onSearch,
   onReset,
   disabled = false,
 }: {
   values?: CustomerSearchValues;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onSearch: (values: CustomerSearchValues) => void;
   onReset: () => void;
   disabled?: boolean;
@@ -125,7 +129,12 @@ export function CustomerSearchForm({
         form.handleSubmit();
       }}
     >
-      <Collapsible title="Customer search" icon={Search}>
+      <Collapsible
+        title="Customer search"
+        icon={Search}
+        open={open}
+        onOpenChange={onOpenChange}
+      >
         <div className="divide-y divide-border/60 bg-muted/10">
           {fieldGroups.map((group, index) => (
             <section key={index} className="px-4 py-4">

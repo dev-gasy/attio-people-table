@@ -42,7 +42,9 @@ export function useCustomersPage({ mode }: { mode: CustomersPageMode }) {
     return filterCustomers(customers, searchValues);
   }, [customers, favorites.favoriteIdSet, mode, searchValues]);
 
-  async function runSyntheticCustomerSearch(applySearch: () => void) {
+  async function runSyntheticCustomerSearch<T>(
+    applySearch: () => Promise<T> | T,
+  ) {
     if (query.isLoading || searchInFlightRef.current) return;
 
     searchInFlightRef.current = true;
@@ -50,7 +52,7 @@ export function useCustomersPage({ mode }: { mode: CustomersPageMode }) {
 
     try {
       await waitForServiceLatency();
-      applySearch();
+      return await applySearch();
     } finally {
       searchInFlightRef.current = false;
       setIsSearching(false);
@@ -58,9 +60,15 @@ export function useCustomersPage({ mode }: { mode: CustomersPageMode }) {
   }
 
   async function handleSearch(values: CustomerSearchValues) {
-    await runSyntheticCustomerSearch(() => {
+    return await runSyntheticCustomerSearch(async () => {
+      if (query.data === undefined) {
+        const result = await query.refetch();
+        if (result.isError) return false;
+      }
+
       setCustomerSearch(trimCustomerSearchValues(values));
       void navigate({ to: "/customers" });
+      return true;
     });
   }
 

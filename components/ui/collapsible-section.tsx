@@ -7,6 +7,8 @@ export function Collapsible({
   subtitle,
   count,
   defaultOpen = true,
+  open: controlledOpen,
+  onOpenChange,
   icon: Icon,
   headerClassName,
   iconClassName,
@@ -17,19 +19,27 @@ export function Collapsible({
   subtitle?: string;
   count?: number;
   defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   icon?: React.ComponentType<{ className?: string }>;
   headerClassName?: string;
   iconClassName?: string;
   countClassName?: string;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const open = controlledOpen ?? uncontrolledOpen;
+
+  function setOpen(nextOpen: boolean) {
+    if (controlledOpen === undefined) setUncontrolledOpen(nextOpen);
+    onOpenChange?.(nextOpen);
+  }
 
   return (
     <div className="overflow-hidden rounded-xl border border-border">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(!open)}
         className={cn(
           "flex w-full items-center gap-2.5 bg-muted/30 px-4 py-3 text-left hover:bg-muted/50",
           headerClassName,
