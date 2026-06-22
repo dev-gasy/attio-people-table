@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 
 export type PageId =
   | "driving-licence"
+  | "vin"
   | "kraken"
   | "lookups"
   | "tasks"

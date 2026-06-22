@@ -36,7 +36,7 @@ export function Collapsible({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border">
+    <div className="rounded-xl border border-border">
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -75,7 +75,7 @@ export function Collapsible({
           open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
         }`}
       >
-        <div className="overflow-hidden">
+        <div className={open ? "overflow-visible" : "overflow-hidden"}>
           <div className="border-t border-border">{children}</div>
         </div>
       </div>

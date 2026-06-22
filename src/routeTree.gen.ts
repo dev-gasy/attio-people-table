@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiLookupsRouteImport } from './routes/api/lookups'
 import { Route as ApiGroupsRouteImport } from './routes/api/groups'
 import { Route as ApiCustomersRouteImport } from './routes/api/customers'
+import { Route as AppVinRouteImport } from './routes/_app/vin'
 import { Route as AppTasksRouteImport } from './routes/_app/tasks'
 import { Route as AppNotesRouteImport } from './routes/_app/notes'
 import { Route as AppLookupsRouteImport } from './routes/_app/lookups'
@@ -22,6 +23,9 @@ import { Route as AppKrakenRouteImport } from './routes/_app/kraken'
 import { Route as AppGroupsRouteImport } from './routes/_app/groups'
 import { Route as AppDrivingLicenceRouteImport } from './routes/_app/driving-licence'
 import { Route as AppCustomersRouteImport } from './routes/_app/customers'
+import { Route as ApiVinWmisRouteImport } from './routes/api/vin.wmis'
+import { Route as ApiVinModelsRouteImport } from './routes/api/vin.models'
+import { Route as ApiVinBrandsRouteImport } from './routes/api/vin.brands'
 import { Route as ApiQuotesBusinessKeyRouteImport } from './routes/api/quotes.$businessKey'
 import { Route as ApiPoliciesBusinessKeyRouteImport } from './routes/api/policies.$businessKey'
 import { Route as ApiLookupsNamesRouteImport } from './routes/api/lookups.names'
@@ -59,6 +63,11 @@ const ApiCustomersRoute = ApiCustomersRouteImport.update({
   id: '/api/customers',
   path: '/api/customers',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppVinRoute = AppVinRouteImport.update({
+  id: '/vin',
+  path: '/vin',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppTasksRoute = AppTasksRouteImport.update({
   id: '/tasks',
@@ -99,6 +108,21 @@ const AppCustomersRoute = AppCustomersRouteImport.update({
   id: '/customers',
   path: '/customers',
   getParentRoute: () => AppRoute,
+} as any)
+const ApiVinWmisRoute = ApiVinWmisRouteImport.update({
+  id: '/api/vin/wmis',
+  path: '/api/vin/wmis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVinModelsRoute = ApiVinModelsRouteImport.update({
+  id: '/api/vin/models',
+  path: '/api/vin/models',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVinBrandsRoute = ApiVinBrandsRouteImport.update({
+  id: '/api/vin/brands',
+  path: '/api/vin/brands',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiQuotesBusinessKeyRoute = ApiQuotesBusinessKeyRouteImport.update({
   id: '/api/quotes/$businessKey',
@@ -179,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/lookups': typeof AppLookupsRoute
   '/notes': typeof AppNotesRoute
   '/tasks': typeof AppTasksRoute
+  '/vin': typeof AppVinRoute
   '/api/customers': typeof ApiCustomersRouteWithChildren
   '/api/groups': typeof ApiGroupsRoute
   '/api/lookups': typeof ApiLookupsRouteWithChildren
@@ -192,6 +217,9 @@ export interface FileRoutesByFullPath {
   '/api/lookups/names': typeof ApiLookupsNamesRouteWithChildren
   '/api/policies/$businessKey': typeof ApiPoliciesBusinessKeyRoute
   '/api/quotes/$businessKey': typeof ApiQuotesBusinessKeyRoute
+  '/api/vin/brands': typeof ApiVinBrandsRoute
+  '/api/vin/models': typeof ApiVinModelsRoute
+  '/api/vin/wmis': typeof ApiVinWmisRoute
   '/quotes/$businessKey/$revisionNumber': typeof AppQuotesBusinessKeyRevisionNumberRoute
   '/api/lookups/names/$lookupName': typeof ApiLookupsNamesLookupNameRoute
   '/api/kraken/entrypoints/$entrypointName/rules': typeof ApiKrakenEntrypointsEntrypointNameRulesRoute
@@ -206,6 +234,7 @@ export interface FileRoutesByTo {
   '/lookups': typeof AppLookupsRoute
   '/notes': typeof AppNotesRoute
   '/tasks': typeof AppTasksRoute
+  '/vin': typeof AppVinRoute
   '/api/customers': typeof ApiCustomersRouteWithChildren
   '/api/groups': typeof ApiGroupsRoute
   '/api/lookups': typeof ApiLookupsRouteWithChildren
@@ -219,6 +248,9 @@ export interface FileRoutesByTo {
   '/api/lookups/names': typeof ApiLookupsNamesRouteWithChildren
   '/api/policies/$businessKey': typeof ApiPoliciesBusinessKeyRoute
   '/api/quotes/$businessKey': typeof ApiQuotesBusinessKeyRoute
+  '/api/vin/brands': typeof ApiVinBrandsRoute
+  '/api/vin/models': typeof ApiVinModelsRoute
+  '/api/vin/wmis': typeof ApiVinWmisRoute
   '/quotes/$businessKey/$revisionNumber': typeof AppQuotesBusinessKeyRevisionNumberRoute
   '/api/lookups/names/$lookupName': typeof ApiLookupsNamesLookupNameRoute
   '/api/kraken/entrypoints/$entrypointName/rules': typeof ApiKrakenEntrypointsEntrypointNameRulesRoute
@@ -235,6 +267,7 @@ export interface FileRoutesById {
   '/_app/lookups': typeof AppLookupsRoute
   '/_app/notes': typeof AppNotesRoute
   '/_app/tasks': typeof AppTasksRoute
+  '/_app/vin': typeof AppVinRoute
   '/api/customers': typeof ApiCustomersRouteWithChildren
   '/api/groups': typeof ApiGroupsRoute
   '/api/lookups': typeof ApiLookupsRouteWithChildren
@@ -248,6 +281,9 @@ export interface FileRoutesById {
   '/api/lookups/names': typeof ApiLookupsNamesRouteWithChildren
   '/api/policies/$businessKey': typeof ApiPoliciesBusinessKeyRoute
   '/api/quotes/$businessKey': typeof ApiQuotesBusinessKeyRoute
+  '/api/vin/brands': typeof ApiVinBrandsRoute
+  '/api/vin/models': typeof ApiVinModelsRoute
+  '/api/vin/wmis': typeof ApiVinWmisRoute
   '/_app/quotes_/$businessKey/$revisionNumber': typeof AppQuotesBusinessKeyRevisionNumberRoute
   '/api/lookups/names/$lookupName': typeof ApiLookupsNamesLookupNameRoute
   '/api/kraken/entrypoints/$entrypointName/rules': typeof ApiKrakenEntrypointsEntrypointNameRulesRoute
@@ -264,6 +300,7 @@ export interface FileRouteTypes {
     | '/lookups'
     | '/notes'
     | '/tasks'
+    | '/vin'
     | '/api/customers'
     | '/api/groups'
     | '/api/lookups'
@@ -277,6 +314,9 @@ export interface FileRouteTypes {
     | '/api/lookups/names'
     | '/api/policies/$businessKey'
     | '/api/quotes/$businessKey'
+    | '/api/vin/brands'
+    | '/api/vin/models'
+    | '/api/vin/wmis'
     | '/quotes/$businessKey/$revisionNumber'
     | '/api/lookups/names/$lookupName'
     | '/api/kraken/entrypoints/$entrypointName/rules'
@@ -291,6 +331,7 @@ export interface FileRouteTypes {
     | '/lookups'
     | '/notes'
     | '/tasks'
+    | '/vin'
     | '/api/customers'
     | '/api/groups'
     | '/api/lookups'
@@ -304,6 +345,9 @@ export interface FileRouteTypes {
     | '/api/lookups/names'
     | '/api/policies/$businessKey'
     | '/api/quotes/$businessKey'
+    | '/api/vin/brands'
+    | '/api/vin/models'
+    | '/api/vin/wmis'
     | '/quotes/$businessKey/$revisionNumber'
     | '/api/lookups/names/$lookupName'
     | '/api/kraken/entrypoints/$entrypointName/rules'
@@ -319,6 +363,7 @@ export interface FileRouteTypes {
     | '/_app/lookups'
     | '/_app/notes'
     | '/_app/tasks'
+    | '/_app/vin'
     | '/api/customers'
     | '/api/groups'
     | '/api/lookups'
@@ -332,6 +377,9 @@ export interface FileRouteTypes {
     | '/api/lookups/names'
     | '/api/policies/$businessKey'
     | '/api/quotes/$businessKey'
+    | '/api/vin/brands'
+    | '/api/vin/models'
+    | '/api/vin/wmis'
     | '/_app/quotes_/$businessKey/$revisionNumber'
     | '/api/lookups/names/$lookupName'
     | '/api/kraken/entrypoints/$entrypointName/rules'
@@ -346,6 +394,9 @@ export interface RootRouteChildren {
   ApiKrakenEntrypointsRoute: typeof ApiKrakenEntrypointsRouteWithChildren
   ApiPoliciesBusinessKeyRoute: typeof ApiPoliciesBusinessKeyRoute
   ApiQuotesBusinessKeyRoute: typeof ApiQuotesBusinessKeyRoute
+  ApiVinBrandsRoute: typeof ApiVinBrandsRoute
+  ApiVinModelsRoute: typeof ApiVinModelsRoute
+  ApiVinWmisRoute: typeof ApiVinWmisRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -384,6 +435,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/customers'
       preLoaderRoute: typeof ApiCustomersRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/vin': {
+      id: '/_app/vin'
+      path: '/vin'
+      fullPath: '/vin'
+      preLoaderRoute: typeof AppVinRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/tasks': {
       id: '/_app/tasks'
@@ -440,6 +498,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/customers'
       preLoaderRoute: typeof AppCustomersRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/api/vin/wmis': {
+      id: '/api/vin/wmis'
+      path: '/api/vin/wmis'
+      fullPath: '/api/vin/wmis'
+      preLoaderRoute: typeof ApiVinWmisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/vin/models': {
+      id: '/api/vin/models'
+      path: '/api/vin/models'
+      fullPath: '/api/vin/models'
+      preLoaderRoute: typeof ApiVinModelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/vin/brands': {
+      id: '/api/vin/brands'
+      path: '/api/vin/brands'
+      fullPath: '/api/vin/brands'
+      preLoaderRoute: typeof ApiVinBrandsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/quotes/$businessKey': {
       id: '/api/quotes/$businessKey'
@@ -544,6 +623,7 @@ interface AppRouteChildren {
   AppLookupsRoute: typeof AppLookupsRoute
   AppNotesRoute: typeof AppNotesRoute
   AppTasksRoute: typeof AppTasksRoute
+  AppVinRoute: typeof AppVinRoute
   AppCustomersCustomerIdRoute: typeof AppCustomersCustomerIdRoute
   AppCustomersFavoritesRoute: typeof AppCustomersFavoritesRoute
   AppKrakenEntrypointNameRoute: typeof AppKrakenEntrypointNameRoute
@@ -561,6 +641,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppLookupsRoute: AppLookupsRoute,
   AppNotesRoute: AppNotesRoute,
   AppTasksRoute: AppTasksRoute,
+  AppVinRoute: AppVinRoute,
   AppCustomersCustomerIdRoute: AppCustomersCustomerIdRoute,
   AppCustomersFavoritesRoute: AppCustomersFavoritesRoute,
   AppKrakenEntrypointNameRoute: AppKrakenEntrypointNameRoute,
@@ -629,6 +710,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiKrakenEntrypointsRoute: ApiKrakenEntrypointsRouteWithChildren,
   ApiPoliciesBusinessKeyRoute: ApiPoliciesBusinessKeyRoute,
   ApiQuotesBusinessKeyRoute: ApiQuotesBusinessKeyRoute,
+  ApiVinBrandsRoute: ApiVinBrandsRoute,
+  ApiVinModelsRoute: ApiVinModelsRoute,
+  ApiVinWmisRoute: ApiVinWmisRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,5 +1,6 @@
 import {
   Building2,
+  CarFront,
   CheckSquare,
   ContactRound,
   IdCard,
@@ -57,6 +58,12 @@ export const navSections: SidebarNavSection[] = [
         to: "/driving-licence",
         icon: IdCard,
         label: "Driving Licence",
+      },
+      {
+        id: "vin",
+        to: "/vin",
+        icon: CarFront,
+        label: "VIN Generator",
       },
     ],
   },
