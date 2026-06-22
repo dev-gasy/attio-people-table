@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InsuranceDetailPage } from "@/features/insurance/components/insurance-detail-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { insuranceRecordQueryOptions } from "@/features/insurance/insurance-service";
 import { buildPageMeta } from "@/src/lib/page-meta";
 
 export const Route = createFileRoute(
@@ -20,19 +19,11 @@ export const Route = createFileRoute(
       revisionNumber: String(params.revisionNumber),
     }),
   },
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(
-      insuranceRecordQueryOptions("quote", params.businessKey),
-    ),
-  head: ({ loaderData, params }) => {
-    const businessKey = loaderData?.record?.businessKey ?? params.businessKey;
-
+  head: ({ params }) => {
     return {
       meta: buildPageMeta({
-        title: `Quote ${businessKey}`,
-        description: loaderData?.record
-          ? `View quote ${businessKey} for ${loaderData.record.customerName}.`
-          : `View quote ${businessKey} in CRM Demo.`,
+        title: `Quote ${params.businessKey}`,
+        description: `View quote ${params.businessKey} in CRM Demo.`,
       }),
     };
   },

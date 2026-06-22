@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { GroupsPage } from "@/features/groups/components/groups-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { groupsQueryOptions } from "@/features/groups/group-service";
-import {
-  shouldFetchGroups,
-  type GroupsSearch,
-} from "@/features/groups/use-groups-page";
+import { type GroupsSearch } from "@/features/groups/use-groups-page";
 import { buildPageMeta } from "@/src/lib/page-meta";
 
 export const Route = createFileRoute("/_app/groups")({
@@ -13,12 +9,6 @@ export const Route = createFileRoute("/_app/groups")({
     province: typeof search.province === "string" ? search.province : undefined,
     search: typeof search.search === "string" ? search.search : undefined,
   }),
-  loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => {
-    if (!shouldFetchGroups(deps)) return;
-
-    return context.queryClient.ensureQueryData(groupsQueryOptions(deps));
-  },
   head: () => ({
     meta: buildPageMeta({
       title: "Groups",

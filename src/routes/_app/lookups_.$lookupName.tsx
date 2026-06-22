@@ -1,16 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LookupsPage } from "@/features/lookups/components/lookups-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { lookupNameQueryOptions } from "@/features/lookups/lookup-service";
+import { getStaticLookupNames } from "@/features/lookups/lookup-service";
 import { buildPageMeta } from "@/src/lib/page-meta";
 
 export const Route = createFileRoute("/_app/lookups_/$lookupName")({
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(
-      lookupNameQueryOptions(params.lookupName),
-    ),
-  head: ({ loaderData, params }) => {
-    const lookupName = loaderData?.lookupName?.name ?? params.lookupName;
+  head: ({ params }) => {
+    const lookupName =
+      getStaticLookupNames().find((lookup) => lookup.slug === params.lookupName)
+        ?.name ?? params.lookupName;
 
     return {
       meta: buildPageMeta({

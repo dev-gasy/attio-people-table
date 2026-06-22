@@ -1,17 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { KrakenPage } from "@/features/kraken/components/kraken-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { krakenEntrypointRulesQueryOptions } from "@/features/kraken/kraken-service";
+import { getStaticKrakenEntrypoints } from "@/features/kraken/kraken-service";
 import { buildPageMeta } from "@/src/lib/page-meta";
 
 export const Route = createFileRoute("/_app/kraken_/$entrypointName")({
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(
-      krakenEntrypointRulesQueryOptions(params.entrypointName),
-    ),
-  head: ({ loaderData, params }) => {
+  head: ({ params }) => {
     const entrypointName =
-      loaderData?.entrypoint?.name ?? params.entrypointName;
+      getStaticKrakenEntrypoints().find(
+        (entrypoint) => entrypoint.slug === params.entrypointName,
+      )?.name ?? params.entrypointName;
 
     return {
       meta: buildPageMeta({
