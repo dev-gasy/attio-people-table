@@ -1,4 +1,4 @@
-import { faker } from "@faker-js/faker";
+import { fakerEN_CA as faker } from "@faker-js/faker";
 import type {
   CustomerContactKind as CustomerContactKindDto,
   CustomerContactDto,
@@ -113,6 +113,7 @@ export const customersSeed: CustomerDto[] = Array.from(
       from: new Date("2018-01-01"),
       to: new Date("2026-06-13"),
     });
+    const province = faker.location.state();
 
     return {
       id: index + 1,
@@ -123,9 +124,9 @@ export const customersSeed: CustomerDto[] = Array.from(
       status: faker.helpers.arrayElement(customerStatusSeeds),
       segment: faker.helpers.arrayElement(customerSegmentSeeds),
       owner: faker.helpers.arrayElement(customerOwnerSeeds),
-      location: `${faker.location.city()}, ${faker.location.state({ abbreviated: true })}`,
+      location: `${faker.location.city()}, ${province}`,
       since: `${sinceDate.toLocaleString("en-US", { month: "short" })} ${sinceDate.getFullYear()}`,
-      summary: faker.company.catchPhrase(),
+      summary: province,
       lifetimeValue: `$${faker.number.float({ min: 2, max: 95, fractionDigits: 1 }).toFixed(1)}K`,
       risk: faker.helpers.arrayElement(customerRiskSeeds),
     };
@@ -186,7 +187,7 @@ function createCustomerContactValue(
       .toLowerCase();
   }
 
-  return `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode()}`;
+  return `${faker.location.streetAddress()}, ${faker.location.city()}, ${customer.summary} ${faker.location.zipCode()}`;
 }
 
 export const customerProductsSeed: CustomerProductDto[] = customersSeed.flatMap(

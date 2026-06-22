@@ -1,4 +1,4 @@
-import { faker } from "@faker-js/faker";
+import { fakerEN_CA as faker } from "@faker-js/faker";
 import { z } from "zod";
 import { canadianProvinces } from "@/features/driving-licence/domain/provinces";
 
@@ -31,7 +31,6 @@ export type LicenceFormValues = {
   dateOfBirth: string;
   province: Province | "";
   gender: Gender | "";
-  email: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -71,6 +70,31 @@ export function calculateLicenceAge(
       ? 1
       : 0)
   );
+}
+
+export function formatLicenceAge(
+  dateOfBirth: Date,
+  referenceDate = new Date(),
+): string {
+  let years = referenceDate.getFullYear() - dateOfBirth.getFullYear();
+  let months = referenceDate.getMonth() - dateOfBirth.getMonth();
+  let days = referenceDate.getDate() - dateOfBirth.getDate();
+
+  if (days < 0) {
+    months -= 1;
+    days += new Date(
+      referenceDate.getFullYear(),
+      referenceDate.getMonth(),
+      0,
+    ).getDate();
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  return `${years} years, ${months} months, ${days} days`;
 }
 
 // ---------------------------------------------------------------------------
@@ -150,12 +174,6 @@ export const LicenceFormValuesSchema = z
     dateOfBirth: DateOfBirthValueSchema,
     province: ProvinceSchema,
     gender: GenderSchema,
-    email: z
-      .string()
-      .trim()
-      .min(1, "Email is required")
-      .email("Please enter a valid email address")
-      .transform((v) => v.toLowerCase()),
   })
   .superRefine((data, context) => {
     // Cross-field: enforce province-specific minimum driving age
@@ -183,10 +201,12 @@ export const LicenceResultSchema = z.object({
   lastName: z.string(),
   fullName: z.string(),
   dateOfBirth: z.string(),
-  age: z.number(),
+  age: z.string(),
   province: ProvinceSchema,
   gender: GenderSchema,
   email: z.string(),
+  phone: z.string(),
+  address: z.string(),
   licenceNumber: z.string(),
   issueDate: z.string(),
   expiryDate: z.string(),
@@ -252,7 +272,6 @@ export const emptyLicenceForm: LicenceFormValues = {
   province: "",
   // No default gender — the user must make an explicit choice.
   gender: "",
-  email: "",
 };
 
 // ---------------------------------------------------------------------------
@@ -264,18 +283,23 @@ export function createRandomLicenceForm(): LicenceForm {
   const firstName = faker.person.firstName(sex);
   const lastName = faker.person.lastName();
   const gender = sex === "female" ? "Female" : "Male";
+  const province = faker.helpers.arrayElement(canadianProvinces);
+
   return {
     firstName,
     lastName,
     dateOfBirth: faker.date.birthdate({ min: 16, max: 80, mode: "age" }),
-    province: faker.helpers.arrayElement(canadianProvinces),
+    province,
     gender,
-    email: faker.internet.email({ firstName, lastName }).toLowerCase(),
   };
 }
 
 export function createRandomLicenceFormValues(): LicenceFormValues {
   return toLicenceFormValues(createRandomLicenceForm());
+}
+
+export function createCanadianAddress(province: string): string {
+  return `${faker.location.streetAddress()}, ${faker.location.city()}, ${province} ${faker.location.zipCode()}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -293,7 +317,6 @@ export function generateLicenceNumber(form: LicenceForm): string {
     form.lastName,
     formatLicenceDateInput(form.dateOfBirth),
     form.province,
-    form.email,
   ].join("|");
 
   // FNV-1a 32-bit
@@ -316,16 +339,21 @@ export function createLicenceResult(
 ): LicenceResult {
   const issueDate = formatLicenceDateInput(referenceDate);
   const expiryDate = addYears(referenceDate, 5);
+  const email = faker.internet
+    .email({ firstName: form.firstName, lastName: form.lastName })
+    .toLowerCase();
 
   return {
     firstName: form.firstName,
     lastName: form.lastName,
     fullName: `${form.firstName} ${form.lastName}`,
     dateOfBirth: formatLicenceDateInput(form.dateOfBirth),
-    age: calculateLicenceAge(form.dateOfBirth, referenceDate),
+    age: formatLicenceAge(form.dateOfBirth, referenceDate),
     province: form.province,
     gender: form.gender,
-    email: form.email,
+    email,
+    phone: faker.phone.number({ style: "national" }),
+    address: createCanadianAddress(form.province),
     licenceNumber: generateLicenceNumber(form),
     issueDate,
     expiryDate: formatLicenceDateInput(expiryDate),

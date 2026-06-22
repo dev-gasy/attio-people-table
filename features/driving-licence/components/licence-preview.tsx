@@ -3,9 +3,11 @@ import {
   CheckCircle2,
   Mail,
   MapPin,
+  Phone,
   ShieldAlert,
   UserRound,
 } from "lucide-react";
+import { CopyToClipboard } from "@/components/copy-to-clipboard";
 import type { LicenceResult } from "@/features/driving-licence/domain/licence";
 
 type LicencePreviewProps = {
@@ -51,13 +53,19 @@ function LicenceCard({ result }: { result: LicenceResult }) {
       </div>
 
       {/* Licence number */}
-      <div className="px-4 pt-4 pb-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Licence number
-        </p>
-        <p className="mt-0.5 font-mono text-2xl font-bold tracking-widest text-foreground">
-          {result.licenceNumber}
-        </p>
+      <div className="group flex items-end justify-between gap-3 px-4 pt-4 pb-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Licence number
+          </p>
+          <p className="mt-0.5 truncate font-mono text-2xl font-bold tracking-widest text-foreground">
+            {result.licenceNumber}
+          </p>
+        </div>
+        <CopyToClipboard
+          value={result.licenceNumber}
+          label="Copy licence number"
+        />
       </div>
 
       {/* Details grid */}
@@ -67,7 +75,7 @@ function LicenceCard({ result }: { result: LicenceResult }) {
         <DetailCell
           icon={CalendarDays}
           label="Date of birth"
-          value={`${result.dateOfBirth} (age ${result.age})`}
+          value={`${result.dateOfBirth} (${result.age} from today)`}
         />
         <DetailCell icon={MapPin} label="Province" value={result.province} />
         <DetailCell
@@ -86,6 +94,18 @@ function LicenceCard({ result }: { result: LicenceResult }) {
           value={result.email}
           className="col-span-2 sm:col-span-3"
         />
+        <DetailCell
+          icon={Phone}
+          label="Phone"
+          value={result.phone}
+          className="col-span-2 sm:col-span-1"
+        />
+        <DetailCell
+          icon={MapPin}
+          label="Adress"
+          value={result.address}
+          className="col-span-2"
+        />
       </dl>
     </div>
   );
@@ -103,13 +123,14 @@ function DetailCell({
   value: string;
 }) {
   return (
-    <div className={`bg-background px-4 py-3 ${className}`}>
+    <div className={`group bg-background px-4 py-3 ${className}`}>
       <dt className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         <Icon className="h-3 w-3 shrink-0" />
         {label}
       </dt>
-      <dd className="mt-1 truncate text-sm font-medium text-foreground">
-        {value}
+      <dd className="mt-1 flex min-w-0 items-center gap-1 text-sm font-medium text-foreground">
+        <span className="min-w-0 flex-1 truncate">{value}</span>
+        <CopyToClipboard value={value} label={`Copy ${label}`} />
       </dd>
     </div>
   );

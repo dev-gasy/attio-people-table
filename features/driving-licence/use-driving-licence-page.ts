@@ -31,7 +31,6 @@ const licenceFormFields = [
   "dateOfBirth",
   "province",
   "gender",
-  "email",
 ] as const satisfies ReadonlyArray<LicenceFieldName>;
 
 /** Extracts cross-field error messages keyed by field name from a full parse. */
@@ -121,7 +120,10 @@ export function useDrivingLicencePage() {
           }));
         },
         handleChange: (nextValue) => {
-          const nextValues = { ...valuesRef.current, [name]: nextValue };
+          const nextValues: LicenceFormValues = {
+            ...valuesRef.current,
+            [name]: nextValue,
+          };
           const fieldError = validateLicenceField(name, nextValue);
           // Re-evaluate cross-field errors on every change so stale errors clear
           const crossErrors = extractCrossFieldErrors(nextValues);

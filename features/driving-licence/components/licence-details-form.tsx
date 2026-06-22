@@ -1,5 +1,5 @@
 import { type ElementType, type ReactNode } from "react";
-import { CalendarDays, Mail, MapPin, UserRound } from "lucide-react";
+import { CalendarDays, MapPin, UserRound } from "lucide-react";
 import {
   RadioGroupField,
   SelectField,
@@ -130,20 +130,6 @@ export function LicenceDetailsForm({
             </div>
           </FieldGroup>
 
-          <FieldGroup icon={Mail} title="Contact" className="sm:col-span-2">
-            <form.Field name="email">
-              {(
-                field: StringFieldApi<LicenceFormValues["email"]>,
-              ): ReactNode => (
-                <TextInputField
-                  field={field}
-                  label="Email"
-                  placeholder="name@example.com"
-                  type="email"
-                />
-              )}
-            </form.Field>
-          </FieldGroup>
         </div>
       </Collapsible>
     </form>
