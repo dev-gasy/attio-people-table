@@ -26,7 +26,6 @@ import type {
   CommandNode,
   CommandRouteValue,
   CommandSearchResult,
-  CommandUrlValue,
 } from "./types";
 import type { CustomerSearchValues } from "@/features/customers/domain/customers-list";
 import { useCustomerSearchStore } from "@/features/customers/stores/customer-search-store";
@@ -38,7 +37,89 @@ type NavigationEntry = {
   context: CommandContext;
 };
 
-const EMPTY_COMMAND_CONTEXT: CommandContext = {};
+function resolveEffectValue(value: CommandRouteValue, context: CommandContext) {
+  return typeof value === "object" && "valueKey" in value
+    ? context[value.valueKey]
+    : value;
+}
+
+function resolveEffectParams(
+  params: Record<string, CommandRouteValue> | undefined,
+  context: CommandContext,
+) {
+  if (!params) return undefined;
+  return Object.fromEntries(
+    Object.entries(params).map(([k, v]) => [k, resolveEffectValue(v, context)]),
+  );
+}
+
+function resolveCustomerSearchPatch(
+  values: Partial<Record<keyof CustomerSearchValues, CommandRouteValue>>,
+  context: CommandContext,
+): Partial<CustomerSearchValues> {
+  return Object.fromEntries(
+    Object.entries(values).map(([k, v]) => [k, resolveEffectValue(v, context)]),
+  ) as Partial<CustomerSearchValues>;
+}
+
+const EMPTY_CONTEXT: CommandContext = {};
+
+function EmptyCommandState({ message }: { message: string }) {
+  return (
+    <div className="px-3 py-8 text-center text-sm text-muted-foreground">
+      {message}
+    </div>
+  );
+}
+
+function CommandResultList({
+  resultGroups,
+  activeIndex,
+  onHover,
+  onRun,
+}: {
+  resultGroups: ReturnType<typeof groupCommandSearchResults>;
+  activeIndex: number;
+  onHover: (index: number) => void;
+  onRun: (result: CommandSearchResult) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      {resultGroups.map((group, groupIndex) => (
+        <div
+          key={group.name}
+          className={groupIndex === 0 ? "" : "border-t border-border pt-2"}
+        >
+          <div className="px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {group.name}
+          </div>
+          <div className="flex flex-col gap-1">
+            {group.results.map(({ result, index }) => {
+              const Icon = result.icon;
+              return (
+                <button
+                  key={result.id}
+                  onMouseEnter={() => onHover(index)}
+                  onClick={() => onRun(result)}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
+                    index === activeIndex
+                      ? "bg-accent text-accent-foreground"
+                      : "text-foreground hover:bg-accent/60"
+                  }`}
+                >
+                  <Icon className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 flex-1 truncate">
+                    {result.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function CommandSearch({
   open,
@@ -56,88 +137,81 @@ export function CommandSearch({
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { resolvedTheme, setTheme } = useTheme();
+
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const [navigationStack, setNavigationStack] = useState<NavigationEntry[]>([]);
+
   const krakenEntrypoints = useMemo(() => getStaticKrakenEntrypoints(), []);
   const lookupNames = useMemo(() => getStaticLookupNames(), []);
 
-  const resetCommandInput = useCallback(() => {
+  const focusInput = useCallback(() => {
+    requestAnimationFrame(() => inputRef.current?.focus());
+  }, []);
+
+  const resetInput = useCallback(() => {
     setQuery("");
     setActiveIndex(0);
   }, []);
 
+  const closePalette = useCallback(() => {
+    setNavigationStack([]);
+    resetInput();
+    onClose();
+  }, [onClose, resetInput]);
+
+  const openPalette = useCallback(() => {
+    setNavigationStack([]);
+    resetInput();
+    onOpen();
+    focusInput();
+  }, [focusInput, onOpen, resetInput]);
+
   const openNode = useCallback(
     (node: CommandNode, context: CommandContext) => {
       setNavigationStack((stack) => [...stack, { node, context }]);
-      resetCommandInput();
-      requestAnimationFrame(() => inputRef.current?.focus());
+      resetInput();
+      focusInput();
     },
-    [resetCommandInput],
+    [resetInput, focusInput],
   );
 
   const goBack = useCallback(() => {
     setNavigationStack((stack) => stack.slice(0, -1));
-    resetCommandInput();
-    requestAnimationFrame(() => inputRef.current?.focus());
-  }, [resetCommandInput]);
+    resetInput();
+    focusInput();
+  }, [resetInput, focusInput]);
 
   const runCommandEffect = useCallback(
     (effect: CommandEffect, context: CommandContext) => {
-      if (effect.type === "sequence") {
-        effect.effects.forEach((childEffect) =>
-          runCommandEffect(childEffect, context),
-        );
-        return;
-      }
-
-      if (effect.type === "navigate") {
-        const params = resolveEffectParams(effect.params, context);
-
-        return navigate({ to: effect.to, params } as never);
-      }
-
-      if (effect.type === "openURL") {
-        const url = resolveUrlEffectValue(effect.url, context);
-
-        if (url.origin === window.location.origin) {
-          return navigate({
-            to: `${url.pathname}${url.search}${url.hash}`,
+      switch (effect.type) {
+        case "sequence":
+          effect.effects.forEach((e) => runCommandEffect(e, context));
+          break;
+        case "navigate":
+          navigate({
+            to: effect.to,
+            params: resolveEffectParams(effect.params, context),
           } as never);
-        }
-
-        if (effect.target === "_self") {
-          return window.location.assign(url);
-        }
-
-        return window.open(
-          url,
-          effect.target ?? "_blank",
-          "noopener,noreferrer",
-        );
+          break;
+        case "patchStore":
+          if (effect.store === "customerSearch") {
+            useCustomerSearchStore
+              .getState()
+              .setSearch(resolveCustomerSearchPatch(effect.values, context));
+          }
+          break;
+        case "setTheme":
+          setTheme(effect.theme);
+          break;
+        case "toggleSidebar":
+          onToggleCollapse();
+          break;
+        default:
+          closePalette();
       }
-
-      if (effect.type === "patchStore") {
-        if (effect.store === "customerSearch") {
-          useCustomerSearchStore
-            .getState()
-            .setSearch(resolveCustomerSearchPatch(effect.values, context));
-        }
-
-        return;
-      }
-
-      if (effect.type === "setTheme") {
-        return setTheme(effect.theme);
-      }
-
-      if (effect.type === "toggleSidebar") {
-        return onToggleCollapse();
-      }
-
-      onClose();
     },
-    [navigate, onClose, onToggleCollapse, setTheme],
+    [closePalette, navigate, onToggleCollapse, setTheme],
   );
 
   const commandTree = useMemo(
@@ -150,35 +224,10 @@ export function CommandSearch({
       }),
     [collapsed, krakenEntrypoints, lookupNames, resolvedTheme],
   );
+
   const activeEntry = navigationStack.at(-1);
   const activeNode = activeEntry?.node ?? commandTree;
-  const activeContext = activeEntry?.context ?? EMPTY_COMMAND_CONTEXT;
-
-  useEffect(() => {
-    function onKeyDown(event: globalThis.KeyboardEvent) {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        onOpen();
-      }
-    }
-
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [onOpen]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    setNavigationStack([]);
-    resetCommandInput();
-    requestAnimationFrame(() => inputRef.current?.focus());
-  }, [open, resetCommandInput]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    requestAnimationFrame(() => inputRef.current?.focus());
-  }, [activeNode.id, open]);
+  const activeContext = activeEntry?.context ?? EMPTY_CONTEXT;
 
   const filteredResults = useMemo(
     () =>
@@ -191,66 +240,60 @@ export function CommandSearch({
       }),
     [activeContext, activeNode, openNode, query, runCommandEffect],
   );
+
   const resultGroups = useMemo(
     () => groupCommandSearchResults(filteredResults),
     [filteredResults],
   );
 
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [activeNode.id, query]);
+  // Clamp active index when results shrink
+  const clampedIndex = Math.min(
+    activeIndex,
+    Math.max(filteredResults.length - 1, 0),
+  );
 
   useEffect(() => {
-    if (activeIndex >= filteredResults.length) {
-      setActiveIndex(Math.max(filteredResults.length - 1, 0));
-    }
-  }, [activeIndex, filteredResults.length]);
+    const handler = (e: globalThis.KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        openPalette();
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [openPalette]);
 
   if (!open) return null;
 
-  const title = getCommandTitle(activeNode);
-  const placeholder = getCommandPlaceholder(activeNode);
-  const showBack = navigationStack.length > 0;
-  const loadedEmpty = hasNoSubcommands(activeNode);
-
   function onPaletteKeyDown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      onClose();
-      return;
-    }
-
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      setActiveIndex((index) =>
-        filteredResults.length === 0 ? 0 : (index + 1) % filteredResults.length,
-      );
-      return;
-    }
-
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      setActiveIndex((index) =>
-        filteredResults.length === 0
-          ? 0
-          : (index - 1 + filteredResults.length) % filteredResults.length,
-      );
-      return;
-    }
-
-    if (event.key === "Enter") {
-      event.preventDefault();
-      runActiveCommand();
+    switch (event.key) {
+      case "Escape":
+        event.preventDefault();
+        closePalette();
+        break;
+      case "ArrowDown":
+        event.preventDefault();
+        setActiveIndex((i) =>
+          filteredResults.length === 0 ? 0 : (i + 1) % filteredResults.length,
+        );
+        break;
+      case "ArrowUp":
+        event.preventDefault();
+        setActiveIndex((i) =>
+          filteredResults.length === 0
+            ? 0
+            : (i - 1 + filteredResults.length) % filteredResults.length,
+        );
+        break;
+      case "Enter":
+        event.preventDefault();
+        filteredResults[clampedIndex]?.run();
+        break;
     }
   }
 
-  function runActiveCommand() {
-    filteredResults[activeIndex]?.run();
-  }
-
-  function runResult(result: CommandSearchResult) {
-    result.run();
-  }
+  const loadedEmpty = hasNoSubcommands(activeNode);
+  const showBack = navigationStack.length > 0;
 
   return (
     <div
@@ -259,15 +302,16 @@ export function CommandSearch({
     >
       <button
         className="absolute inset-0 cursor-default bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={closePalette}
         aria-label="Close command search"
       />
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-label={getCommandTitle(activeNode)}
         className="relative z-10 w-full max-w-xl overflow-hidden rounded-xl border border-border bg-popover shadow-2xl"
       >
+        {/* Search bar */}
         <div className="flex items-center gap-3 border-b border-border px-4 py-3">
           {showBack ? (
             <button
@@ -283,9 +327,13 @@ export function CommandSearch({
           )}
           <input
             ref={inputRef}
+            autoFocus
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={placeholder}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActiveIndex(0);
+            }}
+            placeholder={getCommandPlaceholder(activeNode)}
             type={
               activeNode.type === "input"
                 ? (activeNode.inputType ?? "text")
@@ -297,117 +345,30 @@ export function CommandSearch({
             Esc
           </kbd>
         </div>
+
+        {/* Breadcrumb */}
         {showBack && (
           <div className="border-b border-border px-4 py-2 text-xs font-medium text-muted-foreground">
-            {title}
+            {getCommandTitle(activeNode)}
           </div>
         )}
+
+        {/* Results */}
         <div className="max-h-[360px] overflow-y-auto p-2">
           {loadedEmpty ? (
             <EmptyCommandState message="No options available" />
           ) : resultGroups.length > 0 ? (
-            <div className="flex flex-col gap-2">
-              {resultGroups.map((group, groupIndex) => (
-                <div
-                  key={group.name}
-                  className={
-                    groupIndex === 0 ? "" : "border-t border-border pt-2"
-                  }
-                >
-                  <div className="px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    {group.name}
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    {group.results.map(({ result, index }) => {
-                      const Icon = result.icon;
-                      const active = index === activeIndex;
-
-                      return (
-                        <button
-                          key={result.id}
-                          onMouseEnter={() => setActiveIndex(index)}
-                          onClick={() => runResult(result)}
-                          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
-                            active
-                              ? "bg-accent text-accent-foreground"
-                              : "text-foreground hover:bg-accent/60"
-                          }`}
-                        >
-                          <Icon className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
-                          <span className="min-w-0 flex-1 truncate">
-                            {result.label}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <CommandResultList
+              resultGroups={resultGroups}
+              activeIndex={clampedIndex}
+              onHover={setActiveIndex}
+              onRun={(result) => result.run()}
+            />
           ) : (
             <EmptyCommandState message={getCommandEmptyMessage(activeNode)} />
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function resolveCustomerSearchPatch(
-  values: Partial<Record<keyof CustomerSearchValues, CommandRouteValue>>,
-  context: CommandContext,
-) {
-  return Object.fromEntries(
-    Object.entries(values).map(([key, value]) => [
-      key,
-      resolveEffectValue(value, context),
-    ]),
-  ) as Partial<CustomerSearchValues>;
-}
-
-function resolveEffectParams(
-  params: Record<string, CommandRouteValue> | undefined,
-  context: CommandContext,
-) {
-  if (!params) return undefined;
-
-  return Object.fromEntries(
-    Object.entries(params).map(([key, value]) => [
-      key,
-      resolveEffectValue(value, context),
-    ]),
-  );
-}
-
-function resolveEffectValue(value: CommandRouteValue, context: CommandContext) {
-  if (typeof value === "object" && "valueKey" in value) {
-    return context[value.valueKey];
-  }
-
-  return value;
-}
-
-function resolveUrlEffectValue(
-  value: CommandUrlValue,
-  context: CommandContext,
-) {
-  if ("valueKey" in value) {
-    const contextValue = context[value.valueKey];
-
-    if (contextValue instanceof URL) {
-      return contextValue;
-    }
-
-    return new URL(String(contextValue), window.location.href);
-  }
-
-  return value;
-}
-
-function EmptyCommandState({ message }: { message: string }) {
-  return (
-    <div className="px-3 py-8 text-center text-sm text-muted-foreground">
-      {message}
     </div>
   );
 }

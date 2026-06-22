@@ -3,26 +3,20 @@ import type { CustomerSearchValues } from "@/features/customers/domain/customers
 
 type CommandIcon = ComponentType<{ className?: string }>;
 
-export type CommandContextValue = string | number | URL;
+export type CommandContextValue = string | number;
 export type CommandContext = Record<string, CommandContextValue>;
 
 export type CommandValueRef = {
   valueKey: string;
 };
 
-export type CommandRouteValue = string | number | CommandValueRef;
-export type CommandUrlValue = URL | CommandValueRef;
+export type CommandRouteValue = CommandContextValue | CommandValueRef;
 
 export type CommandEffect =
   | {
       type: "navigate";
       to: string;
       params?: Record<string, CommandRouteValue>;
-    }
-  | {
-      type: "openURL";
-      url: CommandUrlValue;
-      target?: "_blank" | "_self";
     }
   | {
       type: "patchStore";
