@@ -1,8 +1,11 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { FileText, Hash, MessageSquareText, Tags } from "lucide-react";
-import { type Rule, type RuleType } from "@/features/kraken/kraken-data";
 import { filterRules, type RuleSortKey } from "@/features/kraken/domain/rules";
+import type {
+  KrakenRule,
+  RuleType,
+} from "@/features/kraken/services/kraken.types";
 import { useColumnVisibility } from "@/hooks/use-column-visibility";
 import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
 
@@ -91,7 +94,7 @@ const ruleTableColumns = [
       width: "minmax(120px, 150px)",
     },
   },
-] satisfies ColumnDef<Rule>[];
+] satisfies ColumnDef<KrakenRule>[];
 
 export const ruleColumns = ruleTableColumns.map((column) => ({
   id: column.id as RuleColumnKey,
@@ -106,7 +109,7 @@ const defaultRuleColumnVisibility: Record<RuleColumnKey, boolean> = {
   type: true,
 };
 
-export function useKrakenRulesTable(rules: Rule[]) {
+export function useKrakenRulesTable(rules: KrakenRule[]) {
   const [typeFilter, setTypeFilterState] = useState<RuleType | null>(null);
   const [query, setQueryState] = useState("");
   const deferredQuery = useDeferredValue(query);

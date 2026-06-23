@@ -52,10 +52,42 @@ export type CustomerProductDto = {
   effectiveDate: string;
 };
 
-export type CustomerContact = CustomerContactDto;
-export type CustomerProduct = CustomerProductDto;
+export type CustomerContact = {
+  id: number;
+  customerId: number;
+  kind: CustomerContactKind;
+  label: string;
+  value: string;
+  preferred: boolean;
+};
 
-export type Customer = CustomerDto & {
+export type CustomerProduct = {
+  id: number;
+  customerId: number;
+  type: CustomerProductType;
+  referenceNumber: string;
+  businessDimension: CustomerProductBusinessDimension;
+  activity: CustomerProductActivity;
+  name: string;
+  status: string;
+  amount: string;
+  effectiveDate: string;
+};
+
+export type Customer = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  name: string;
+  dateOfBirth: string;
+  status: CustomerStatus;
+  segment: string;
+  owner: string;
+  location: string;
+  since: string;
+  summary: string;
+  lifetimeValue: string;
+  risk: "Low" | "Medium" | "High";
   initial: string;
   color: string;
   contacts: CustomerContact[];

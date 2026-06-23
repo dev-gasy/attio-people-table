@@ -1,6 +1,16 @@
-import type { Rule, RuleType } from "@/features/kraken/kraken-data";
+import type {
+  KrakenRule,
+  RuleType,
+} from "@/features/kraken/services/kraken.types";
 
 export type RuleSortKey = "name" | "code" | "message" | "type";
+
+export const krakenRuleTypes = [
+  "Required",
+  "Validation",
+  "Reset",
+  "Set",
+] satisfies RuleType[];
 
 export function normalizeRuleQuery(query: string) {
   return query.trim().toLowerCase();
@@ -11,7 +21,7 @@ export function filterRules({
   query,
   typeFilter,
 }: {
-  rules: Rule[];
+  rules: KrakenRule[];
   query: string;
   typeFilter: RuleType | null;
 }) {

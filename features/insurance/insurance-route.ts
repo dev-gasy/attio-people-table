@@ -18,7 +18,7 @@ export function validateInsuranceDetailSearch(search: {
 
 export function buildInsuranceTabSearch(nextTab: InsuranceTab) {
   return {
-    tab: nextTab === DEFAULT_INSURANCE_TAB ? DEFAULT_INSURANCE_TAB : nextTab,
+    tab: nextTab === DEFAULT_INSURANCE_TAB ? undefined : nextTab,
   };
 }
 

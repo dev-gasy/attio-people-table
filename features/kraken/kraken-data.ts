@@ -1,15 +1,9 @@
-import type {
-  KrakenRuleDto,
-  RuleType,
-} from "@/features/kraken/services/kraken.types";
+import type { KrakenRuleDto, RuleType } from "./services/kraken.types";
 
 export type Entrypoint = {
   id: number;
   name: string;
 };
-
-export type { RuleType } from "@/features/kraken/services/kraken.types";
-export type Rule = KrakenRuleDto;
 
 export const entrypoints: Entrypoint[] = [
   { id: 1, name: "Customer onboarding" },
@@ -20,7 +14,7 @@ export const entrypoints: Entrypoint[] = [
   { id: 6, name: "Profile maintenance" },
 ];
 
-export const ruleTypes = [
+const seedRuleTypes = [
   "Required",
   "Validation",
   "Reset",
@@ -72,7 +66,7 @@ const ruleTemplates = [
   },
 ];
 
-export const rules: Rule[] = entrypoints.flatMap((entrypoint) =>
+export const rules: KrakenRuleDto[] = entrypoints.flatMap((entrypoint) =>
   Array.from({ length: RULES_PER_ENTRYPOINT }, (_, index) => {
     const template = ruleTemplates[index % ruleTemplates.length];
     const id = (entrypoint.id - 1) * RULES_PER_ENTRYPOINT + index + 1;
@@ -86,7 +80,9 @@ export const rules: Rule[] = entrypoints.flatMap((entrypoint) =>
       name: `${entrypoint.name} ${template.name}${nameSuffix}`,
       code: formatRuleCode(entrypoint.name, template.name, id),
       message: template.message,
-      type: ruleTypes[(entrypoint.id + index) % ruleTypes.length],
+      type:
+        seedRuleTypes[(entrypoint.id + index) % seedRuleTypes.length] ??
+        "Required",
     };
   }),
 );

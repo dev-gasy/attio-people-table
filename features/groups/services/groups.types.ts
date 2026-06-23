@@ -22,7 +22,13 @@ export type GroupDto = {
   province: ProvinceCode;
 };
 
-export type Group = GroupDto & {
+export type Group = {
+  id: number;
+  organization: string;
+  groupShortNameFr: string;
+  groupShortNameEn: string;
+  onlineIdentifier: string;
+  province: ProvinceCode;
   initial: string;
   color: string;
   provinceLabel: string;

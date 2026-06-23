@@ -62,7 +62,7 @@ export function InsuranceLookupPage() {
   const navigate = useNavigate();
 
   const policyForm = useForm({
-    defaultValues: { businessKey: "" },
+    defaultValues: { businessKey: "POL-000003" },
     validationLogic: revalidateLogic({
       mode: "change",
       modeAfterSubmission: "change",
@@ -76,7 +76,7 @@ export function InsuranceLookupPage() {
   });
 
   const quoteForm = useForm({
-    defaultValues: { businessKey: "", revisionNumber: "" },
+    defaultValues: { businessKey: "QUO-000002", revisionNumber: "1" },
     validationLogic: revalidateLogic({
       mode: "change",
       modeAfterSubmission: "change",

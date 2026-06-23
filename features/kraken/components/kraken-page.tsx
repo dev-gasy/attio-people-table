@@ -13,7 +13,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { KrakenControls } from "@/features/kraken/components/kraken-controls";
 import { KrakenRulesTable } from "@/features/kraken/components/kraken-rules-table";
 import { EmptyView } from "@/components/empty-view";
-import { ruleTypes } from "@/features/kraken/kraken-data";
+import { krakenRuleTypes } from "@/features/kraken/domain/rules";
 import { useKrakenRulesTable } from "@/features/kraken/use-kraken-rules-table";
 import {
   useKrakenEntrypointsQuery,
@@ -41,7 +41,7 @@ export function KrakenPage({ entrypointName }: KrakenPageProps) {
   );
   const ruleTypeOptions = useMemo<ComboOption[]>(
     () =>
-      ruleTypes.map((type) => ({
+      krakenRuleTypes.map((type) => ({
         value: type,
         label: type,
       })),

@@ -8,7 +8,13 @@ export type LookupDto = {
   effectiveDate: string;
 };
 
-export type Lookup = Omit<LookupDto, "effectiveDate"> & {
+export type Lookup = {
+  id: number;
+  lookupName: string;
+  code: string;
+  orderNo: number;
+  displayValueEn: string;
+  displayValueFr: string;
   effectiveDate: string;
   effectiveDateValue: string;
 };
