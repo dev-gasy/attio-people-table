@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiTasksRouteImport } from './routes/api/tasks'
+import { Route as ApiNotesRouteImport } from './routes/api/notes'
 import { Route as ApiLookupsRouteImport } from './routes/api/lookups'
 import { Route as ApiGroupsRouteImport } from './routes/api/groups'
 import { Route as ApiCustomersRouteImport } from './routes/api/customers'
@@ -47,6 +49,16 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksRoute = ApiTasksRouteImport.update({
+  id: '/api/tasks',
+  path: '/api/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNotesRoute = ApiNotesRouteImport.update({
+  id: '/api/notes',
+  path: '/api/notes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiLookupsRoute = ApiLookupsRouteImport.update({
@@ -207,6 +219,8 @@ export interface FileRoutesByFullPath {
   '/api/customers': typeof ApiCustomersRouteWithChildren
   '/api/groups': typeof ApiGroupsRoute
   '/api/lookups': typeof ApiLookupsRouteWithChildren
+  '/api/notes': typeof ApiNotesRoute
+  '/api/tasks': typeof ApiTasksRoute
   '/customers/$customerId': typeof AppCustomersCustomerIdRoute
   '/customers/favorites': typeof AppCustomersFavoritesRoute
   '/kraken/$entrypointName': typeof AppKrakenEntrypointNameRoute
@@ -238,6 +252,8 @@ export interface FileRoutesByTo {
   '/api/customers': typeof ApiCustomersRouteWithChildren
   '/api/groups': typeof ApiGroupsRoute
   '/api/lookups': typeof ApiLookupsRouteWithChildren
+  '/api/notes': typeof ApiNotesRoute
+  '/api/tasks': typeof ApiTasksRoute
   '/customers/$customerId': typeof AppCustomersCustomerIdRoute
   '/customers/favorites': typeof AppCustomersFavoritesRoute
   '/kraken/$entrypointName': typeof AppKrakenEntrypointNameRoute
@@ -271,6 +287,8 @@ export interface FileRoutesById {
   '/api/customers': typeof ApiCustomersRouteWithChildren
   '/api/groups': typeof ApiGroupsRoute
   '/api/lookups': typeof ApiLookupsRouteWithChildren
+  '/api/notes': typeof ApiNotesRoute
+  '/api/tasks': typeof ApiTasksRoute
   '/_app/customers_/$customerId': typeof AppCustomersCustomerIdRoute
   '/_app/customers_/favorites': typeof AppCustomersFavoritesRoute
   '/_app/kraken_/$entrypointName': typeof AppKrakenEntrypointNameRoute
@@ -304,6 +322,8 @@ export interface FileRouteTypes {
     | '/api/customers'
     | '/api/groups'
     | '/api/lookups'
+    | '/api/notes'
+    | '/api/tasks'
     | '/customers/$customerId'
     | '/customers/favorites'
     | '/kraken/$entrypointName'
@@ -335,6 +355,8 @@ export interface FileRouteTypes {
     | '/api/customers'
     | '/api/groups'
     | '/api/lookups'
+    | '/api/notes'
+    | '/api/tasks'
     | '/customers/$customerId'
     | '/customers/favorites'
     | '/kraken/$entrypointName'
@@ -367,6 +389,8 @@ export interface FileRouteTypes {
     | '/api/customers'
     | '/api/groups'
     | '/api/lookups'
+    | '/api/notes'
+    | '/api/tasks'
     | '/_app/customers_/$customerId'
     | '/_app/customers_/favorites'
     | '/_app/kraken_/$entrypointName'
@@ -391,6 +415,8 @@ export interface RootRouteChildren {
   ApiCustomersRoute: typeof ApiCustomersRouteWithChildren
   ApiGroupsRoute: typeof ApiGroupsRoute
   ApiLookupsRoute: typeof ApiLookupsRouteWithChildren
+  ApiNotesRoute: typeof ApiNotesRoute
+  ApiTasksRoute: typeof ApiTasksRoute
   ApiKrakenEntrypointsRoute: typeof ApiKrakenEntrypointsRouteWithChildren
   ApiPoliciesBusinessKeyRoute: typeof ApiPoliciesBusinessKeyRoute
   ApiQuotesBusinessKeyRoute: typeof ApiQuotesBusinessKeyRoute
@@ -413,6 +439,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks': {
+      id: '/api/tasks'
+      path: '/api/tasks'
+      fullPath: '/api/tasks'
+      preLoaderRoute: typeof ApiTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notes': {
+      id: '/api/notes'
+      path: '/api/notes'
+      fullPath: '/api/notes'
+      preLoaderRoute: typeof ApiNotesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/lookups': {
@@ -707,6 +747,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCustomersRoute: ApiCustomersRouteWithChildren,
   ApiGroupsRoute: ApiGroupsRoute,
   ApiLookupsRoute: ApiLookupsRouteWithChildren,
+  ApiNotesRoute: ApiNotesRoute,
+  ApiTasksRoute: ApiTasksRoute,
   ApiKrakenEntrypointsRoute: ApiKrakenEntrypointsRouteWithChildren,
   ApiPoliciesBusinessKeyRoute: ApiPoliciesBusinessKeyRoute,
   ApiQuotesBusinessKeyRoute: ApiQuotesBusinessKeyRoute,

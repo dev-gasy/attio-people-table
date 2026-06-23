@@ -1,13 +1,24 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { EmptyView } from "@/components/empty-view";
 import { PageHeader } from "@/components/page-header";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { taskFilters, useTasksPage } from "@/features/tasks/use-tasks-page";
 
 export function TasksPage() {
-  const { filter, openCount, setFilter, toggleTask, visibleTasks } =
-    useTasksPage();
+  const {
+    error,
+    filter,
+    isError,
+    isLoading,
+    isRetrying,
+    openCount,
+    refetch,
+    setFilter,
+    toggleTask,
+    visibleTasks,
+  } = useTasksPage();
 
   return (
     <PageFrame>
@@ -37,7 +48,20 @@ export function TasksPage() {
           </div>
         }
       />
-      {visibleTasks.length === 0 ? (
+      {isError ? (
+        <DataErrorView
+          isRetrying={isRetrying}
+          title="Could not load tasks"
+          message={getErrorMessage(error)}
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      ) : isLoading ? (
+        <PageFrameBody className="pb-8">
+          <TasksLoadingSkeleton />
+        </PageFrameBody>
+      ) : visibleTasks.length === 0 ? (
         <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
           <EmptyView message={`No ${filter} tasks`} />
         </PageFrameBody>
@@ -77,5 +101,18 @@ export function TasksPage() {
         </PageFrameBody>
       )}
     </PageFrame>
+  );
+}
+
+function TasksLoadingSkeleton() {
+  return (
+    <div className="w-full divide-y divide-border/60 overflow-hidden rounded-xl border border-border">
+      {Array.from({ length: 6 }, (_, index) => (
+        <div key={index} className="flex items-center gap-3 px-4 py-3">
+          <div className="h-5 w-5 shrink-0 rounded-md bg-muted" />
+          <div className="h-3 w-48 rounded-full bg-muted" />
+        </div>
+      ))}
+    </div>
   );
 }

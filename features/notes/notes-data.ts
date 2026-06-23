@@ -1,22 +1,12 @@
-export type Note = {
-  id: number;
-  title: string;
-  excerpt: string;
-  author: string;
-  initial: string;
-  color: string;
-  updated: string;
-};
+import type { NoteDto } from "./services/notes.types";
 
-export const notes: Note[] = [
+export const notesSeed: NoteDto[] = [
   {
     id: 1,
     title: "Vercel — Renewal call notes",
     excerpt:
       "Discussed expanding seats to 600. Budget approved for Q3, waiting on procurement sign-off.",
     author: "Julian Herbst",
-    initial: "J",
-    color: "bg-amber-500",
     updated: "2m ago",
   },
   {
@@ -25,8 +15,6 @@ export const notes: Note[] = [
     excerpt:
       "Strong product-led growth. Interested in usage-based billing and SSO. Champion is the VP Eng.",
     author: "Tom Holland",
-    initial: "T",
-    color: "bg-zinc-500",
     updated: "3h ago",
   },
   {
@@ -35,8 +23,6 @@ export const notes: Note[] = [
     excerpt:
       "Highlight 40% increase in connected accounts. Upsell opportunity on enterprise support tier.",
     author: "Ana Gantt",
-    initial: "A",
-    color: "bg-emerald-500",
     updated: "Yesterday",
   },
   {
@@ -45,8 +31,6 @@ export const notes: Note[] = [
     excerpt:
       "Design team doubled. Pushing for org-wide rollout. Need security review docs.",
     author: "Nicole Gold",
-    initial: "N",
-    color: "bg-pink-500",
     updated: "2 days ago",
   },
   {
@@ -55,8 +39,6 @@ export const notes: Note[] = [
     excerpt:
       "Pricing tiers outlined. Send by Tuesday. Loop in legal for MSA redlines.",
     author: "Lena Cremers",
-    initial: "L",
-    color: "bg-pink-600",
     updated: "3 days ago",
   },
   {
@@ -65,8 +47,6 @@ export const notes: Note[] = [
     excerpt:
       "Churned over missing analytics. New dashboard could bring them back — schedule a check-in.",
     author: "Louis Lirou",
-    initial: "L",
-    color: "bg-purple-500",
     updated: "1 week ago",
   },
 ];

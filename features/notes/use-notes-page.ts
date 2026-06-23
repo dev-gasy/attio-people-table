@@ -1,20 +1,26 @@
 import { useMemo, useState } from "react";
-import { notes } from "@/features/notes/notes-data";
+import { useNotesQuery } from "./services/notes.queries";
 
 export function useNotesPage() {
+  const notesQuery = useNotesQuery();
   const [query, setQuery] = useState("");
   const rows = useMemo(() => {
     const normalizedQuery = query.toLowerCase();
 
-    return notes.filter(
+    return (notesQuery.data ?? []).filter(
       (note) =>
         note.title.toLowerCase().includes(normalizedQuery) ||
         note.excerpt.toLowerCase().includes(normalizedQuery),
     );
-  }, [query]);
+  }, [notesQuery.data, query]);
 
   return {
+    error: notesQuery.error,
+    isError: notesQuery.isError,
+    isLoading: notesQuery.isPending,
+    isRetrying: notesQuery.isFetching && !notesQuery.isPending,
     query,
+    refetch: notesQuery.refetch,
     rows,
     setQuery,
   };

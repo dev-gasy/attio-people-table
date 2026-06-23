@@ -1,22 +1,11 @@
-export type Task = {
-  id: number;
-  title: string;
-  done: boolean;
-  assignee: string;
-  initial: string;
-  color: string;
-  due: string;
-  priority: "High" | "Medium" | "Low";
-};
+import type { TaskDto } from "./services/tasks.types";
 
-export const tasksSeed: Task[] = [
+export const tasksSeed: TaskDto[] = [
   {
     id: 1,
     title: "Follow up with Vercel on renewal",
     done: false,
     assignee: "Julian Herbst",
-    initial: "J",
-    color: "bg-amber-500",
     due: "Today",
     priority: "High",
   },
@@ -25,8 +14,6 @@ export const tasksSeed: Task[] = [
     title: "Send proposal to Notion",
     done: false,
     assignee: "Lena Cremers",
-    initial: "L",
-    color: "bg-pink-600",
     due: "Tomorrow",
     priority: "High",
   },
@@ -35,8 +22,6 @@ export const tasksSeed: Task[] = [
     title: "Prep demo for Cursor",
     done: false,
     assignee: "Tom Holland",
-    initial: "T",
-    color: "bg-zinc-500",
     due: "Fri",
     priority: "Medium",
   },
@@ -45,8 +30,6 @@ export const tasksSeed: Task[] = [
     title: "Review onboarding for Mercury",
     done: true,
     assignee: "Ana Gantt",
-    initial: "A",
-    color: "bg-emerald-500",
     due: "Yesterday",
     priority: "Medium",
   },
@@ -55,8 +38,6 @@ export const tasksSeed: Task[] = [
     title: "Reconnect with Loom",
     done: false,
     assignee: "Nicole Gold",
-    initial: "N",
-    color: "bg-pink-500",
     due: "Next week",
     priority: "Low",
   },
@@ -65,8 +46,6 @@ export const tasksSeed: Task[] = [
     title: "Update CRM fields for Q3",
     done: true,
     assignee: "Leon Heinrichs",
-    initial: "L",
-    color: "bg-blue-500",
     due: "Last week",
     priority: "Low",
   },
