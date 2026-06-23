@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { getErrorMessage } from "@/components/data-error-view";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { InsuranceCoveragesSection } from "@/features/insurance/components/insurance-coverages-section";
@@ -20,15 +19,18 @@ import { useInsuranceRecordQuery } from "@/features/insurance/services/insurance
 import type { InsuranceRecordKind } from "@/features/insurance/services/insurance.types";
 
 type InsuranceDetailPageProps = {
+  activeTab: InsuranceTab;
   businessKey: string;
   kind: InsuranceRecordKind;
+  onTabChange: (tab: InsuranceTab) => void;
 };
 
 export function InsuranceDetailPage({
+  activeTab,
   businessKey,
   kind,
+  onTabChange,
 }: InsuranceDetailPageProps) {
-  const [activeTab, setActiveTab] = useState<InsuranceTab>("details");
   const { data, error, isError, isFetching, isPending, refetch } =
     useInsuranceRecordQuery(kind, businessKey);
   const record = data?.record;
@@ -64,7 +66,7 @@ export function InsuranceDetailPage({
   return (
     <PageFrame>
       <InsuranceDetailHeader kind={kind} record={record} />
-      <InsuranceDetailTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <InsuranceDetailTabs activeTab={activeTab} onTabChange={onTabChange} />
       <PageFrameBody>
         {activeTab === "details" && (
           <InsuranceSummarySection kind={kind} record={record} />

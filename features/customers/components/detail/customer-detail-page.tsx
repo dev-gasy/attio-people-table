@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { getErrorMessage } from "@/components/data-error-view";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { CustomerContactsTab } from "@/features/customers/components/detail/customer-contacts-tab";
@@ -15,10 +14,17 @@ import type { CustomerTab } from "@/features/customers/components/detail/custome
 import { useCustomerFavorites } from "@/features/customers/hooks/use-customer-favorites";
 import { useCustomerQuery } from "@/features/customers/services/customers.queries";
 
-type CustomerDetailPageProps = { customerId: string };
+type CustomerDetailPageProps = {
+  activeTab: CustomerTab;
+  customerId: string;
+  onTabChange: (tab: CustomerTab) => void;
+};
 
-export function CustomerDetailPage({ customerId }: CustomerDetailPageProps) {
-  const [activeTab, setActiveTab] = useState<CustomerTab>("details");
+export function CustomerDetailPage({
+  activeTab,
+  customerId,
+  onTabChange,
+}: CustomerDetailPageProps) {
   const { isFavorite, toggleFavorite } = useCustomerFavorites();
   const numericCustomerId = Number(customerId);
   const hasValidCustomerId = Number.isFinite(numericCustomerId);
@@ -57,7 +63,7 @@ export function CustomerDetailPage({ customerId }: CustomerDetailPageProps) {
         favorite={isFavorite(customer.id)}
         onFavoriteToggle={() => toggleFavorite(customer.id)}
       />
-      <CustomerDetailTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <CustomerDetailTabs activeTab={activeTab} onTabChange={onTabChange} />
       <PageFrameBody>
         {activeTab === "details" && <CustomerDetailsTab customer={customer} />}
         {activeTab === "contacts" && (

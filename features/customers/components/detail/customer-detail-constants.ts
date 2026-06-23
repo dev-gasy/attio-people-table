@@ -5,6 +5,8 @@ import type { CustomerContactKind } from "@/features/customers/services/customer
 
 export type CustomerTab = "details" | "contacts" | "products";
 
+export const DEFAULT_CUSTOMER_TAB: CustomerTab = "details";
+
 export const customerDetailTabs: Array<{
   id: CustomerTab;
   label: string;
@@ -14,6 +16,12 @@ export const customerDetailTabs: Array<{
   { id: "contacts", label: "Contacts", icon: Phone },
   { id: "products", label: "Products", icon: Package },
 ];
+
+export function parseCustomerTab(value: unknown): CustomerTab {
+  return customerDetailTabs.some((tab) => tab.id === value)
+    ? (value as CustomerTab)
+    : DEFAULT_CUSTOMER_TAB;
+}
 
 export const contactIcons: Record<
   CustomerContactKind,

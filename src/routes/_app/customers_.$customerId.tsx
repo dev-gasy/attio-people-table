@@ -2,8 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CustomerDetailPage } from "@/features/customers/components/detail/customer-detail-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
 import { buildPageMeta } from "@/src/lib/page-meta";
+import {
+  DEFAULT_CUSTOMER_TAB,
+  parseCustomerTab,
+  type CustomerTab,
+} from "@/features/customers/components/detail/customer-detail-constants";
+
+type CustomerDetailSearch = {
+  tab: CustomerTab;
+};
 
 export const Route = createFileRoute("/_app/customers_/$customerId")({
+  validateSearch: (search): CustomerDetailSearch => ({
+    tab: parseCustomerTab(search.tab),
+  }),
   head: ({ params }) => {
     return {
       meta: buildPageMeta({
@@ -18,6 +30,23 @@ export const Route = createFileRoute("/_app/customers_/$customerId")({
 
 function CustomerRoute() {
   const { customerId } = Route.useParams();
+  const { tab } = Route.useSearch();
+  const navigate = Route.useNavigate();
 
-  return <CustomerDetailPage customerId={customerId} />;
+  function setActiveTab(nextTab: CustomerTab) {
+    void navigate({
+      replace: true,
+      search: {
+        tab: nextTab === DEFAULT_CUSTOMER_TAB ? undefined : nextTab,
+      },
+    });
+  }
+
+  return (
+    <CustomerDetailPage
+      activeTab={tab}
+      customerId={customerId}
+      onTabChange={setActiveTab}
+    />
+  );
 }

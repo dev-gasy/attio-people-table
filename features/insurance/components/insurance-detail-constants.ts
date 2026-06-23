@@ -4,6 +4,8 @@ import type { InsuranceRecordKind } from "@/features/insurance/services/insuranc
 
 export type InsuranceTab = "details" | "parties" | "vehicles" | "coverage";
 
+export const DEFAULT_INSURANCE_TAB: InsuranceTab = "details";
+
 export const insuranceRouteLabels: Record<
   InsuranceRecordKind,
   { title: string; missing: string }
@@ -53,3 +55,9 @@ export const insuranceDetailTabs: Array<{
   { id: "vehicles", label: "Vehicles", icon: CarFront },
   { id: "coverage", label: "Coverage", icon: ShieldCheck },
 ];
+
+export function parseInsuranceTab(value: unknown): InsuranceTab {
+  return insuranceDetailTabs.some((tab) => tab.id === value)
+    ? (value as InsuranceTab)
+    : DEFAULT_INSURANCE_TAB;
+}
