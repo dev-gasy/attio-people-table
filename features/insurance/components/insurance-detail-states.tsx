@@ -1,4 +1,3 @@
-import { DataErrorView } from "@/components/data-error-view";
 import { FileQuestion, FileText } from "lucide-react";
 import {
   PageFrame,
@@ -13,36 +12,6 @@ import {
 import { InsuranceDetailTabs } from "@/features/insurance/components/insurance-detail-tabs";
 import type { InsuranceRecordKind } from "@/features/insurance/services/insurance.types";
 import { cn } from "@/lib/utils";
-
-type InsuranceDetailErrorProps = {
-  title: string;
-  message: string;
-  isRetrying: boolean;
-  onRetry: () => void;
-};
-
-export function InsuranceDetailError({
-  title,
-  message,
-  isRetrying,
-  onRetry,
-}: InsuranceDetailErrorProps) {
-  return (
-    <PageFrame>
-      <PageFrameHeader>
-        <InsuranceDetailBackLink />
-      </PageFrameHeader>
-      <PageFrameBody className="flex items-center justify-center">
-        <DataErrorView
-          title={title}
-          message={message}
-          onRetry={onRetry}
-          isRetrying={isRetrying}
-        />
-      </PageFrameBody>
-    </PageFrame>
-  );
-}
 
 export function InsuranceDetailLoading() {
   return (

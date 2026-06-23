@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { customersOptions } from "./customers.options";
 
 export const useCustomersQuery = (enabled = true) =>
@@ -6,3 +6,6 @@ export const useCustomersQuery = (enabled = true) =>
 
 export const useCustomerQuery = (customerId: number, enabled = true) =>
   useQuery({ ...customersOptions.detail(customerId), enabled });
+
+export const useSuspenseCustomerQuery = (customerId: number) =>
+  useSuspenseQuery(customersOptions.detail(customerId));

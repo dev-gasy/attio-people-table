@@ -2,20 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { InsuranceDetailPage } from "@/features/insurance/components/insurance-detail-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
 import { buildPageMeta } from "@/src/lib/page-meta";
+import { type InsuranceTab } from "@/features/insurance/components/insurance-detail-constants";
 import {
-  DEFAULT_INSURANCE_TAB,
-  parseInsuranceTab,
-  type InsuranceTab,
-} from "@/features/insurance/components/insurance-detail-constants";
-
-type InsuranceDetailSearch = {
-  tab: InsuranceTab;
-};
+  buildInsuranceTabSearch,
+  validateInsuranceDetailSearch,
+} from "@/features/insurance/insurance-route";
 
 export const Route = createFileRoute("/_app/policies_/$businessKey")({
-  validateSearch: (search): InsuranceDetailSearch => ({
-    tab: parseInsuranceTab(search.tab),
-  }),
+  validateSearch: validateInsuranceDetailSearch,
   head: ({ params }) => {
     return {
       meta: buildPageMeta({
@@ -36,9 +30,7 @@ function PolicyRoute() {
   function setActiveTab(nextTab: InsuranceTab) {
     void navigate({
       replace: true,
-      search: {
-        tab: nextTab === DEFAULT_INSURANCE_TAB ? undefined : nextTab,
-      },
+      search: buildInsuranceTabSearch(nextTab),
     });
   }
 

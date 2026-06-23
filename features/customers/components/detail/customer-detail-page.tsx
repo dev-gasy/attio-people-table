@@ -1,9 +1,8 @@
-import { getErrorMessage } from "@/components/data-error-view";
+import { Suspense } from "react";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { CustomerContactsTab } from "@/features/customers/components/detail/customer-contacts-tab";
 import { CustomerDetailHeader } from "@/features/customers/components/detail/customer-detail-header";
 import {
-  CustomerDetailError,
   CustomerDetailLoading,
   CustomerNotFound,
 } from "@/features/customers/components/detail/customer-detail-states";
@@ -12,7 +11,7 @@ import { CustomerDetailsTab } from "@/features/customers/components/detail/custo
 import { CustomerProductsTab } from "@/features/customers/components/detail/customer-products-tab";
 import type { CustomerTab } from "@/features/customers/components/detail/customer-detail-constants";
 import { useCustomerFavorites } from "@/features/customers/hooks/use-customer-favorites";
-import { useCustomerQuery } from "@/features/customers/services/customers.queries";
+import { useSuspenseCustomerQuery } from "@/features/customers/services/customers.queries";
 
 type CustomerDetailPageProps = {
   activeTab: CustomerTab;
@@ -25,32 +24,37 @@ export function CustomerDetailPage({
   customerId,
   onTabChange,
 }: CustomerDetailPageProps) {
-  const { isFavorite, toggleFavorite } = useCustomerFavorites();
   const numericCustomerId = Number(customerId);
   const hasValidCustomerId = Number.isFinite(numericCustomerId);
-  const { data, error, isError, isFetching, isPending, refetch } =
-    useCustomerQuery(numericCustomerId, hasValidCustomerId);
-  const customer = data ?? null;
 
   if (!hasValidCustomerId) {
     return <CustomerNotFound />;
   }
 
-  if (isPending) {
-    return <CustomerDetailLoading />;
-  }
-
-  if (isError) {
-    return (
-      <CustomerDetailError
-        message={getErrorMessage(error)}
-        isRetrying={isFetching}
-        onRetry={() => {
-          void refetch();
-        }}
+  return (
+    <Suspense fallback={<CustomerDetailLoading />}>
+      <CustomerDetailDataLayer
+        activeTab={activeTab}
+        customerId={numericCustomerId}
+        onTabChange={onTabChange}
       />
-    );
-  }
+    </Suspense>
+  );
+}
+
+type CustomerDetailDataLayerProps = {
+  activeTab: CustomerTab;
+  customerId: number;
+  onTabChange: (tab: CustomerTab) => void;
+};
+
+function CustomerDetailDataLayer({
+  activeTab,
+  customerId,
+  onTabChange,
+}: CustomerDetailDataLayerProps) {
+  const { isFavorite, toggleFavorite } = useCustomerFavorites();
+  const { data: customer } = useSuspenseCustomerQuery(customerId);
 
   if (!customer) {
     return <CustomerNotFound />;

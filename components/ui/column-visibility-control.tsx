@@ -70,8 +70,8 @@ export function ColumnVisibilityControl<T extends string>({
                       column.alwaysVisible
                         ? "border-border bg-muted text-muted-foreground"
                         : checked
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border"
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border"
                     }`}
                   >
                     {checked && <Check className="h-3 w-3" />}

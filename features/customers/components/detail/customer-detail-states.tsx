@@ -1,4 +1,3 @@
-import { DataErrorView } from "@/components/data-error-view";
 import {
   PageFrame,
   PageFrameBody,
@@ -6,34 +5,6 @@ import {
 } from "@/components/page-frame";
 import { CustomerDetailBackLink } from "@/features/customers/components/detail/customer-detail-back-link";
 import { CustomerDetailTabs } from "@/features/customers/components/detail/customer-detail-tabs";
-
-type CustomerDetailErrorProps = {
-  message: string;
-  isRetrying: boolean;
-  onRetry: () => void;
-};
-
-export function CustomerDetailError({
-  message,
-  isRetrying,
-  onRetry,
-}: CustomerDetailErrorProps) {
-  return (
-    <PageFrame>
-      <PageFrameHeader>
-        <CustomerDetailBackLink />
-      </PageFrameHeader>
-      <PageFrameBody className="flex items-center justify-center">
-        <DataErrorView
-          title="Could not load customer"
-          message={message}
-          onRetry={onRetry}
-          isRetrying={isRetrying}
-        />
-      </PageFrameBody>
-    </PageFrame>
-  );
-}
 
 export function CustomerDetailLoading() {
   return (

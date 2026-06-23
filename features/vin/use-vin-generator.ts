@@ -25,15 +25,14 @@ export function useVinGenerator({
   const initialBrand = initialFormValues?.brand ?? "";
   const initialModel = initialFormValues?.model ?? "";
   const initialYear = initialFormValues?.year ?? "";
-  const [formValues, setFormValues] = useState<VinGeneratorFormValues>(
-    {
-      brand: initialBrand,
-      model: initialModel,
-      year: initialYear,
-    },
+  const [formValues, setFormValues] = useState<VinGeneratorFormValues>({
+    brand: initialBrand,
+    model: initialModel,
+    year: initialYear,
+  });
+  const [validatorInput, setValidatorInputState] = useState(
+    initialValidatorInput,
   );
-  const [validatorInput, setValidatorInputState] =
-    useState(initialValidatorInput);
 
   useEffect(() => {
     setFormValues({

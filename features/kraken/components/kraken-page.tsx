@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ListFilter } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -16,8 +16,8 @@ import { EmptyView } from "@/components/empty-view";
 import { ruleTypes } from "@/features/kraken/kraken-data";
 import { useKrakenRulesTable } from "@/features/kraken/use-kraken-rules-table";
 import {
-  useKrakenEntrypointRulesQuery,
   useKrakenEntrypointsQuery,
+  useSuspenseKrakenEntrypointRulesQuery,
 } from "@/features/kraken/services/kraken.queries";
 
 type KrakenPageProps = { entrypointName?: string };
@@ -25,20 +25,6 @@ type KrakenPageProps = { entrypointName?: string };
 export function KrakenPage({ entrypointName }: KrakenPageProps) {
   const navigate = useNavigate();
   const { data: entrypoints = [] } = useKrakenEntrypointsQuery();
-  const {
-    data,
-    error: rulesError,
-    isError: isRulesError,
-    isFetching: isFetchingRules,
-    isPending: isLoadingRules,
-    refetch: refetchRules,
-  } = useKrakenEntrypointRulesQuery(
-    entrypointName ?? "",
-    Boolean(entrypointName),
-  );
-  const rules = useMemo(() => data?.rules ?? [], [data?.rules]);
-  const entrypoint = data?.entrypoint ?? null;
-  const table = useKrakenRulesTable(rules);
   const entrypointOptions = useMemo<ComboOption[]>(
     () =>
       entrypoints.map((entrypoint) => ({
@@ -46,6 +32,12 @@ export function KrakenPage({ entrypointName }: KrakenPageProps) {
         label: entrypoint.name,
       })),
     [entrypoints],
+  );
+  const selectedEntrypoint = useMemo(
+    () =>
+      entrypoints.find((entrypoint) => entrypoint.slug === entrypointName) ??
+      null,
+    [entrypointName, entrypoints],
   );
   const ruleTypeOptions = useMemo<ComboOption[]>(
     () =>
@@ -65,16 +57,14 @@ export function KrakenPage({ entrypointName }: KrakenPageProps) {
     });
   }
 
-  const { pagination } = table;
-
   return (
     <PageFrame>
       <PageHeader
         title="Kraken"
         badge={
-          entrypoint ? (
+          selectedEntrypoint ? (
             <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-              {entrypoint.name}
+              {selectedEntrypoint.name}
             </span>
           ) : null
         }
@@ -98,45 +88,106 @@ export function KrakenPage({ entrypointName }: KrakenPageProps) {
           <EmptyView message="Select an entrypoint name" />
         </PageFrameBody>
       ) : (
-        <>
-          <PageFrameControls>
-            <KrakenControls
-              disabled={isLoadingRules || isRulesError}
-              hasEntrypoint={Boolean(entrypointName)}
-              ruleTypeOptions={ruleTypeOptions}
-              table={table}
-            />
-          </PageFrameControls>
-
-          <PageFrameBody className="pb-8">
-            <KrakenRulesTable
+        <Suspense
+          fallback={
+            <KrakenRulesLoadingShell
               entrypointName={entrypointName}
-              error={rulesError}
-              isError={isRulesError}
-              isLoading={isLoadingRules}
-              isRetrying={isFetchingRules}
-              onRetry={() => {
-                void refetchRules();
-              }}
-              table={table}
+              ruleTypeOptions={ruleTypeOptions}
             />
-          </PageFrameBody>
-
-          {!isLoadingRules && !isRulesError && pagination.total > 0 && (
-            <PageFrameFooter>
-              <Pagination
-                page={pagination.currentPage}
-                pageCount={pagination.pageCount}
-                total={pagination.total}
-                pageSize={pagination.pageSize}
-                onPageChange={pagination.setPage}
-                onPageSizeChange={pagination.setPageSize}
-                bordered={false}
-              />
-            </PageFrameFooter>
-          )}
-        </>
+          }
+        >
+          <KrakenRulesDataLayer
+            entrypointName={entrypointName}
+            ruleTypeOptions={ruleTypeOptions}
+          />
+        </Suspense>
       )}
     </PageFrame>
+  );
+}
+
+type KrakenRulesLayerProps = {
+  entrypointName: string;
+  ruleTypeOptions: ComboOption[];
+};
+
+function KrakenRulesDataLayer({
+  entrypointName,
+  ruleTypeOptions,
+}: KrakenRulesLayerProps) {
+  const { data } = useSuspenseKrakenEntrypointRulesQuery(entrypointName);
+  const rules = useMemo(() => data.rules, [data.rules]);
+  const table = useKrakenRulesTable(rules);
+  const { pagination } = table;
+
+  return (
+    <>
+      <PageFrameControls>
+        <KrakenControls
+          disabled={false}
+          hasEntrypoint
+          ruleTypeOptions={ruleTypeOptions}
+          table={table}
+        />
+      </PageFrameControls>
+
+      <PageFrameBody className="pb-8">
+        <KrakenRulesTable
+          entrypointName={entrypointName}
+          error={null}
+          isError={false}
+          isLoading={false}
+          isRetrying={false}
+          onRetry={() => {}}
+          table={table}
+        />
+      </PageFrameBody>
+
+      {pagination.total > 0 && (
+        <PageFrameFooter>
+          <Pagination
+            page={pagination.currentPage}
+            pageCount={pagination.pageCount}
+            total={pagination.total}
+            pageSize={pagination.pageSize}
+            onPageChange={pagination.setPage}
+            onPageSizeChange={pagination.setPageSize}
+            bordered={false}
+          />
+        </PageFrameFooter>
+      )}
+    </>
+  );
+}
+
+function KrakenRulesLoadingShell({
+  entrypointName,
+  ruleTypeOptions,
+}: KrakenRulesLayerProps) {
+  const table = useKrakenRulesTable([]);
+
+  return (
+    <>
+      <PageFrameControls>
+        <KrakenControls
+          disabled
+          hasEntrypoint
+          ruleTypeOptions={ruleTypeOptions}
+          table={table}
+        />
+      </PageFrameControls>
+
+      <PageFrameBody className="pb-8">
+        <KrakenRulesTable
+          entrypointName={entrypointName}
+          error={null}
+          isError={false}
+          isLoading
+          isRetrying={false}
+          onRetry={() => {}}
+          table={table}
+        />
+      </PageFrameBody>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { getErrorMessage } from "@/components/data-error-view";
+import { Suspense } from "react";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { InsuranceCoveragesSection } from "@/features/insurance/components/insurance-coverages-section";
 import {
@@ -7,7 +7,6 @@ import {
 } from "@/features/insurance/components/insurance-detail-constants";
 import { InsuranceDetailHeader } from "@/features/insurance/components/insurance-detail-header";
 import {
-  InsuranceDetailError,
   InsuranceDetailLoading,
   InsuranceNotFound,
 } from "@/features/insurance/components/insurance-detail-states";
@@ -15,7 +14,7 @@ import { InsuranceDetailTabs } from "@/features/insurance/components/insurance-d
 import { InsurancePartiesSection } from "@/features/insurance/components/insurance-parties-section";
 import { InsuranceSummarySection } from "@/features/insurance/components/insurance-summary-section";
 import { InsuranceVehiclesSection } from "@/features/insurance/components/insurance-vehicles-section";
-import { useInsuranceRecordQuery } from "@/features/insurance/services/insurance.queries";
+import { useSuspenseInsuranceRecordQuery } from "@/features/insurance/services/insurance.queries";
 import type { InsuranceRecordKind } from "@/features/insurance/services/insurance.types";
 
 type InsuranceDetailPageProps = {
@@ -31,27 +30,27 @@ export function InsuranceDetailPage({
   kind,
   onTabChange,
 }: InsuranceDetailPageProps) {
-  const { data, error, isError, isFetching, isPending, refetch } =
-    useInsuranceRecordQuery(kind, businessKey);
+  return (
+    <Suspense fallback={<InsuranceDetailLoading />}>
+      <InsuranceDetailDataLayer
+        activeTab={activeTab}
+        businessKey={businessKey}
+        kind={kind}
+        onTabChange={onTabChange}
+      />
+    </Suspense>
+  );
+}
+
+function InsuranceDetailDataLayer({
+  activeTab,
+  businessKey,
+  kind,
+  onTabChange,
+}: InsuranceDetailPageProps) {
+  const { data } = useSuspenseInsuranceRecordQuery(kind, businessKey);
   const record = data?.record;
   const label = insuranceRouteLabels[kind];
-
-  if (isPending) {
-    return <InsuranceDetailLoading />;
-  }
-
-  if (isError) {
-    return (
-      <InsuranceDetailError
-        title={`Could not load ${label.title.toLowerCase()}`}
-        message={getErrorMessage(error)}
-        isRetrying={isFetching}
-        onRetry={() => {
-          void refetch();
-        }}
-      />
-    );
-  }
 
   if (!record) {
     return (
