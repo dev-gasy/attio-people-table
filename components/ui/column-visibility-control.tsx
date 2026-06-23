@@ -54,7 +54,8 @@ export function ColumnVisibilityControl<T extends string>({
           </div>
           <div className="p-1">
             {columns.map((column) => {
-              const checked = visibleColumns.has(column.id);
+              const checked =
+                column.alwaysVisible || visibleColumns.has(column.id);
 
               return (
                 <button
@@ -66,7 +67,9 @@ export function ColumnVisibilityControl<T extends string>({
                 >
                   <span
                     className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
-                      checked
+                      column.alwaysVisible
+                        ? "border-border bg-muted text-muted-foreground"
+                        : checked
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border"
                     }`}

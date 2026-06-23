@@ -4,37 +4,43 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Building2, Hash, Languages, MapPin } from "lucide-react";
 import type { GroupsView } from "@/features/groups/components/types";
 import { useGroupsQuery } from "@/features/groups/services/groups.queries";
-import type { Group } from "@/features/groups/services/groups.types";
+import type {
+  Group,
+  GroupFilters,
+} from "@/features/groups/services/groups.types";
 import { useTanStackClientTable } from "@/hooks/use-tanstack-client-table";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Avatar } from "@/components/avatar";
+import type { ViewMode } from "@/lib/view-mode";
 
 export type GroupsSearch = {
   province?: string;
   search?: string;
+  view: ViewMode;
 };
 
-export function shouldFetchGroups(filters: GroupsSearch | undefined) {
+export const MIN_GROUP_SEARCH_LENGTH = 1;
+
+export function shouldFetchGroups(filters: GroupFilters | undefined) {
   return Boolean(filters?.province || hasSearchQuery(filters?.search));
 }
 
 export function hasSearchQuery(search: string | undefined) {
-  return Boolean(search && search.trim().length >= 3);
+  return Boolean(search && search.trim().length >= MIN_GROUP_SEARCH_LENGTH);
 }
 
-export function useGroupsPageControls(filters: GroupsSearch = {}) {
+export function useGroupsPageControls(filters: GroupsSearch) {
   const navigate = useNavigate();
-  const [view, setView] = useState<GroupsView>("grid");
   const [draftSearch, setDraftSearch] = useState(filters.search ?? "");
   const [isNavigating, startTransition] = useTransition();
 
   const { deferredValue: deferredSearch, isPending: isSearchPending } =
     useDebounce(draftSearch);
 
-  const activeFilters: GroupsSearch = useMemo(
+  const activeFilters: GroupFilters = useMemo(
     () => ({
       province: filters.province,
-      search: deferredSearch.trim().length >= 3 ? deferredSearch : undefined,
+      search: hasSearchQuery(deferredSearch) ? deferredSearch : undefined,
     }),
     [filters.province, deferredSearch],
   );
@@ -49,6 +55,7 @@ export function useGroupsPageControls(filters: GroupsSearch = {}) {
         search: {
           province: province ?? undefined,
           search: filters.search,
+          view: filters.view,
         },
       });
     });
@@ -63,7 +70,22 @@ export function useGroupsPageControls(filters: GroupsSearch = {}) {
         to: "/groups",
         search: {
           province: filters.province,
-          search: trimmedValue.length >= 3 ? value : undefined,
+          search:
+            trimmedValue.length >= MIN_GROUP_SEARCH_LENGTH ? value : undefined,
+          view: filters.view,
+        },
+      });
+    });
+  }
+
+  function setView(view: GroupsView) {
+    startTransition(() => {
+      void navigate({
+        to: "/groups",
+        search: {
+          province: filters.province,
+          search: filters.search,
+          view,
         },
       });
     });
@@ -77,7 +99,7 @@ export function useGroupsPageControls(filters: GroupsSearch = {}) {
     setSearch,
     setView,
     shouldLoadGroups,
-    view,
+    view: filters.view,
   };
 }
 
@@ -186,7 +208,7 @@ const COLUMNS: ColumnDef<Group>[] = [
   },
 ];
 
-export function useGroupsPage(filters: GroupsSearch) {
+export function useGroupsPage(filters: GroupFilters) {
   const { data: groups } = useGroupsQuery(filters);
 
   const table = useTanStackClientTable({

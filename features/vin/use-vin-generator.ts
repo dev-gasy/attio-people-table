@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   emptyVinGeneratorForm,
   getGeneratedVinResult,
@@ -12,19 +13,38 @@ import {
 } from "@/features/vin/services/vin.queries";
 
 type UseVinGeneratorOptions = {
+  initialFormValues?: VinGeneratorFormValues;
   initialValidatorInput?: string;
 };
 
 export function useVinGenerator({
+  initialFormValues,
   initialValidatorInput = "",
 }: UseVinGeneratorOptions = {}) {
+  const navigate = useNavigate();
+  const initialBrand = initialFormValues?.brand ?? "";
+  const initialModel = initialFormValues?.model ?? "";
+  const initialYear = initialFormValues?.year ?? "";
   const [formValues, setFormValues] = useState<VinGeneratorFormValues>(
-    emptyVinGeneratorForm,
+    {
+      brand: initialBrand,
+      model: initialModel,
+      year: initialYear,
+    },
   );
-  const [validatorInput, setValidatorInput] = useState(initialValidatorInput);
+  const [validatorInput, setValidatorInputState] =
+    useState(initialValidatorInput);
 
   useEffect(() => {
-    setValidatorInput(initialValidatorInput);
+    setFormValues({
+      brand: initialBrand,
+      model: initialModel,
+      year: initialYear,
+    });
+  }, [initialBrand, initialModel, initialYear]);
+
+  useEffect(() => {
+    setValidatorInputState(initialValidatorInput);
   }, [initialValidatorInput]);
 
   const brands = useVinBrandsQuery();
@@ -45,15 +65,40 @@ export function useVinGenerator({
   );
 
   function updateField(field: keyof VinGeneratorFormValues, value: string) {
-    setFormValues((current) => ({
-      ...current,
+    const nextFormValues = {
+      ...formValues,
       [field]: value,
       ...(field === "brand" || field === "year" ? { model: "" } : {}),
-    }));
+    };
+
+    setFormValues(nextFormValues);
+    navigateVinSearch(nextFormValues, validatorInput);
+  }
+
+  function setValidatorInput(value: string) {
+    setValidatorInputState(value);
+    navigateVinSearch(formValues, value);
   }
 
   function reset() {
     setFormValues(emptyVinGeneratorForm);
+    navigateVinSearch(emptyVinGeneratorForm, validatorInput);
+  }
+
+  function navigateVinSearch(
+    nextFormValues: VinGeneratorFormValues,
+    nextValidatorInput: string,
+  ) {
+    void navigate({
+      to: "/vin",
+      replace: true,
+      search: {
+        brand: toSearchValue(nextFormValues.brand),
+        model: toSearchValue(nextFormValues.model),
+        vin: toSearchValue(nextValidatorInput),
+        year: toSearchValue(nextFormValues.year),
+      },
+    });
   }
 
   return {
@@ -74,4 +119,8 @@ export function useVinGenerator({
 
 function isVinGeneratorFormEmpty(formValues: VinGeneratorFormValues) {
   return !formValues.brand && !formValues.model && !formValues.year;
+}
+
+function toSearchValue(value: string) {
+  return value.trim() ? value : undefined;
 }

@@ -1,4 +1,11 @@
-import { TanStackGridHeader, TableLoadingRows } from "@/components/ui/table";
+import { Building2, Hash, Languages, MapPin } from "lucide-react";
+import {
+  SortableTableHeader,
+  TableHeaderCell,
+  TanStackGridHeader,
+  TableLoadingRows,
+  type TableLoadingColumn,
+} from "@/components/ui/table";
 import type { GroupsView } from "@/features/groups/components/types";
 import type { useGroupsPage } from "@/features/groups/use-groups-page";
 
@@ -14,6 +21,50 @@ type GroupsLoadingSkeletonProps = {
   view: GroupsView;
 };
 
+const LIST_SKELETON_COLUMNS = [
+  {
+    icon: Building2,
+    key: "organization",
+    label: "Organization",
+    loadingWidths: ["h-3 w-32 rounded"],
+    width: "minmax(220px,1.4fr)",
+  },
+  {
+    icon: Languages,
+    key: "groupShortNameFr",
+    label: "Short name FR",
+    loadingWidths: ["h-3 w-28 rounded"],
+    width: "minmax(140px,0.9fr)",
+  },
+  {
+    icon: Languages,
+    key: "groupShortNameEn",
+    label: "Short name EN",
+    loadingWidths: ["h-3 w-28 rounded"],
+    width: "minmax(140px,0.9fr)",
+  },
+  {
+    icon: Hash,
+    key: "onlineIdentifier",
+    label: "Online identifier",
+    loadingWidths: ["h-3 w-24 rounded"],
+    width: "minmax(160px,1fr)",
+  },
+  {
+    icon: MapPin,
+    key: "province",
+    label: "Province",
+    loadingWidths: ["h-3 w-20 rounded"],
+    width: "minmax(120px,0.8fr)",
+  },
+] as const;
+
+const LIST_SKELETON_GRID_STYLE = {
+  gridTemplateColumns: LIST_SKELETON_COLUMNS.map((column) => column.width).join(
+    " ",
+  ),
+};
+
 export function GroupsLoadingSkeleton({
   pageSize,
   table,
@@ -21,8 +72,12 @@ export function GroupsLoadingSkeleton({
   visibleColumns,
   view,
 }: GroupsLoadingSkeletonProps) {
-  if (view === "grid" || !table || visibleColumns.length === 0) {
+  if (view === "grid") {
     return <GridSkeleton pageSize={pageSize} />;
+  }
+
+  if (!table || visibleColumns.length === 0) {
+    return <ListSkeleton pageSize={pageSize} />;
   }
 
   return (
@@ -39,6 +94,39 @@ export function GroupsLoadingSkeleton({
           widths: column.columnDef.meta?.loadingWidths ?? ["h-3 w-24"],
         }))}
         gridStyle={tableGridStyle as TableGridStyle}
+        rowCount={pageSize}
+      />
+    </div>
+  );
+}
+
+type ListSkeletonProps = { pageSize: number };
+
+function ListSkeleton({ pageSize }: ListSkeletonProps) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
+      <div
+        style={LIST_SKELETON_GRID_STYLE}
+        className="sticky top-0 z-10 grid border-b border-border/60 bg-background"
+      >
+        {LIST_SKELETON_COLUMNS.map((column, index) => (
+          <TableHeaderCell
+            key={column.key}
+            last={index === LIST_SKELETON_COLUMNS.length - 1}
+          >
+            <SortableTableHeader icon={column.icon} label={column.label} />
+          </TableHeaderCell>
+        ))}
+      </div>
+      <TableLoadingRows
+        columns={LIST_SKELETON_COLUMNS.map(
+          (column) =>
+            ({
+              key: column.key,
+              widths: column.loadingWidths,
+            }) satisfies TableLoadingColumn,
+        )}
+        gridStyle={LIST_SKELETON_GRID_STYLE}
         rowCount={pageSize}
       />
     </div>

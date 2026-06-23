@@ -44,6 +44,7 @@ export function Collapsible({
         onClick={() => setOpen(!open)}
         className={cn(
           "flex w-full items-center gap-2.5 bg-muted/30 px-4 py-3 text-left hover:bg-muted/50",
+          open ? "rounded-t-xl" : "rounded-xl",
           headerClassName,
         )}
       >

@@ -20,7 +20,7 @@ export function VinValidatorPanel({
 }: VinValidatorPanelProps) {
   return (
     <Collapsible title="Validator" subtitle="Check VIN format and check digit">
-      <div className="grid gap-5 p-4 lg:grid-cols-[1fr_320px]">
+      <div className="p-4 space-y-4">
         <div className="grid gap-3">
           <TextInputField
             field={createTextField({
@@ -31,10 +31,6 @@ export function VinValidatorPanel({
             label="VIN"
             placeholder="Paste a VIN, e.g. 1FA-CP45E-X-LF192944"
           />
-          <p className="text-xs text-muted-foreground">
-            Separators are ignored. The letters I, O, and Q are not allowed in
-            VINs.
-          </p>
         </div>
 
         <ValidationSummary result={result} />

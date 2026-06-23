@@ -3,11 +3,13 @@ import { GroupsPage } from "@/features/groups/components/groups-page";
 import { RouteErrorFallback } from "@/components/route-error-fallback";
 import { type GroupsSearch } from "@/features/groups/use-groups-page";
 import { buildPageMeta } from "@/src/lib/page-meta";
+import { parseViewMode } from "@/lib/view-mode";
 
 export const Route = createFileRoute("/_app/groups")({
   validateSearch: (search): GroupsSearch => ({
     province: typeof search.province === "string" ? search.province : undefined,
     search: typeof search.search === "string" ? search.search : undefined,
+    view: parseViewMode(search.view),
   }),
   head: () => ({
     meta: buildPageMeta({

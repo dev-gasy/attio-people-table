@@ -23,6 +23,15 @@ export type TanStackClientPaginationState<TData> = {
   total: number;
 };
 
+interface UseTanStackClientTableOptions<TData> {
+  columnVisibility?: VisibilityState;
+  columns: ColumnDef<TData>[];
+  data: TData[];
+  getRowId?: (originalRow: TData, index: number, parent?: Row<TData>) => string;
+  initialPageSize?: number;
+  onColumnVisibilityChange?: OnChangeFn<VisibilityState>;
+}
+
 export function useTanStackClientTable<TData>({
   columnVisibility,
   columns,
@@ -30,14 +39,7 @@ export function useTanStackClientTable<TData>({
   getRowId,
   initialPageSize = DEFAULT_TABLE_PAGE_SIZE,
   onColumnVisibilityChange,
-}: {
-  columnVisibility?: VisibilityState;
-  columns: ColumnDef<TData>[];
-  data: TData[];
-  getRowId?: (originalRow: TData, index: number, parent?: Row<TData>) => string;
-  initialPageSize?: number;
-  onColumnVisibilityChange?: OnChangeFn<VisibilityState>;
-}) {
+}: UseTanStackClientTableOptions<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({

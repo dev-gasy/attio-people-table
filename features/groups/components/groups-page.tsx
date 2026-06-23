@@ -15,14 +15,18 @@ import {
   type GroupsSearch,
   type GroupsPageControls,
 } from "@/features/groups/use-groups-page";
+import type { GroupFilters } from "@/features/groups/services/groups.types";
 import { Pagination } from "@/components/ui/pagination";
+import { DEFAULT_VIEW_MODE } from "@/lib/view-mode";
 
 const CENTERED_BODY =
   "flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8";
 
 type GroupsPageProps = { filters?: GroupsSearch };
 
-export function GroupsPage({ filters = {} }: GroupsPageProps) {
+export function GroupsPage({
+  filters = { view: DEFAULT_VIEW_MODE },
+}: GroupsPageProps) {
   const controls = useGroupsPageControls(filters);
 
   return (
@@ -43,7 +47,7 @@ export function GroupsPage({ filters = {} }: GroupsPageProps) {
 
       {!controls.shouldLoadGroups ? (
         <PageFrameBody className={CENTERED_BODY}>
-          <EmptyView message="Select a province or enter at least 3 search characters to load groups." />
+          <EmptyView message="Search or select a province to load groups." />
         </PageFrameBody>
       ) : (
         <Suspense
@@ -70,7 +74,7 @@ export function GroupsPage({ filters = {} }: GroupsPageProps) {
 }
 
 type GroupsDataLayerProps = {
-  activeFilters: GroupsSearch;
+  activeFilters: GroupFilters;
   controls: GroupsPageControls;
 };
 

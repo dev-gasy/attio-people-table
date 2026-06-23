@@ -6,15 +6,21 @@ import { VinGeneratorForm } from "@/features/vin/components/vin-generator-form";
 import { VinResultCard } from "@/features/vin/components/vin-result-card";
 import { VinValidatorPanel } from "@/features/vin/components/vin-validator-panel";
 import { useVinGenerator } from "@/features/vin/use-vin-generator";
+import type { VinGeneratorFormValues } from "@/features/vin/domain/vin";
 
 type VinGeneratorPageProps = {
+  initialFormValues?: VinGeneratorFormValues;
   initialValidatorInput?: string;
 };
 
 export function VinGeneratorPage({
+  initialFormValues,
   initialValidatorInput,
 }: VinGeneratorPageProps) {
-  const generator = useVinGenerator({ initialValidatorInput });
+  const generator = useVinGenerator({
+    initialFormValues,
+    initialValidatorInput,
+  });
 
   return (
     <PageFrame>
