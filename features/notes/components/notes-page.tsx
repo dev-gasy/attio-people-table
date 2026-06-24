@@ -33,14 +33,16 @@ export function NotesPage() {
         }
       />
       {isError ? (
-        <DataErrorView
-          title="Could not load notes"
-          message={getErrorMessage(error)}
-          onRetry={() => {
-            void refetch();
-          }}
-          isRetrying={isRetrying}
-        />
+        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+          <DataErrorView
+            title="Could not load notes"
+            message={getErrorMessage(error)}
+            onRetry={() => {
+              void refetch();
+            }}
+            isRetrying={isRetrying}
+          />
+        </PageFrameBody>
       ) : isLoading ? (
         <PageFrameBody className="pb-8">
           <NotesLoadingSkeleton />

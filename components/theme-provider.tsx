@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -8,77 +9,70 @@ import {
 } from "react";
 
 type Theme = "light" | "dark" | "system";
+type ResolvedTheme = "light" | "dark";
 
 type ThemeContextValue = {
   theme: Theme;
-  resolvedTheme: "light" | "dark";
+  resolvedTheme: ResolvedTheme;
   setTheme: (theme: Theme) => void;
 };
 
-const ThemeContext = createContext<ThemeContextValue | null>(null);
+const THEME_KEY = "theme";
+const DARK_MEDIA = "(prefers-color-scheme: dark)";
 
-function getSystemTheme() {
-  if (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  ) {
-    return "dark";
+const isTheme = (v: unknown): v is Theme =>
+  v === "light" || v === "dark" || v === "system";
+
+const readStoredTheme = (): Theme | null => {
+  try {
+    const v = localStorage.getItem(THEME_KEY);
+    return isTheme(v) ? v : null;
+  } catch {
+    return null;
   }
-
-  return "light";
-}
-
-type ThemeProviderProps = {
-  children: ReactNode;
-  defaultTheme?: Theme;
-  enableSystem?: boolean;
 };
 
-export function ThemeProvider({
-  children,
-  defaultTheme = "system",
-  enableSystem = true,
-}: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(defaultTheme);
-  const [systemTheme, setSystemTheme] = useState<"light" | "dark">("light");
+const getSystemTheme = (): ResolvedTheme =>
+  typeof window !== "undefined" && window.matchMedia(DARK_MEDIA).matches
+    ? "dark"
+    : "light";
+
+const ThemeContext = createContext<ThemeContextValue | null>(null);
+
+type Props = { children: ReactNode; defaultTheme?: Theme };
+
+export function ThemeProvider({ children, defaultTheme = "system" }: Props) {
+  const [theme, setThemeState] = useState<Theme>(
+    () => readStoredTheme() ?? defaultTheme,
+  );
+
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(getSystemTheme);
+
+  const resolvedTheme = theme === "system" ? systemTheme : theme;
 
   useEffect(() => {
-    const storedTheme = window.localStorage.getItem("theme") as Theme | null;
-    setThemeState(storedTheme ?? defaultTheme);
-    setSystemTheme(getSystemTheme());
-
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => setSystemTheme(media.matches ? "dark" : "light");
-    media.addEventListener("change", onChange);
-
-    return () => media.removeEventListener("change", onChange);
-  }, [defaultTheme]);
-
-  const resolvedTheme =
-    enableSystem && theme === "system"
-      ? systemTheme
-      : theme === "dark"
-        ? "dark"
-        : "light";
+    const media = window.matchMedia(DARK_MEDIA);
+    const onchange = () => setSystemTheme(media.matches ? "dark" : "light");
+    media.addEventListener("change", onchange);
+    return () => media.removeEventListener("change", onchange);
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
-    document.documentElement.classList.toggle(
-      "light",
-      resolvedTheme === "light",
-    );
   }, [resolvedTheme]);
 
-  const value = useMemo<ThemeContextValue>(
-    () => ({
-      theme,
-      resolvedTheme,
-      setTheme: (nextTheme) => {
-        setThemeState(nextTheme);
-        window.localStorage.setItem("theme", nextTheme);
-      },
-    }),
-    [theme, resolvedTheme],
+  const setTheme = useCallback((next: Theme) => {
+    setThemeState(next);
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      return;
+    }
+  }, []);
+
+  const value = useMemo(
+    () => ({ theme, resolvedTheme, setTheme }),
+    [theme, resolvedTheme, setTheme],
   );
 
   return (
@@ -86,12 +80,10 @@ export function ThemeProvider({
   );
 }
 
-export function useTheme() {
-  const context = useContext(ThemeContext);
-
-  if (!context) {
-    throw new Error("useTheme must be used within ThemeProvider");
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) {
+    throw new Error("useTheme must be used within <ThemeProvider>");
   }
-
-  return context;
+  return ctx;
 }

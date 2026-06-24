@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
@@ -12,6 +11,25 @@ import type { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 import { APP_NAME } from "@/src/lib/page-meta";
 import appCss from "@/src/styles/globals.css?url";
+
+const themeScript = `
+(() => {
+  try {
+    const storedTheme = window.localStorage.getItem("theme");
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+    const resolvedTheme =
+      storedTheme === "light" || storedTheme === "dark" ? storedTheme : systemTheme;
+    const root = document.documentElement;
+
+    root.classList.toggle("dark", resolvedTheme === "dark");
+    root.classList.toggle("light", resolvedTheme === "light");
+  } catch {
+    // Keep the server-rendered theme when browser storage is unavailable.
+  }
+})();
+`;
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -44,30 +62,10 @@ export const Route = createRootRouteWithContext<{
     ],
   }),
   notFoundComponent: NotFoundComponent,
-  component: RootComponent,
-});
-
-function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
-
-  return (
-    <RootDocument>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="dark" enableSystem>
-          <Outlet />
-        </ThemeProvider>
-        <ReactQueryDevtools buttonPosition="bottom-left" />
-      </QueryClientProvider>
-    </RootDocument>
-  );
-}
-
-type RootDocumentProps = Readonly<{ children: ReactNode }>;
-
-function RootDocument({ children }: RootDocumentProps) {
-  return (
+  shellComponent: ({ children }) => (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <HeadContent />
       </head>
       <body className="bg-background font-sans antialiased">
@@ -75,6 +73,20 @@ function RootDocument({ children }: RootDocumentProps) {
         <Scripts />
       </body>
     </html>
+  ),
+  component: RootComponent,
+});
+
+function RootComponent() {
+  const { queryClient } = Route.useRouteContext();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider enableSystem>
+        <Outlet />
+      </ThemeProvider>
+      <ReactQueryDevtools buttonPosition="bottom-left" />
+    </QueryClientProvider>
   );
 }
 

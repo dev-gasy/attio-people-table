@@ -49,14 +49,16 @@ export function TasksPage() {
         }
       />
       {isError ? (
-        <DataErrorView
-          isRetrying={isRetrying}
-          title="Could not load tasks"
-          message={getErrorMessage(error)}
-          onRetry={() => {
-            void refetch();
-          }}
-        />
+        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+          <DataErrorView
+            isRetrying={isRetrying}
+            title="Could not load tasks"
+            message={getErrorMessage(error)}
+            onRetry={() => {
+              void refetch();
+            }}
+          />
+        </PageFrameBody>
       ) : isLoading ? (
         <PageFrameBody className="pb-8">
           <TasksLoadingSkeleton />
