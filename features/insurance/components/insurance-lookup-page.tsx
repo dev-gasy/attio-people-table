@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { FileText, Search } from "lucide-react";
-import { z } from "zod";
+import * as v from "valibot";
 import { PageFrame, PageFrameBody } from "@/components/page-frame";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -10,20 +10,29 @@ import {
   type StringFieldApi,
 } from "@/components/ui/form-field";
 
-const policySchema = z.object({
-  businessKey: z.string().trim().min(1, "Policy business key is required"),
+const policySchema = v.object({
+  businessKey: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "Policy business key is required"),
+  ),
 });
 
-const quoteSchema = z.object({
-  businessKey: z.string().trim().min(1, "Quote business key is required"),
-  revisionNumber: z
-    .string()
-    .trim()
-    .min(1, "Revision number is required")
-    .refine(
+const quoteSchema = v.object({
+  businessKey: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "Quote business key is required"),
+  ),
+  revisionNumber: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "Revision number is required"),
+    v.check(
       (value) => Number.isFinite(Number(value)),
       "Revision number must be a number",
     ),
+  ),
 });
 
 type LookupFormProps = {

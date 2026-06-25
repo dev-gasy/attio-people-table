@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as v from "valibot";
 import type { Customer } from "@/features/customers/services/customers.types";
 
 export type CustomerSearchValues = {
@@ -21,18 +21,19 @@ export const emptyCustomerSearchValues: CustomerSearchValues = {
   address: "",
 };
 
-export const CustomerSearchSchema = z
-  .object({
-    firstName: z.string(),
-    lastName: z.string(),
-    dateOfBirth: z.string(),
-    policyQuoteNumber: z.string(),
-    email: z.string(),
-    phone: z.string(),
-    address: z.string(),
-  })
-  .transform(trimCustomerSearchValues)
-  .refine(hasCustomerSearchValue, "Unable to search if fields are empty.");
+export const CustomerSearchSchema = v.pipe(
+  v.object({
+    firstName: v.string(),
+    lastName: v.string(),
+    dateOfBirth: v.string(),
+    policyQuoteNumber: v.string(),
+    email: v.string(),
+    phone: v.string(),
+    address: v.string(),
+  }),
+  v.transform(trimCustomerSearchValues),
+  v.check(hasCustomerSearchValue, "Unable to search if fields are empty."),
+);
 
 export function trimCustomerSearchValues(
   values: CustomerSearchValues,

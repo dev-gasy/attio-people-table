@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as v from "valibot";
 
 const VIN_LENGTH = 17;
 const CHECK_DIGIT_INDEX = 8;
@@ -117,31 +117,30 @@ export const emptyVinGeneratorForm: VinGeneratorFormValues = {
   year: "",
 };
 
-export const VinGeneratorFormSchema = z.object({
-  brand: z.string().trim().min(1, "Select a brand"),
-  model: z.string().trim().min(1, "Select a model"),
-  year: z
-    .string()
-    .trim()
-    .min(1, "Select a year")
-    .transform((value, context) => {
+export const VinGeneratorFormSchema = v.object({
+  brand: v.pipe(v.string(), v.trim(), v.minLength(1, "Select a brand")),
+  model: v.pipe(v.string(), v.trim(), v.minLength(1, "Select a model")),
+  year: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "Select a year"),
+    v.rawTransform(({ dataset, addIssue, NEVER }) => {
+      const value = dataset.value;
       const year = Number(value);
       if (!Number.isInteger(year)) {
-        context.addIssue({ code: "custom", message: "Select a valid year" });
-        return z.NEVER;
+        addIssue({ message: "Select a valid year" });
+        return NEVER;
       }
       return year;
-    })
-    .pipe(
-      z
-        .number()
-        .int()
-        .min(MIN_MODEL_YEAR, `Year must be ${MIN_MODEL_YEAR} or newer`)
-        .max(MAX_MODEL_YEAR, `Year must be ${MAX_MODEL_YEAR} or older`),
-    ),
+    }),
+    v.number(),
+    v.integer(),
+    v.minValue(MIN_MODEL_YEAR, `Year must be ${MIN_MODEL_YEAR} or newer`),
+    v.maxValue(MAX_MODEL_YEAR, `Year must be ${MAX_MODEL_YEAR} or older`),
+  ),
 });
 
-export type VinGeneratorForm = z.output<typeof VinGeneratorFormSchema>;
+export type VinGeneratorForm = v.InferOutput<typeof VinGeneratorFormSchema>;
 
 export function normalizeVin(value: string): string {
   return value.trim().toUpperCase().replace(VIN_SEPARATOR_PATTERN, "");
@@ -240,8 +239,8 @@ export function createVinYearOptions(referenceDate = new Date()) {
 
 export function validateVinGeneratorForm(
   form: unknown,
-): z.ZodSafeParseResult<VinGeneratorForm> {
-  return VinGeneratorFormSchema.safeParse(form);
+): v.SafeParseResult<typeof VinGeneratorFormSchema> {
+  return v.safeParse(VinGeneratorFormSchema, form);
 }
 
 export function generateVin({
@@ -302,10 +301,10 @@ export function getGeneratedVinResult(
     return {
       error: null,
       result: generateVin({
-        brand: parsed.data.brand,
-        model: parsed.data.model,
+        brand: parsed.output.brand,
+        model: parsed.output.model,
         wmi,
-        year: parsed.data.year,
+        year: parsed.output.year,
       }),
     };
   } catch (error) {

@@ -1,6 +1,7 @@
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { RotateCcw, Search } from "lucide-react";
 import { useEffect, type ElementType, type ReactNode } from "react";
+import * as v from "valibot";
 import { Button } from "@/components/ui/button";
 import { Collapsible } from "@/components/ui/collapsible-section";
 import {
@@ -112,8 +113,8 @@ export function CustomerSearchForm({
       onDynamic: CustomerSearchSchema,
     },
     onSubmit: ({ value }) => {
-      const parsedSearch = CustomerSearchSchema.safeParse(value);
-      if (parsedSearch.success) onSearch(parsedSearch.data);
+      const parsedSearch = v.safeParse(CustomerSearchSchema, value);
+      if (parsedSearch.success) onSearch(parsedSearch.output);
     },
   });
 

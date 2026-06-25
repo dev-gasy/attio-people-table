@@ -41,8 +41,8 @@ function extractCrossFieldErrors(
   if (parsed.success) return {};
 
   const out: Partial<Record<LicenceFieldName, string>> = {};
-  for (const issue of parsed.error.issues) {
-    const field = issue.path[0] as LicenceFieldName | undefined;
+  for (const issue of parsed.issues) {
+    const field = issue.path?.[0]?.key as LicenceFieldName | undefined;
     if (field && !out[field]) {
       out[field] = issue.message;
     }
@@ -61,7 +61,7 @@ export function useDrivingLicencePage() {
 
   const result = useMemo(() => {
     const parsed = validateLicenceForm(values);
-    return parsed.success ? createLicenceResult(parsed.data) : null;
+    return parsed.success ? createLicenceResult(parsed.output) : null;
   }, [values]);
 
   // Derived from `result` — avoids a second parse of the same values.

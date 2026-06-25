@@ -1,18 +1,19 @@
 import { fakerEN_CA as faker } from "@faker-js/faker";
-import { z } from "zod";
+import * as v from "valibot";
 import { canadianProvinces } from "@/features/driving-licence/domain/provinces";
 
 // ---------------------------------------------------------------------------
 // Base enums / constants
 // ---------------------------------------------------------------------------
 
-export const GenderSchema = z.enum(["Male", "Female", "Other"]);
-export const ProvinceSchema = z.enum(canadianProvinces, {
-  error: "Please select a valid Canadian province",
-});
+export const GenderSchema = v.picklist(["Male", "Female", "Other"]);
+export const ProvinceSchema = v.picklist(
+  canadianProvinces,
+  "Please select a valid Canadian province",
+);
 
-export type Gender = z.infer<typeof GenderSchema>;
-export type Province = z.infer<typeof ProvinceSchema>;
+export type Gender = v.InferOutput<typeof GenderSchema>;
+export type Province = v.InferOutput<typeof ProvinceSchema>;
 
 /** Minimum driving age per province/territory (all currently 16 in Canada). */
 export const MINIMUM_DRIVING_AGE: Record<Province, number> = Object.fromEntries(
@@ -102,41 +103,41 @@ export function formatLicenceAge(
 // ---------------------------------------------------------------------------
 
 /** Accepts names with letters, spaces, hyphens, apostrophes (international). */
-const NameSchema = z
-  .string()
-  .trim()
-  .min(1, "Required")
-  .max(50, "Must be 50 characters or fewer")
-  .regex(
+const NameSchema = v.pipe(
+  v.string(),
+  v.trim(),
+  v.minLength(1, "Required"),
+  v.maxLength(50, "Must be 50 characters or fewer"),
+  v.regex(
     /^[\p{L}\s'-]+$/u,
     "Only letters, spaces, hyphens, and apostrophes are allowed",
-  );
+  ),
+);
 
-export const DateOfBirthSchema = z
-  .date({ error: "Invalid date" })
-  .max(new Date(), { message: "Date of birth cannot be in the future" })
-  .refine(
+export const DateOfBirthSchema = v.pipe(
+  v.date("Invalid date"),
+  v.maxValue(new Date(), "Date of birth cannot be in the future"),
+  v.check(
     (date) => calculateLicenceAge(date) <= MAXIMUM_LICENCE_AGE,
     `Must be ${MAXIMUM_LICENCE_AGE} years old or younger`,
-  );
+  ),
+);
 
 /**
  * Validates a raw date string (yyyy-mm-dd), transforms it to a `Date`,
  * then applies `DateOfBirthSchema` rules.
  */
-export const DateOfBirthValueSchema = z
-  .string()
-  .trim()
-  .min(1, "Date of birth is required")
-  .transform((value, context) => {
+export const DateOfBirthValueSchema = v.pipe(
+  v.string(),
+  v.trim(),
+  v.minLength(1, "Date of birth is required"),
+  v.rawTransform(({ dataset, addIssue, NEVER }) => {
+    const value = dataset.value;
     const parts = toDateInputParts(value);
 
     if (!parts) {
-      context.addIssue({
-        code: "custom",
-        message: "Use the format yyyy-mm-dd",
-      });
-      return z.NEVER;
+      addIssue({ message: "Use the format yyyy-mm-dd" });
+      return NEVER;
     }
 
     const date = new Date(parts.year, parts.month - 1, parts.day);
@@ -146,13 +147,14 @@ export const DateOfBirthValueSchema = z
       date.getDate() === parts.day;
 
     if (!isValidDate) {
-      context.addIssue({ code: "custom", message: "Enter a real date" });
-      return z.NEVER;
+      addIssue({ message: "Enter a real date" });
+      return NEVER;
     }
 
     return date;
-  })
-  .pipe(DateOfBirthSchema);
+  }),
+  DateOfBirthSchema,
+);
 
 // ---------------------------------------------------------------------------
 // Form schema — single source of truth
@@ -164,56 +166,70 @@ export const DateOfBirthValueSchema = z
  * `LicenceForm`. This is the only schema used for both per-field and
  * whole-form validation.
  */
-export const LicenceFormValuesSchema = z
-  .object({
-    firstName: NameSchema.refine(
-      (v) => v.length >= 1,
-      "First name is required",
+export const LicenceFormValuesSchema = v.pipe(
+  v.object({
+    firstName: v.pipe(
+      NameSchema,
+      v.check((value) => value.length >= 1, "First name is required"),
     ),
-    lastName: NameSchema.refine((v) => v.length >= 1, "Last name is required"),
+    lastName: v.pipe(
+      NameSchema,
+      v.check((value) => value.length >= 1, "Last name is required"),
+    ),
     dateOfBirth: DateOfBirthValueSchema,
     province: ProvinceSchema,
     gender: GenderSchema,
-  })
-  .superRefine((data, context) => {
+  }),
+  v.rawCheck(({ dataset, addIssue }) => {
+    if (!dataset.typed) return;
+
+    const data = dataset.value;
     // Cross-field: enforce province-specific minimum driving age
     const minAge = MINIMUM_DRIVING_AGE[data.province];
     if (
       minAge !== undefined &&
       calculateLicenceAge(data.dateOfBirth) < minAge
     ) {
-      context.addIssue({
-        code: "custom",
-        path: ["dateOfBirth"],
+      addIssue({
         message: `Must be at least ${minAge} years old to hold a licence in ${data.province}`,
+        path: [
+          {
+            type: "object",
+            origin: "value",
+            input: data,
+            key: "dateOfBirth",
+            value: data.dateOfBirth,
+          },
+        ],
       });
     }
-  });
+  }),
+);
 
-export type LicenceForm = z.output<typeof LicenceFormValuesSchema>;
+export type LicenceForm = v.InferOutput<typeof LicenceFormValuesSchema>;
 
 // ---------------------------------------------------------------------------
 // Result schema
 // ---------------------------------------------------------------------------
 
-export const LicenceResultSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  fullName: z.string(),
-  dateOfBirth: z.string(),
-  age: z.string(),
+export const LicenceResultSchema = v.object({
+  firstName: v.string(),
+  lastName: v.string(),
+  fullName: v.string(),
+  dateOfBirth: v.string(),
+  age: v.string(),
   province: ProvinceSchema,
   gender: GenderSchema,
-  email: z.string(),
-  phone: z.string(),
-  address: z.string(),
-  licenceNumber: z.string(),
-  issueDate: z.string(),
-  expiryDate: z.string(),
-  generatedAt: z.string(),
+  email: v.string(),
+  phone: v.string(),
+  address: v.string(),
+  licenceNumber: v.string(),
+  issueDate: v.string(),
+  expiryDate: v.string(),
+  generatedAt: v.string(),
 });
 
-export type LicenceResult = z.infer<typeof LicenceResultSchema>;
+export type LicenceResult = v.InferOutput<typeof LicenceResultSchema>;
 
 // ---------------------------------------------------------------------------
 // Validation helpers
@@ -221,37 +237,36 @@ export type LicenceResult = z.infer<typeof LicenceResultSchema>;
 
 export function validateLicenceForm(
   form: unknown,
-): z.ZodSafeParseResult<LicenceForm> {
-  return LicenceFormValuesSchema.safeParse(form);
+): v.SafeParseResult<typeof LicenceFormValuesSchema> {
+  return v.safeParse(LicenceFormValuesSchema, form);
 }
 
 /**
  * Validates a single field in isolation.
  * Returns the first error message, or `undefined` if valid.
  *
- * Note: cross-field rules (superRefine) are not evaluated here — those are
+ * Note: cross-field rules (rawCheck) are not evaluated here — those are
  * only checked on full form submission / result generation.
  */
 export function validateLicenceField<K extends keyof LicenceFormValues>(
   field: K,
   value: unknown,
 ): string | undefined {
-  // .shape is the public ZodObject API; available even after superRefine in Zod v4.
-  // Note: cross-field rules (superRefine) are intentionally skipped here —
+  // Note: cross-field rules (rawCheck) are intentionally skipped here —
   // those are only surfaced on full form submission via validateLicenceForm.
-  const fieldSchema = LicenceFormValuesSchema.shape[field];
+  const fieldSchema = LicenceFormValuesSchema.entries[field];
   if (!fieldSchema) return undefined;
 
-  const result = (fieldSchema as z.ZodTypeAny).safeParse(value);
-  return result.success ? undefined : result.error.issues[0]?.message;
+  const result = v.safeParse(fieldSchema, value);
+  return result.success ? undefined : result.issues[0]?.message;
 }
 
 export function canGenerateLicence(form: unknown): boolean {
-  return LicenceFormValuesSchema.safeParse(form).success;
+  return v.safeParse(LicenceFormValuesSchema, form).success;
 }
 
 export function normalizeLicenceForm(form: unknown): LicenceForm {
-  return LicenceFormValuesSchema.parse(form);
+  return v.parse(LicenceFormValuesSchema, form);
 }
 
 export function toLicenceFormValues(form: LicenceForm): LicenceFormValues {
