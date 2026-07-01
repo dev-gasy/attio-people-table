@@ -3,19 +3,19 @@ import { CustomersPage } from "@/features/customers/components/list/customers-pa
 import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
 import { buildPageMeta } from "@/shared/utils/page-meta";
 
-export const Route = createFileRoute("/_app/customers")({
+export const Route = createFileRoute("/_app/customers/favorites")({
   head: () => ({
     meta: buildPageMeta({
-      title: "Customers",
-      description: "Browse and manage customer records in CRM Demo.",
+      title: "Favorite Customers",
+      description: "Review favorite customer records in CRM Demo.",
     }),
   }),
   errorComponent: (props) => (
-    <RouteErrorFallback title="Customers" {...props} />
+    <RouteErrorFallback title="Favorite Customers" {...props} />
   ),
-  component: CustomersRoute,
+  component: FavoriteCustomersRoute,
 });
 
-function CustomersRoute() {
-  return <CustomersPage />;
+function FavoriteCustomersRoute() {
+  return <CustomersPage mode="favorites" />;
 }

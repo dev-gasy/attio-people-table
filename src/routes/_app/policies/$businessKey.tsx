@@ -5,32 +5,24 @@ import { buildPageMeta } from "@/shared/utils/page-meta";
 import { type InsuranceTab } from "@/features/insurance/components/insurance-detail-constants";
 import {
   buildInsuranceTabSearch,
-  parseQuoteRevisionParams,
-  stringifyQuoteRevisionParams,
   validateInsuranceDetailSearch,
 } from "@/features/insurance/insurance-route";
 
-export const Route = createFileRoute(
-  "/_app/quotes_/$businessKey/$revisionNumber",
-)({
+export const Route = createFileRoute("/_app/policies/$businessKey")({
   validateSearch: validateInsuranceDetailSearch,
-  params: {
-    parse: parseQuoteRevisionParams,
-    stringify: stringifyQuoteRevisionParams,
-  },
   head: ({ params }) => {
     return {
       meta: buildPageMeta({
-        title: `Quote ${params.businessKey}`,
-        description: `View quote ${params.businessKey} in CRM Demo.`,
+        title: `Policy ${params.businessKey}`,
+        description: `View policy ${params.businessKey} in CRM Demo.`,
       }),
     };
   },
-  errorComponent: (props) => <RouteErrorFallback title="Quote" {...props} />,
-  component: QuoteRoute,
+  errorComponent: (props) => <RouteErrorFallback title="Policy" {...props} />,
+  component: PolicyRoute,
 });
 
-function QuoteRoute() {
+function PolicyRoute() {
   const { businessKey } = Route.useParams();
   const { tab } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -45,7 +37,7 @@ function QuoteRoute() {
   return (
     <InsuranceDetailPage
       activeTab={tab}
-      kind="quote"
+      kind="policy"
       businessKey={businessKey}
       onTabChange={setActiveTab}
     />

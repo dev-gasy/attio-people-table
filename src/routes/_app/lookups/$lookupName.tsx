@@ -4,7 +4,7 @@ import { getStaticLookupNamesPayload } from "@/features/lookups/lookup-server";
 import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
 import { buildPageMeta } from "@/shared/utils/page-meta";
 
-export const Route = createFileRoute("/_app/lookups_/$lookupName")({
+export const Route = createFileRoute("/_app/lookups/$lookupName")({
   head: ({ params }) => {
     const lookupName =
       getStaticLookupNamesPayload().find(

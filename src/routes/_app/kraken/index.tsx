@@ -6,7 +6,7 @@ import {
 import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
 import { buildPageMeta } from "@/shared/utils/page-meta";
 
-export const Route = createFileRoute("/_app/kraken")({
+export const Route = createFileRoute("/_app/kraken/")({
   validateSearch: (search): KrakenSearch => ({
     entrypoint:
       typeof search.entrypoint === "string" ? search.entrypoint : undefined,

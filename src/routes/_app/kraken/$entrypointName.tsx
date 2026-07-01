@@ -3,7 +3,7 @@ import { getStaticKrakenEntrypointsPayload } from "@/features/kraken/kraken-serv
 import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
 import { buildPageMeta } from "@/shared/utils/page-meta";
 
-export const Route = createFileRoute("/_app/kraken_/$entrypointName")({
+export const Route = createFileRoute("/_app/kraken/$entrypointName")({
   beforeLoad: ({ params }) => {
     const entrypointName =
       getStaticKrakenEntrypointsPayload().find(

@@ -12,7 +12,7 @@ type CustomerDetailSearch = {
   tab: CustomerTab;
 };
 
-export const Route = createFileRoute("/_app/customers_/$customerId")({
+export const Route = createFileRoute("/_app/customers/$customerId")({
   validateSearch: (search): CustomerDetailSearch => ({
     tab: parseCustomerTab(search.tab),
   }),
