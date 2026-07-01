@@ -84,7 +84,7 @@ export function KrakenPage({ entrypointName }: KrakenPageProps) {
       />
 
       {!entrypointName ? (
-        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+        <PageFrameBody centered>
           <EmptyView message="Select an entrypoint name" />
         </PageFrameBody>
       ) : (
@@ -131,30 +131,38 @@ function KrakenRulesDataLayer({
         />
       </PageFrameControls>
 
-      <PageFrameBody className="pb-8">
-        <KrakenRulesTable
-          entrypointName={entrypointName}
-          error={null}
-          isError={false}
-          isLoading={false}
-          isRetrying={false}
-          onRetry={() => {}}
-          table={table}
-        />
-      </PageFrameBody>
+      {table.sortedRows.length === 0 ? (
+        <PageFrameBody centered>
+          <EmptyView message="No rules found" />
+        </PageFrameBody>
+      ) : (
+        <>
+          <PageFrameBody className="pb-8">
+            <KrakenRulesTable
+              entrypointName={entrypointName}
+              error={null}
+              isError={false}
+              isLoading={false}
+              isRetrying={false}
+              onRetry={() => {}}
+              table={table}
+            />
+          </PageFrameBody>
 
-      {pagination.total > 0 && (
-        <PageFrameFooter>
-          <Pagination
-            page={pagination.currentPage}
-            pageCount={pagination.pageCount}
-            total={pagination.total}
-            pageSize={pagination.pageSize}
-            onPageChange={pagination.setPage}
-            onPageSizeChange={pagination.setPageSize}
-            bordered={false}
-          />
-        </PageFrameFooter>
+          {pagination.total > 0 && (
+            <PageFrameFooter>
+              <Pagination
+                page={pagination.currentPage}
+                pageCount={pagination.pageCount}
+                total={pagination.total}
+                pageSize={pagination.pageSize}
+                onPageChange={pagination.setPage}
+                onPageSizeChange={pagination.setPageSize}
+                bordered={false}
+              />
+            </PageFrameFooter>
+          )}
+        </>
       )}
     </>
   );

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
 import { EmptyView } from "@/components/empty-view";
 import {
@@ -34,10 +35,27 @@ export function CustomerTable({
   const emptyMessage_ = shouldLoadCustomers ? emptyMessage : idleMessage;
 
   if (!shouldLoadCustomers || isEmpty) {
-    return <EmptyView message={emptyMessage_} />;
+    return (
+      <CustomerTableStateView>
+        <EmptyView message={emptyMessage_} />
+      </CustomerTableStateView>
+    );
   }
 
-  const showHeader = isLoading || isError || table.sortedRows.length > 0;
+  if (isError) {
+    return (
+      <CustomerTableStateView>
+        <DataErrorView
+          title="Could not load customers"
+          message={getErrorMessage(error)}
+          onRetry={onRetry}
+          isRetrying={isRetrying}
+        />
+      </CustomerTableStateView>
+    );
+  }
+
+  const showHeader = isLoading || table.sortedRows.length > 0;
 
   return (
     <div className="min-h-0">
@@ -61,13 +79,6 @@ export function CustomerTable({
               gridStyle={table.tableGridStyle}
               rowCount={table.pagination.pageSize}
             />
-          ) : isError ? (
-            <DataErrorView
-              title="Could not load customers"
-              message={getErrorMessage(error)}
-              onRetry={onRetry}
-              isRetrying={isRetrying}
-            />
           ) : (
             <TanStackGridRows
               rows={table.pagination.pageItems}
@@ -76,6 +87,14 @@ export function CustomerTable({
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function CustomerTableStateView({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex min-h-[320px] flex-1 items-center justify-center">
+      {children}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { EmptyView } from "@/components/empty-view";
 import { TanStackGridHeader, TanStackGridRows } from "@/components/ui/table";
 import { type LookupsTableState } from "@/features/lookups/use-lookups-table";
 
@@ -37,12 +36,6 @@ export function LookupsTable({ lookupName, table }: LookupsTableProps) {
           </div>
         </div>
       </div>
-
-      {!lookupName && <EmptyView message="Select a lookup name" expanded />}
-
-      {lookupName && table.sortedRows.length === 0 && (
-        <EmptyView message="No lookups found" expanded />
-      )}
     </div>
   );
 }

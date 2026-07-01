@@ -19,9 +19,6 @@ import type { GroupFilters } from "@/features/groups/services/groups.types";
 import { Pagination } from "@/components/ui/pagination";
 import { DEFAULT_VIEW_MODE } from "@/lib/view-mode";
 
-const CENTERED_BODY =
-  "flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8";
-
 type GroupsPageProps = { filters?: GroupsSearch };
 
 export function GroupsPage({
@@ -46,7 +43,7 @@ export function GroupsPage({
       />
 
       {!controls.shouldLoadGroups ? (
-        <PageFrameBody className={CENTERED_BODY}>
+        <PageFrameBody centered>
           <EmptyView message="Search or select a province to load groups." />
         </PageFrameBody>
       ) : (
@@ -84,7 +81,7 @@ function GroupsDataLayer({ activeFilters, controls }: GroupsDataLayerProps) {
 
   if (filteredTotal === 0) {
     return (
-      <PageFrameBody className={CENTERED_BODY}>
+      <PageFrameBody centered>
         <EmptyView message="No groups match your filters" />
       </PageFrameBody>
     );

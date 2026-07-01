@@ -61,7 +61,7 @@ export function CustomerNotFound() {
       <PageFrameHeader>
         <CustomerDetailBackLink />
       </PageFrameHeader>
-      <PageFrameBody className="flex items-center justify-center">
+      <PageFrameBody centered>
         <div className="max-w-sm text-center">
           <h1 className="text-xl font-semibold text-foreground">
             Customer not found

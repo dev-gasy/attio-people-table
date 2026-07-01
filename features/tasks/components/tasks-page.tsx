@@ -49,7 +49,7 @@ export function TasksPage() {
         }
       />
       {isError ? (
-        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+        <PageFrameBody centered>
           <DataErrorView
             isRetrying={isRetrying}
             title="Could not load tasks"
@@ -64,7 +64,7 @@ export function TasksPage() {
           <TasksLoadingSkeleton />
         </PageFrameBody>
       ) : visibleTasks.length === 0 ? (
-        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+        <PageFrameBody centered>
           <EmptyView message={`No ${filter} tasks`} />
         </PageFrameBody>
       ) : (

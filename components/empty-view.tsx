@@ -15,16 +15,12 @@ export function EmptyView({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center px-4 py-10 text-center",
-        expanded && "px-0 py-0",
+        "flex w-full flex-col items-center justify-center text-center",
+        expanded ? "p-0" : "px-4 py-10",
         className,
       )}
     >
-      <div
-        className={cn(
-          "w-full rounded-lg px-6 py-14 bg-background flex items-center justify-center min-h-[240px]",
-        )}
-      >
+      <div className="flex w-full items-center justify-center rounded-lg bg-background px-6 py-10">
         <div className="text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted/10 text-muted-foreground mx-auto">
             <Inbox className="h-6 w-6" />

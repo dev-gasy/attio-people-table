@@ -79,7 +79,7 @@ export function InsuranceNotFound({
           </h1>
         </div>
       </PageFrameHeader>
-      <PageFrameBody className="flex min-h-[calc(100%-var(--page-frame-header-height))] items-center justify-center">
+      <PageFrameBody centered>
         <div className="max-w-sm text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-muted text-muted-foreground">
             <FileQuestion className="h-6 w-6" aria-hidden="true" />

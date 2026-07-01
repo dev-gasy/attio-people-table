@@ -29,6 +29,7 @@ export function VinResultCard({ message, result }: VinResultCardProps) {
         ) : (
           <EmptyView
             expanded
+            className="min-h-40"
             message="Select a year, brand, and model. The VIN will appear automatically."
           />
         )}

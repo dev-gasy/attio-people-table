@@ -1,5 +1,4 @@
 import { DataErrorView, getErrorMessage } from "@/components/data-error-view";
-import { EmptyView } from "@/components/empty-view";
 import {
   TanStackGridHeader,
   TanStackGridRows,
@@ -68,17 +67,6 @@ export function KrakenRulesTable({
           </div>
         </div>
       </div>
-
-      {!entrypointName && (
-        <EmptyView message="Select an entrypoint name" expanded />
-      )}
-
-      {entrypointName &&
-        !isLoading &&
-        !isError &&
-        table.sortedRows.length === 0 && (
-          <EmptyView message="No rules found" expanded />
-        )}
     </div>
   );
 }

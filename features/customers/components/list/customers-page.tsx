@@ -1,8 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Star } from "lucide-react";
-import { useState } from "react";
 
-import { CustomerSearchForm } from "@/features/customers/components/list/customer-search-form";
+import { CustomerSearchFilter } from "@/features/customers/components/list/customer-search-filter";
 import { CustomerTable } from "@/features/customers/components/list/customer-table";
 
 import { PageHeader } from "@/components/page-header";
@@ -25,7 +24,6 @@ type CustomersPageProps = {
 };
 
 export function CustomersPage({ mode = "search" }: CustomersPageProps) {
-  const [searchOpen, setSearchOpen] = useState(true);
   const {
     favorites: { isFavorite, toggleFavorite },
     handleResetSearch,
@@ -69,21 +67,13 @@ export function CustomersPage({ mode = "search" }: CustomersPageProps) {
         }
       />
 
-      <PageFrameBody className="flex flex-col gap-6 pb-8">
+      <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] flex-col gap-6 pb-8">
         {mode === "search" && (
-          <CustomerSearchForm
+          <CustomerSearchFilter
             values={searchValues}
-            open={searchOpen}
-            onOpenChange={setSearchOpen}
             disabled={isLoading || isFetching}
-            onSearch={async (values) => {
-              const loaded = await handleSearch(values);
-              if (loaded) setSearchOpen(false);
-            }}
-            onReset={() => {
-              setSearchOpen(true);
-              void handleResetSearch();
-            }}
+            onSearch={handleSearch}
+            onReset={handleResetSearch}
           />
         )}
 

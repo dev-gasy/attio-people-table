@@ -33,7 +33,7 @@ export function NotesPage() {
         }
       />
       {isError ? (
-        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+        <PageFrameBody centered>
           <DataErrorView
             title="Could not load notes"
             message={getErrorMessage(error)}
@@ -48,7 +48,7 @@ export function NotesPage() {
           <NotesLoadingSkeleton />
         </PageFrameBody>
       ) : rows.length === 0 ? (
-        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+        <PageFrameBody centered>
           <EmptyView message={`No notes match "${query}"`} />
         </PageFrameBody>
       ) : (

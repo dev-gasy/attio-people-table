@@ -66,7 +66,7 @@ export function LookupsPage({ lookupName }: LookupsPageProps) {
       />
 
       {!lookupName ? (
-        <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8">
+        <PageFrameBody centered>
           <EmptyView message="Select a lookup name" />
         </PageFrameBody>
       ) : (
@@ -90,22 +90,28 @@ function LookupsDataLayer({ lookupName }: LookupsDataLayerProps) {
         <LookupsControls disabled={false} hasLookupName table={table} />
       </PageFrameControls>
 
-      <PageFrameBody className="pb-8">
-        <LookupsTable lookupName={lookupName} table={table} />
-      </PageFrameBody>
+      {table.sortedRows.length === 0 ? (
+        <PageFrameBody centered>
+          <EmptyView message="No lookups found" />
+        </PageFrameBody>
+      ) : (
+        <>
+          <PageFrameBody className="pb-8">
+            <LookupsTable lookupName={lookupName} table={table} />
+          </PageFrameBody>
 
-      {table.sortedRows.length > 0 && (
-        <PageFrameFooter>
-          <Pagination
-            page={table.pagination.currentPage}
-            pageCount={table.pagination.pageCount}
-            total={table.sortedRows.length}
-            pageSize={table.pagination.pageSize}
-            onPageChange={table.pagination.setPage}
-            onPageSizeChange={table.pagination.setPageSize}
-            bordered={false}
-          />
-        </PageFrameFooter>
+          <PageFrameFooter>
+            <Pagination
+              page={table.pagination.currentPage}
+              pageCount={table.pagination.pageCount}
+              total={table.sortedRows.length}
+              pageSize={table.pagination.pageSize}
+              onPageChange={table.pagination.setPage}
+              onPageSizeChange={table.pagination.setPageSize}
+              bordered={false}
+            />
+          </PageFrameFooter>
+        </>
       )}
     </>
   );

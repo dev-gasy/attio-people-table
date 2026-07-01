@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 type PageFrameProps = { children: ReactNode };
 
@@ -57,13 +58,26 @@ export function PageFrameControls({ children }: PageFrameControlsProps) {
 type PageFrameBodyProps = {
   children: ReactNode;
   className?: string;
+  centered?: boolean;
 };
 
 export function PageFrameBody({
   children,
-  className = "",
+  className,
+  centered = false,
 }: PageFrameBodyProps) {
-  return <div className={`px-6 py-6 ${className}`}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        "px-6 py-6",
+        centered &&
+          "flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 type PageFrameFooterProps = { children: ReactNode };
