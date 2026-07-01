@@ -13,7 +13,7 @@ export default defineConfig({
   plugins: [tanstackStart(), react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": new URL(".", import.meta.url).pathname,
+      "@": new URL("./src", import.meta.url).pathname,
     },
   },
 });

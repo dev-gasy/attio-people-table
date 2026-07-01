@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
-import { AppSidebar, type PageId } from "@/components/app-sidebar";
-import { navItems } from "@/components/sidebar/nav-items";
+import { AppSidebar, type PageId } from "@/shared/components/app-sidebar";
+import { navItems } from "@/shared/components/sidebar/nav-items";
 
 const routePageMap = new Map<string, PageId>(
   navItems.map((item) => [item.to, item.id]),

@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { KrakenPage } from "@/features/kraken/components/kraken-page";
 import { getStaticKrakenEntrypointsPayload } from "@/features/kraken/kraken-server";
-import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { buildPageMeta } from "@/src/lib/page-meta";
+import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
+import { buildPageMeta } from "@/shared/utils/page-meta";
 
 export const Route = createFileRoute("/_app/kraken_/$entrypointName")({
   head: ({ params }) => {

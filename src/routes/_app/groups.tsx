@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { GroupsPage } from "@/features/groups/components/groups-page";
-import { RouteErrorFallback } from "@/components/route-error-fallback";
+import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
 import { type GroupsSearch } from "@/features/groups/use-groups-page";
-import { buildPageMeta } from "@/src/lib/page-meta";
-import { parseViewMode } from "@/lib/view-mode";
+import { buildPageMeta } from "@/shared/utils/page-meta";
+import { parseViewMode } from "@/shared/utils/view-mode";
 
 export const Route = createFileRoute("/_app/groups")({
   validateSearch: (search): GroupsSearch => ({

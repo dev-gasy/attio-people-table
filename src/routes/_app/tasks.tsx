@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TasksPage } from "@/features/tasks/components/tasks-page";
-import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { buildPageMeta } from "@/src/lib/page-meta";
+import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
+import { buildPageMeta } from "@/shared/utils/page-meta";
 
 export const Route = createFileRoute("/_app/tasks")({
   head: () => ({

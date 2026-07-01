@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CustomerDetailPage } from "@/features/customers/components/detail/customer-detail-page";
-import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { buildPageMeta } from "@/src/lib/page-meta";
+import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
+import { buildPageMeta } from "@/shared/utils/page-meta";
 import {
   DEFAULT_CUSTOMER_TAB,
   parseCustomerTab,

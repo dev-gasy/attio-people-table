@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { VinGeneratorPage } from "@/features/vin/components/vin-generator-page";
-import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { buildPageMeta } from "@/src/lib/page-meta";
+import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
+import { buildPageMeta } from "@/shared/utils/page-meta";
 
 type VinSearch = {
   brand?: string;

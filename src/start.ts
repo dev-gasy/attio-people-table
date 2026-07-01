@@ -7,9 +7,9 @@ import {
   ServiceResponseError,
   serviceErrorResponse,
   simulateServiceCall,
-} from "@/features/shared/service-latency";
-import { getApiSimulationRoute } from "@/features/shared/service-simulation-routes";
-import { APP_NAME } from "@/src/lib/page-meta";
+} from "@/shared/utils/service-latency";
+import { getApiSimulationRoute } from "@/shared/utils/service-simulation-routes";
+import { APP_NAME } from "@/shared/utils/page-meta";
 
 const appRequestMiddleware = createMiddleware({ type: "request" }).server(
   async ({ next }) => {

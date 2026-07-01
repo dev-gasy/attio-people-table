@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InsuranceDetailPage } from "@/features/insurance/components/insurance-detail-page";
-import { RouteErrorFallback } from "@/components/route-error-fallback";
-import { buildPageMeta } from "@/src/lib/page-meta";
+import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
+import { buildPageMeta } from "@/shared/utils/page-meta";
 import { type InsuranceTab } from "@/features/insurance/components/insurance-detail-constants";
 import {
   buildInsuranceTabSearch,

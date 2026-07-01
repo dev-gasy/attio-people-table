@@ -1,0 +1,28 @@
+import { CarFront } from "lucide-react";
+import { Collapsible } from "@/shared/components/ui/collapsible-section";
+import { InsuranceRecordBlock } from "@/features/insurance/components/insurance-record-block";
+import { getVehicleFields } from "@/features/insurance/domain/insurance-detail";
+import type { InsuranceVehicle } from "@/features/insurance/services/insurance.types";
+
+type InsuranceVehiclesSectionProps = {
+  vehicles: InsuranceVehicle[];
+};
+
+export function InsuranceVehiclesSection({
+  vehicles,
+}: InsuranceVehiclesSectionProps) {
+  return (
+    <Collapsible title="Vehicles" count={vehicles.length} icon={CarFront}>
+      <div className="divide-y divide-border/60">
+        {vehicles.map((vehicle) => (
+          <InsuranceRecordBlock
+            key={vehicle.id}
+            title={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+            fields={getVehicleFields(vehicle)}
+            icon={CarFront}
+          />
+        ))}
+      </div>
+    </Collapsible>
+  );
+}

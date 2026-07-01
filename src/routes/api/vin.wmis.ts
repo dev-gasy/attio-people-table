@@ -3,7 +3,7 @@ import { getVinWmisServer } from "@/features/vin/vin-server";
 import {
   ServiceResponseError,
   serviceErrorResponse,
-} from "@/features/shared/service-latency";
+} from "@/shared/utils/service-latency";
 
 export const Route = createFileRoute("/api/vin/wmis")({
   server: {

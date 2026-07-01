@@ -14,18 +14,10 @@
     "jsx": "react-jsx",
     "incremental": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [
-    "components/**/*.ts",
-    "components/**/*.tsx",
-    "features/**/*.ts",
-    "features/**/*.tsx",
-    "hooks/**/*.ts",
-    "hooks/**/*.tsx",
-    "lib/**/*.ts",
-    "lib/**/*.tsx",
     "src/**/*.ts",
     "src/**/*.tsx",
     "eslint.config.js",

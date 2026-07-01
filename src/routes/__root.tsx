@@ -8,9 +8,9 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
-import { ThemeProvider } from "@/components/theme-provider";
-import { APP_NAME } from "@/src/lib/page-meta";
-import appCss from "@/src/styles/globals.css?url";
+import appCss from "@/styles/globals.css?url";
+import { APP_NAME } from "@/shared/utils/page-meta";
+import { ThemeProvider } from "@/shared/components/theme-provider";
 
 const themeScript = `
 (() => {
