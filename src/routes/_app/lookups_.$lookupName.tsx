@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_app/lookups_/$lookupName")({
   head: ({ params }) => {
     const lookupName =
       getStaticLookupNamesPayload().find(
-        (lookup) => lookup.slug === params.lookupName,
+        (lookup) => lookup.name === params.lookupName,
       )?.name ?? params.lookupName;
 
     return {

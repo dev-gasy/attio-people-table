@@ -24,17 +24,16 @@ describe("LookupsService", () => {
     const httpClient = vi.fn().mockResolvedValue({
       lookupName: {
         name: "Policy status",
-        slug: "policy-status",
         lookupsCount: 0,
       },
       lookups: [],
     });
     const service = new LookupsService(httpClient);
 
-    await service.getByName("policy status");
+    await service.getByName("Policy status");
 
     expect(httpClient).toHaveBeenCalledWith(
-      "/api/lookups/names/policy%20status",
+      "/api/lookups/names/Policy%20status",
     );
   });
 });

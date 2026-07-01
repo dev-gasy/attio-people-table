@@ -25,7 +25,6 @@ describe("lookupMapper", () => {
     const response: LookupNameResponseDto = {
       lookupName: {
         name: "Policy status",
-        slug: "policy-status",
         lookupsCount: 1,
       },
       lookups: [lookupDto],

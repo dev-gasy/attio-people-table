@@ -21,7 +21,6 @@ export type Lookup = {
 
 export type LookupNameDto = {
   name: string;
-  slug: string;
   lookupsCount: number;
 };
 

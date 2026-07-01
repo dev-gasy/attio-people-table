@@ -29,7 +29,7 @@ export function LookupsPage({ lookupName }: LookupsPageProps) {
   const lookupNameOptions = useMemo<ComboOption[]>(
     () =>
       lookupNames.map((ln) => ({
-        value: ln.slug,
+        value: ln.name,
         label: ln.name,
       })),
     [lookupNames],

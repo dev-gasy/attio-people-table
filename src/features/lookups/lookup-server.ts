@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { lookupSeed } from "@/features/lookups/lookup-dtos";
-import { createSlug } from "@/shared/utils/slugs";
 import { ServiceResponseError } from "@/shared/utils/service-latency";
 
 export const getLookupsServer = createServerFn({ method: "GET" }).handler(
@@ -18,7 +17,7 @@ export const getLookupNamesServer = createServerFn({ method: "GET" }).handler(
 export const getLookupNameServer = createServerFn({ method: "GET" })
   .validator((data: { lookupName: string }) => data)
   .handler(async ({ data }) => {
-    const lookupName = getLookupNameBySlug(data.lookupName);
+    const lookupName = getLookupName(data.lookupName);
 
     if (!lookupName) {
       throw new ServiceResponseError({
@@ -35,7 +34,6 @@ export const getLookupNameServer = createServerFn({ method: "GET" })
     return {
       lookupName: {
         name: lookupName,
-        slug: createSlug(lookupName),
         lookupsCount: lookups.length,
       },
       lookups,
@@ -49,15 +47,14 @@ export function getStaticLookupNamesPayload() {
 
   return names.map((lookupName) => ({
     name: lookupName,
-    slug: createSlug(lookupName),
     lookupsCount: lookupSeed.filter(
       (lookup) => lookup.lookupName === lookupName,
     ).length,
   }));
 }
 
-function getLookupNameBySlug(slug: string) {
+function getLookupName(lookupName: string) {
   return Array.from(
     new Set(lookupSeed.map((lookup) => lookup.lookupName)),
-  ).find((name) => createSlug(name) === slug);
+  ).find((name) => name === lookupName);
 }
