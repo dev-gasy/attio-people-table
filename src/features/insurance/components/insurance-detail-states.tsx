@@ -1,9 +1,9 @@
 import { FileQuestion, FileText } from "lucide-react";
 import {
-  PageFrame,
-  PageFrameBody,
-  PageFrameHeader,
-} from "@/shared/components/page-frame";
+  PageShell,
+  PageContent,
+  PageHeader,
+} from "@/shared/components/page-shell";
 import { InsuranceDetailBackLink } from "@/features/insurance/components/insurance-detail-back-link";
 import {
   insuranceKindStyles,
@@ -15,8 +15,8 @@ import { cn } from "@/shared/utils/utils";
 
 export function InsuranceDetailLoading() {
   return (
-    <PageFrame>
-      <PageFrameHeader>
+    <PageShell>
+      <PageHeader>
         <div className="flex flex-wrap items-center gap-4">
           <InsuranceDetailBackLink />
           <div className="h-10 w-10 animate-pulse rounded-lg bg-muted" />
@@ -24,13 +24,13 @@ export function InsuranceDetailLoading() {
             <div className="h-7 w-64 animate-pulse rounded bg-muted" />
           </div>
         </div>
-      </PageFrameHeader>
+      </PageHeader>
       <InsuranceDetailTabs
         activeTab="details"
         disabled
         onTabChange={() => {}}
       />
-      <PageFrameBody>
+      <PageContent>
         <div className="overflow-hidden rounded-xl border border-border">
           <div className="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-4 sm:grid-cols-2">
             {Array.from({ length: 6 }).map((_, index) => (
@@ -41,8 +41,8 @@ export function InsuranceDetailLoading() {
             ))}
           </div>
         </div>
-      </PageFrameBody>
-    </PageFrame>
+      </PageContent>
+    </PageShell>
   );
 }
 
@@ -61,8 +61,8 @@ export function InsuranceNotFound({
   const style = insuranceKindStyles[kind];
 
   return (
-    <PageFrame>
-      <PageFrameHeader>
+    <PageShell>
+      <PageHeader>
         <div className="flex flex-wrap items-center gap-4">
           <InsuranceDetailBackLink />
           <div
@@ -78,8 +78,8 @@ export function InsuranceNotFound({
             {label.title} {businessKey}
           </h1>
         </div>
-      </PageFrameHeader>
-      <PageFrameBody centered>
+      </PageHeader>
+      <PageContent centered>
         <div className="max-w-sm text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-muted text-muted-foreground">
             <FileQuestion className="h-6 w-6" aria-hidden="true" />
@@ -91,7 +91,7 @@ export function InsuranceNotFound({
             This record does not exist or is no longer available.
           </p>
         </div>
-      </PageFrameBody>
-    </PageFrame>
+      </PageContent>
+    </PageShell>
   );
 }

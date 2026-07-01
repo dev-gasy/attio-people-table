@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PageFrame, PageFrameBody } from "@/shared/components/page-frame";
+import { PageShell, PageContent } from "@/shared/components/page-shell";
 import { CustomerContactsTab } from "@/features/customers/components/detail/customer-contacts-tab";
 import { CustomerDetailHeader } from "@/features/customers/components/detail/customer-detail-header";
 import {
@@ -61,14 +61,14 @@ function CustomerDetailDataLayer({
   }
 
   return (
-    <PageFrame>
+    <PageShell>
       <CustomerDetailHeader
         customer={customer}
         favorite={isFavorite(customer.id)}
         onFavoriteToggle={() => toggleFavorite(customer.id)}
       />
       <CustomerDetailTabs activeTab={activeTab} onTabChange={onTabChange} />
-      <PageFrameBody>
+      <PageContent>
         {activeTab === "details" && <CustomerDetailsTab customer={customer} />}
         {activeTab === "contacts" && (
           <CustomerContactsTab contacts={customer.contacts} />
@@ -76,7 +76,7 @@ function CustomerDetailDataLayer({
         {activeTab === "products" && (
           <CustomerProductsTab products={customer.products} />
         )}
-      </PageFrameBody>
-    </PageFrame>
+      </PageContent>
+    </PageShell>
   );
 }

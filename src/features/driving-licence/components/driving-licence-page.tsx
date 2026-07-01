@@ -1,6 +1,9 @@
 import { RotateCcw, Shuffle } from "lucide-react";
-import { PageHeader } from "@/shared/components/page-header";
-import { PageFrame, PageFrameBody } from "@/shared/components/page-frame";
+import {
+  PageHeader,
+  PageShell,
+  PageContent,
+} from "@/shared/components/page-shell";
 import { Button } from "@/shared/components/ui/button";
 import { LicenceDetailsForm } from "@/features/driving-licence/components/licence-details-form";
 import { LicencePreview } from "@/features/driving-licence/components/licence-preview";
@@ -19,7 +22,7 @@ export function DrivingLicencePage() {
   } = useDrivingLicencePage();
 
   return (
-    <PageFrame>
+    <PageShell>
       <PageHeader
         title="Driving Licence"
         actions={
@@ -41,7 +44,7 @@ export function DrivingLicencePage() {
         }
       />
 
-      <PageFrameBody className="pb-8">
+      <PageContent className="pb-8">
         <div className="flex flex-col gap-6">
           <LicenceDetailsForm
             filledCount={filledCount}
@@ -50,7 +53,7 @@ export function DrivingLicencePage() {
           />
           <LicencePreview canGenerate={canGenerate} result={result} />
         </div>
-      </PageFrameBody>
-    </PageFrame>
+      </PageContent>
+    </PageShell>
   );
 }

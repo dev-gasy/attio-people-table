@@ -11,7 +11,7 @@ export function WorkspaceHeader({
 }: WorkspaceHeaderProps) {
   return (
     <div
-      className={`flex h-[var(--page-frame-header-height,4.5rem)] border-b border-sidebar-border px-4 ${
+      className={`flex h-[var(--page-shell-header-height,4.5rem)] border-b border-sidebar-border px-4 ${
         collapsed
           ? "flex-col items-center justify-center gap-1.5"
           : "items-center justify-between"

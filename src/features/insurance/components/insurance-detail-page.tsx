@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PageFrame, PageFrameBody } from "@/shared/components/page-frame";
+import { PageShell, PageContent } from "@/shared/components/page-shell";
 import { InsuranceCoveragesSection } from "@/features/insurance/components/insurance-coverages-section";
 import {
   insuranceRouteLabels,
@@ -63,10 +63,10 @@ function InsuranceDetailDataLayer({
   }
 
   return (
-    <PageFrame>
+    <PageShell>
       <InsuranceDetailHeader kind={kind} record={record} />
       <InsuranceDetailTabs activeTab={activeTab} onTabChange={onTabChange} />
-      <PageFrameBody>
+      <PageContent>
         {activeTab === "details" && (
           <InsuranceSummarySection kind={kind} record={record} />
         )}
@@ -79,7 +79,7 @@ function InsuranceDetailDataLayer({
         {activeTab === "coverage" && (
           <InsuranceCoveragesSection coverages={record.coverages} />
         )}
-      </PageFrameBody>
-    </PageFrame>
+      </PageContent>
+    </PageShell>
   );
 }

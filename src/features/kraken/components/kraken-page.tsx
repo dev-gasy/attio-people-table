@@ -1,13 +1,13 @@
 import { Suspense, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ListFilter } from "lucide-react";
-import { PageHeader } from "@/shared/components/page-header";
 import {
-  PageFrame,
-  PageFrameBody,
-  PageFrameControls,
-  PageFrameFooter,
-} from "@/shared/components/page-frame";
+  PageHeader,
+  PageShell,
+  PageContent,
+  PageControls,
+  PageFooter,
+} from "@/shared/components/page-shell";
 import { Combobox, type ComboOption } from "@/shared/components/ui/combobox";
 import { Pagination } from "@/shared/components/ui/pagination";
 import { KrakenControls } from "@/features/kraken/components/kraken-controls";
@@ -58,7 +58,7 @@ export function KrakenPage({ entrypointName }: KrakenPageProps) {
   }
 
   return (
-    <PageFrame>
+    <PageShell>
       <PageHeader
         title="Kraken"
         badge={
@@ -84,9 +84,9 @@ export function KrakenPage({ entrypointName }: KrakenPageProps) {
       />
 
       {!entrypointName ? (
-        <PageFrameBody centered>
+        <PageContent centered>
           <EmptyView message="Select an entrypoint name" />
-        </PageFrameBody>
+        </PageContent>
       ) : (
         <Suspense
           fallback={
@@ -102,7 +102,7 @@ export function KrakenPage({ entrypointName }: KrakenPageProps) {
           />
         </Suspense>
       )}
-    </PageFrame>
+    </PageShell>
   );
 }
 
@@ -122,22 +122,22 @@ function KrakenRulesDataLayer({
 
   return (
     <>
-      <PageFrameControls>
+      <PageControls>
         <KrakenControls
           disabled={false}
           hasEntrypoint
           ruleTypeOptions={ruleTypeOptions}
           table={table}
         />
-      </PageFrameControls>
+      </PageControls>
 
       {table.sortedRows.length === 0 ? (
-        <PageFrameBody centered>
+        <PageContent centered>
           <EmptyView message="No rules found" />
-        </PageFrameBody>
+        </PageContent>
       ) : (
         <>
-          <PageFrameBody className="pb-8">
+          <PageContent className="pb-8">
             <KrakenRulesTable
               entrypointName={entrypointName}
               error={null}
@@ -147,10 +147,10 @@ function KrakenRulesDataLayer({
               onRetry={() => {}}
               table={table}
             />
-          </PageFrameBody>
+          </PageContent>
 
           {pagination.total > 0 && (
-            <PageFrameFooter>
+            <PageFooter>
               <Pagination
                 page={pagination.currentPage}
                 pageCount={pagination.pageCount}
@@ -160,7 +160,7 @@ function KrakenRulesDataLayer({
                 onPageSizeChange={pagination.setPageSize}
                 bordered={false}
               />
-            </PageFrameFooter>
+            </PageFooter>
           )}
         </>
       )}
@@ -176,16 +176,16 @@ function KrakenRulesLoadingShell({
 
   return (
     <>
-      <PageFrameControls>
+      <PageControls>
         <KrakenControls
           disabled
           hasEntrypoint
           ruleTypeOptions={ruleTypeOptions}
           table={table}
         />
-      </PageFrameControls>
+      </PageControls>
 
-      <PageFrameBody className="pb-8">
+      <PageContent className="pb-8">
         <KrakenRulesTable
           entrypointName={entrypointName}
           error={null}
@@ -195,7 +195,7 @@ function KrakenRulesLoadingShell({
           onRetry={() => {}}
           table={table}
         />
-      </PageFrameBody>
+      </PageContent>
     </>
   );
 }

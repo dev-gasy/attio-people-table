@@ -1,5 +1,5 @@
 import { FileText } from "lucide-react";
-import { PageFrameHeader } from "@/shared/components/page-frame";
+import { PageHeader } from "@/shared/components/page-shell";
 import { InsuranceDetailBackLink } from "@/features/insurance/components/insurance-detail-back-link";
 import {
   insuranceKindStyles,
@@ -24,7 +24,7 @@ export function InsuranceDetailHeader({
   const style = insuranceKindStyles[kind];
 
   return (
-    <PageFrameHeader>
+    <PageHeader>
       <div className="flex flex-wrap items-center gap-4">
         <InsuranceDetailBackLink />
         <div
@@ -53,6 +53,6 @@ export function InsuranceDetailHeader({
           </div>
         </div>
       </div>
-    </PageFrameHeader>
+    </PageHeader>
   );
 }

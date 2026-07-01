@@ -1,9 +1,12 @@
-import type { ErrorComponentProps } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { PageHeader } from "@/shared/components/page-header";
-import { PageFrame, PageFrameBody } from "@/shared/components/page-frame";
+import {
+  PageHeader,
+  PageShell,
+  PageContent,
+} from "@/shared/components/page-shell";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 
 type RouteErrorFallbackProps = ErrorComponentProps & { title: string };
 
@@ -24,10 +27,10 @@ export function RouteErrorFallback({
   }
 
   return (
-    <PageFrame>
+    <PageShell>
       <div className="flex min-h-full flex-col">
         <PageHeader title={title} />
-        <PageFrameBody className="flex min-h-0 flex-1 items-center justify-center">
+        <PageContent className="flex min-h-0 flex-1 items-center justify-center">
           <div className="w-full max-w-md rounded-xl px-5 py-5 text-center">
             <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
               <AlertTriangle className="h-5 w-5" />
@@ -46,8 +49,8 @@ export function RouteErrorFallback({
               Retry
             </Button>
           </div>
-        </PageFrameBody>
+        </PageContent>
       </div>
-    </PageFrame>
+    </PageShell>
   );
 }

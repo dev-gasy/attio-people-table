@@ -5,8 +5,11 @@ import {
   getErrorMessage,
 } from "@/shared/components/data-error-view";
 import { EmptyView } from "@/shared/components/empty-view";
-import { PageHeader } from "@/shared/components/page-header";
-import { PageFrame, PageFrameBody } from "@/shared/components/page-frame";
+import {
+  PageHeader,
+  PageShell,
+  PageContent,
+} from "@/shared/components/page-shell";
 import { SearchBar } from "@/shared/components/ui/search-bar";
 import { useNotesPage } from "@/features/notes/use-notes-page";
 
@@ -23,7 +26,7 @@ export function NotesPage() {
   } = useNotesPage();
 
   return (
-    <PageFrame>
+    <PageShell>
       <PageHeader
         title="Notes"
         actions={
@@ -36,7 +39,7 @@ export function NotesPage() {
         }
       />
       {isError ? (
-        <PageFrameBody centered>
+        <PageContent centered>
           <DataErrorView
             title="Could not load notes"
             message={getErrorMessage(error)}
@@ -45,17 +48,17 @@ export function NotesPage() {
             }}
             isRetrying={isRetrying}
           />
-        </PageFrameBody>
+        </PageContent>
       ) : isLoading ? (
-        <PageFrameBody className="pb-8">
+        <PageContent className="pb-8">
           <NotesLoadingSkeleton />
-        </PageFrameBody>
+        </PageContent>
       ) : rows.length === 0 ? (
-        <PageFrameBody centered>
+        <PageContent centered>
           <EmptyView message={`No notes match "${query}"`} />
-        </PageFrameBody>
+        </PageContent>
       ) : (
-        <PageFrameBody className="pb-8">
+        <PageContent className="pb-8">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {rows.map((n) => (
               <button
@@ -81,9 +84,9 @@ export function NotesPage() {
               </button>
             ))}
           </div>
-        </PageFrameBody>
+        </PageContent>
       )}
-    </PageFrame>
+    </PageShell>
   );
 }
 

@@ -1,5 +1,5 @@
 import { Avatar } from "@/shared/components/avatar";
-import { PageFrameHeader } from "@/shared/components/page-frame";
+import { PageHeader } from "@/shared/components/page-shell";
 import { CustomerDetailBackLink } from "@/features/customers/components/detail/customer-detail-back-link";
 import { CustomerFavoriteButton } from "@/features/customers/components/shared/customer-favorite-button";
 import { CustomerStatusBadge } from "@/features/customers/components/shared/customer-status-badge";
@@ -17,7 +17,7 @@ export function CustomerDetailHeader({
   onFavoriteToggle,
 }: CustomerDetailHeaderProps) {
   return (
-    <PageFrameHeader>
+    <PageHeader>
       <div className="flex flex-wrap items-center gap-4">
         <CustomerDetailBackLink />
         <Avatar initial={customer.initial} color={customer.color} size="md" />
@@ -34,6 +34,6 @@ export function CustomerDetailHeader({
           </div>
         </div>
       </div>
-    </PageFrameHeader>
+    </PageHeader>
   );
 }

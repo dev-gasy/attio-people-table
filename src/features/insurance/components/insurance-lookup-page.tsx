@@ -2,8 +2,11 @@ import { useNavigate } from "@tanstack/react-router";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { FileText, Search } from "lucide-react";
 import * as v from "valibot";
-import { PageFrame, PageFrameBody } from "@/shared/components/page-frame";
-import { PageHeader } from "@/shared/components/page-header";
+import {
+  PageShell,
+  PageContent,
+  PageHeader,
+} from "@/shared/components/page-shell";
 import { Button } from "@/shared/components/ui/button";
 import {
   TextInputField,
@@ -102,9 +105,9 @@ export function InsuranceLookupPage() {
   });
 
   return (
-    <PageFrame>
+    <PageShell>
       <PageHeader title="Policy/Quote" />
-      <PageFrameBody className="pb-8">
+      <PageContent className="pb-8">
         <div className="flex flex-col gap-4">
           <LookupForm
             title="Load policy"
@@ -159,7 +162,7 @@ export function InsuranceLookupPage() {
             }
           />
         </div>
-      </PageFrameBody>
-    </PageFrame>
+      </PageContent>
+    </PageShell>
   );
 }

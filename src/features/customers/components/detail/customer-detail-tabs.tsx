@@ -1,4 +1,4 @@
-import { PageFrameControls } from "@/shared/components/page-frame";
+import { PageControls } from "@/shared/components/page-shell";
 import {
   customerDetailTabs,
   type CustomerTab,
@@ -16,7 +16,7 @@ export function CustomerDetailTabs({
   onTabChange,
 }: CustomerDetailTabsProps) {
   return (
-    <PageFrameControls>
+    <PageControls>
       <div className="flex gap-1 overflow-x-auto py-2">
         {customerDetailTabs.map((tab) => {
           const Icon = tab.icon;
@@ -40,6 +40,6 @@ export function CustomerDetailTabs({
           );
         })}
       </div>
-    </PageFrameControls>
+    </PageControls>
   );
 }

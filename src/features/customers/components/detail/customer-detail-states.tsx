@@ -1,15 +1,15 @@
 import {
-  PageFrame,
-  PageFrameBody,
-  PageFrameHeader,
-} from "@/shared/components/page-frame";
+  PageShell,
+  PageContent,
+  PageHeader,
+} from "@/shared/components/page-shell";
 import { CustomerDetailBackLink } from "@/features/customers/components/detail/customer-detail-back-link";
 import { CustomerDetailTabs } from "@/features/customers/components/detail/customer-detail-tabs";
 
 export function CustomerDetailLoading() {
   return (
-    <PageFrame>
-      <PageFrameHeader>
+    <PageShell>
+      <PageHeader>
         <div className="flex flex-wrap items-center gap-4">
           <CustomerDetailBackLink />
           <div className="h-10 w-10 animate-pulse rounded-full bg-muted" />
@@ -20,11 +20,11 @@ export function CustomerDetailLoading() {
             </div>
           </div>
         </div>
-      </PageFrameHeader>
+      </PageHeader>
 
       <CustomerDetailTabs activeTab="details" disabled onTabChange={() => {}} />
 
-      <PageFrameBody>
+      <PageContent>
         <div className="flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, index) => (
             <section
@@ -50,18 +50,18 @@ export function CustomerDetailLoading() {
             </section>
           ))}
         </div>
-      </PageFrameBody>
-    </PageFrame>
+      </PageContent>
+    </PageShell>
   );
 }
 
 export function CustomerNotFound() {
   return (
-    <PageFrame>
-      <PageFrameHeader>
+    <PageShell>
+      <PageHeader>
         <CustomerDetailBackLink />
-      </PageFrameHeader>
-      <PageFrameBody centered>
+      </PageHeader>
+      <PageContent centered>
         <div className="max-w-sm text-center">
           <h1 className="text-xl font-semibold text-foreground">
             Customer not found
@@ -70,7 +70,7 @@ export function CustomerNotFound() {
             This customer record does not exist or is no longer available.
           </p>
         </div>
-      </PageFrameBody>
-    </PageFrame>
+      </PageContent>
+    </PageShell>
   );
 }

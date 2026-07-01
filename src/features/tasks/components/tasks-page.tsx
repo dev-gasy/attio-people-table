@@ -5,8 +5,11 @@ import {
   getErrorMessage,
 } from "@/shared/components/data-error-view";
 import { EmptyView } from "@/shared/components/empty-view";
-import { PageHeader } from "@/shared/components/page-header";
-import { PageFrame, PageFrameBody } from "@/shared/components/page-frame";
+import {
+  PageHeader,
+  PageShell,
+  PageContent,
+} from "@/shared/components/page-shell";
 import { taskFilters, useTasksPage } from "@/features/tasks/use-tasks-page";
 
 export function TasksPage() {
@@ -24,7 +27,7 @@ export function TasksPage() {
   } = useTasksPage();
 
   return (
-    <PageFrame>
+    <PageShell>
       <PageHeader
         title="Tasks"
         badge={
@@ -52,7 +55,7 @@ export function TasksPage() {
         }
       />
       {isError ? (
-        <PageFrameBody centered>
+        <PageContent centered>
           <DataErrorView
             isRetrying={isRetrying}
             title="Could not load tasks"
@@ -61,17 +64,17 @@ export function TasksPage() {
               void refetch();
             }}
           />
-        </PageFrameBody>
+        </PageContent>
       ) : isLoading ? (
-        <PageFrameBody className="pb-8">
+        <PageContent className="pb-8">
           <TasksLoadingSkeleton />
-        </PageFrameBody>
+        </PageContent>
       ) : visibleTasks.length === 0 ? (
-        <PageFrameBody centered>
+        <PageContent centered>
           <EmptyView message={`No ${filter} tasks`} />
-        </PageFrameBody>
+        </PageContent>
       ) : (
-        <PageFrameBody className="pb-8">
+        <PageContent className="pb-8">
           <div className="w-full divide-y divide-border/60 overflow-hidden rounded-xl border border-border">
             {visibleTasks.map((t) => (
               <div
@@ -103,9 +106,9 @@ export function TasksPage() {
               </div>
             ))}
           </div>
-        </PageFrameBody>
+        </PageContent>
       )}
-    </PageFrame>
+    </PageShell>
   );
 }
 

@@ -1,13 +1,13 @@
 import { Suspense, useMemo, useTransition } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ListTree } from "lucide-react";
-import { PageHeader } from "@/shared/components/page-header";
 import {
-  PageFrame,
-  PageFrameBody,
-  PageFrameControls,
-  PageFrameFooter,
-} from "@/shared/components/page-frame";
+  PageHeader,
+  PageShell,
+  PageContent,
+  PageControls,
+  PageFooter,
+} from "@/shared/components/page-shell";
 import { Combobox, type ComboOption } from "@/shared/components/ui/combobox";
 import { Pagination } from "@/shared/components/ui/pagination";
 import { LookupsControls } from "@/features/lookups/components/lookups-controls";
@@ -47,7 +47,7 @@ export function LookupsPage({ lookupName }: LookupsPageProps) {
   }
 
   return (
-    <PageFrame>
+    <PageShell>
       <PageHeader
         title="Lookups"
         actions={
@@ -66,15 +66,15 @@ export function LookupsPage({ lookupName }: LookupsPageProps) {
       />
 
       {!lookupName ? (
-        <PageFrameBody centered>
+        <PageContent centered>
           <EmptyView message="Select a lookup name" />
-        </PageFrameBody>
+        </PageContent>
       ) : (
         <Suspense fallback={<LookupsLoadingShell />}>
           <LookupsDataLayer lookupName={lookupName} />
         </Suspense>
       )}
-    </PageFrame>
+    </PageShell>
   );
 }
 
@@ -86,21 +86,21 @@ function LookupsDataLayer({ lookupName }: LookupsDataLayerProps) {
 
   return (
     <>
-      <PageFrameControls>
+      <PageControls>
         <LookupsControls disabled={false} hasLookupName table={table} />
-      </PageFrameControls>
+      </PageControls>
 
       {table.sortedRows.length === 0 ? (
-        <PageFrameBody centered>
+        <PageContent centered>
           <EmptyView message="No lookups found" />
-        </PageFrameBody>
+        </PageContent>
       ) : (
         <>
-          <PageFrameBody className="pb-8">
+          <PageContent className="pb-8">
             <LookupsTable lookupName={lookupName} table={table} />
-          </PageFrameBody>
+          </PageContent>
 
-          <PageFrameFooter>
+          <PageFooter>
             <Pagination
               page={table.pagination.currentPage}
               pageCount={table.pagination.pageCount}
@@ -110,7 +110,7 @@ function LookupsDataLayer({ lookupName }: LookupsDataLayerProps) {
               onPageSizeChange={table.pagination.setPageSize}
               bordered={false}
             />
-          </PageFrameFooter>
+          </PageFooter>
         </>
       )}
     </>
@@ -120,13 +120,13 @@ function LookupsDataLayer({ lookupName }: LookupsDataLayerProps) {
 function LookupsLoadingShell() {
   return (
     <>
-      <PageFrameControls>
+      <PageControls>
         <div className="flex flex-wrap items-center justify-end gap-3">
           <div className="h-8 w-72 animate-pulse rounded-lg bg-muted" />
           <div className="h-8 w-8 animate-pulse rounded-lg bg-muted" />
         </div>
-      </PageFrameControls>
-      <PageFrameBody className="pb-8">
+      </PageControls>
+      <PageContent className="pb-8">
         <div className="overflow-auto rounded-xl border border-border bg-muted/10">
           <div className="divide-y divide-border/60">
             {Array.from({ length: 15 }).map((_, i) => (
@@ -147,7 +147,7 @@ function LookupsLoadingShell() {
             ))}
           </div>
         </div>
-      </PageFrameBody>
+      </PageContent>
     </>
   );
 }

@@ -1,31 +1,31 @@
 import { type ReactNode } from "react";
 import { cn } from "@/shared/utils/utils";
 
-type PageFrameProps = { children: ReactNode };
+type PageShellProps = { children: ReactNode };
 
-export function PageFrame({ children }: PageFrameProps) {
+export function PageShell({ children }: PageShellProps) {
   return (
-    <div className="relative h-full min-w-0 flex-1 overflow-auto bg-background [--page-frame-header-height:4.5rem]">
+    <div className="relative h-full min-w-0 flex-1 overflow-auto bg-background [--page-shell-header-height:4.5rem]">
       {children}
     </div>
   );
 }
 
-type PageFrameHeaderProps = {
+type PageHeaderProps = {
   title?: string;
   actions?: ReactNode;
   badge?: ReactNode;
   children?: ReactNode;
 };
 
-export function PageFrameHeader({
+export function PageHeader({
   title,
   actions,
   badge,
   children,
-}: PageFrameHeaderProps) {
+}: PageHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 min-h-(--page-frame-header-height) border-b border-border bg-background/70 px-6 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 min-h-(--page-shell-header-height) border-b border-border bg-background/70 px-6 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       {children ?? (
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           {title && (
@@ -45,33 +45,33 @@ export function PageFrameHeader({
   );
 }
 
-type PageFrameControlsProps = { children: ReactNode };
+type PageControlsProps = { children: ReactNode };
 
-export function PageFrameControls({ children }: PageFrameControlsProps) {
+export function PageControls({ children }: PageControlsProps) {
   return (
-    <div className="sticky top-(--page-frame-header-height) z-40 border-b border-border bg-background/70 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+    <div className="sticky top-(--page-shell-header-height) z-40 border-b border-border bg-background/70 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       {children}
     </div>
   );
 }
 
-type PageFrameBodyProps = {
+type PageContentProps = {
   children: ReactNode;
   className?: string;
   centered?: boolean;
 };
 
-export function PageFrameBody({
+export function PageContent({
   children,
   className,
   centered = false,
-}: PageFrameBodyProps) {
+}: PageContentProps) {
   return (
     <div
       className={cn(
         "px-6 py-6",
         centered &&
-          "flex min-h-[calc(100vh-var(--page-frame-header-height))] items-center justify-center pb-8",
+          "flex min-h-[calc(100vh-var(--page-shell-header-height))] items-center justify-center pb-8",
         className,
       )}
     >
@@ -80,9 +80,9 @@ export function PageFrameBody({
   );
 }
 
-type PageFrameFooterProps = { children: ReactNode };
+type PageFooterProps = { children: ReactNode };
 
-export function PageFrameFooter({ children }: PageFrameFooterProps) {
+export function PageFooter({ children }: PageFooterProps) {
   return (
     <footer className="sticky bottom-0 z-20 border-t border-border bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       {children}

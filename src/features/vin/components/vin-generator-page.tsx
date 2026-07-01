@@ -1,6 +1,9 @@
 import { RotateCcw } from "lucide-react";
-import { PageHeader } from "@/shared/components/page-header";
-import { PageFrame, PageFrameBody } from "@/shared/components/page-frame";
+import {
+  PageHeader,
+  PageShell,
+  PageContent,
+} from "@/shared/components/page-shell";
 import { Button } from "@/shared/components/ui/button";
 import { VinGeneratorForm } from "@/features/vin/components/vin-generator-form";
 import { VinResultCard } from "@/features/vin/components/vin-result-card";
@@ -23,7 +26,7 @@ export function VinGeneratorPage({
   });
 
   return (
-    <PageFrame>
+    <PageShell>
       <PageHeader
         title="VIN Generator"
         actions={
@@ -39,7 +42,7 @@ export function VinGeneratorPage({
         }
       />
 
-      <PageFrameBody className="pb-8">
+      <PageContent className="pb-8">
         <div className="flex flex-col gap-6">
           <VinGeneratorForm
             brands={generator.brands}
@@ -62,7 +65,7 @@ export function VinGeneratorPage({
             onChange={generator.setValidatorInput}
           />
         </div>
-      </PageFrameBody>
-    </PageFrame>
+      </PageContent>
+    </PageShell>
   );
 }

@@ -4,12 +4,12 @@ import { Star } from "lucide-react";
 import { CustomerSearchFilter } from "@/features/customers/components/list/customer-search-filter";
 import { CustomerTable } from "@/features/customers/components/list/customer-table";
 
-import { PageHeader } from "@/shared/components/page-header";
 import {
-  PageFrame,
-  PageFrameBody,
-  PageFrameFooter,
-} from "@/shared/components/page-frame";
+  PageHeader,
+  PageShell,
+  PageContent,
+  PageFooter,
+} from "@/shared/components/page-shell";
 import { Pagination } from "@/shared/components/ui/pagination";
 
 import {
@@ -49,7 +49,7 @@ export function CustomersPage({ mode = "search" }: CustomersPageProps) {
     table.sortedRows.length > 0;
 
   return (
-    <PageFrame>
+    <PageShell>
       <PageHeader
         title={mode === "favorites" ? "Favorite Customers" : "Customers"}
         actions={
@@ -67,7 +67,7 @@ export function CustomersPage({ mode = "search" }: CustomersPageProps) {
         }
       />
 
-      <PageFrameBody className="flex min-h-[calc(100vh-var(--page-frame-header-height))] flex-col gap-6 pb-8">
+      <PageContent className="flex min-h-[calc(100vh-var(--page-shell-header-height))] flex-col gap-6 pb-8">
         {mode === "search" && (
           <CustomerSearchFilter
             values={searchValues}
@@ -94,10 +94,10 @@ export function CustomersPage({ mode = "search" }: CustomersPageProps) {
           }}
           table={table}
         />
-      </PageFrameBody>
+      </PageContent>
 
       {showPagination && (
-        <PageFrameFooter>
+        <PageFooter>
           <Pagination
             page={table.pagination.currentPage}
             pageCount={table.pagination.pageCount}
@@ -107,8 +107,8 @@ export function CustomersPage({ mode = "search" }: CustomersPageProps) {
             onPageSizeChange={table.pagination.setPageSize}
             bordered={false}
           />
-        </PageFrameFooter>
+        </PageFooter>
       )}
-    </PageFrame>
+    </PageShell>
   );
 }

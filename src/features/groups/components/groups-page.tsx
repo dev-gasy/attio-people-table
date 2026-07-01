@@ -3,12 +3,12 @@ import { GroupsContent } from "@/features/groups/components/groups-content";
 import { GroupsToolbar } from "@/features/groups/components/groups-toolbar";
 import { GroupsLoadingSkeleton } from "@/features/groups/components/groups-loading-skeleton";
 import { EmptyView } from "@/shared/components/empty-view";
-import { PageHeader } from "@/shared/components/page-header";
 import {
-  PageFrame,
-  PageFrameBody,
-  PageFrameFooter,
-} from "@/shared/components/page-frame";
+  PageHeader,
+  PageShell,
+  PageContent,
+  PageFooter,
+} from "@/shared/components/page-shell";
 import {
   useGroupsPage,
   useGroupsPageControls,
@@ -27,7 +27,7 @@ export function GroupsPage({
   const controls = useGroupsPageControls(filters);
 
   return (
-    <PageFrame>
+    <PageShell>
       <PageHeader
         title="Groups"
         actions={
@@ -43,13 +43,13 @@ export function GroupsPage({
       />
 
       {!controls.shouldLoadGroups ? (
-        <PageFrameBody centered>
+        <PageContent centered>
           <EmptyView message="Search or select a province to load groups." />
-        </PageFrameBody>
+        </PageContent>
       ) : (
         <Suspense
           fallback={
-            <PageFrameBody>
+            <PageContent>
               <GroupsLoadingSkeleton
                 pageSize={12}
                 table={null as never}
@@ -57,7 +57,7 @@ export function GroupsPage({
                 visibleColumns={[]}
                 view={controls.view}
               />
-            </PageFrameBody>
+            </PageContent>
           }
         >
           <GroupsDataLayer
@@ -66,7 +66,7 @@ export function GroupsPage({
           />
         </Suspense>
       )}
-    </PageFrame>
+    </PageShell>
   );
 }
 
@@ -81,15 +81,15 @@ function GroupsDataLayer({ activeFilters, controls }: GroupsDataLayerProps) {
 
   if (filteredTotal === 0) {
     return (
-      <PageFrameBody centered>
+      <PageContent centered>
         <EmptyView message="No groups match your filters" />
-      </PageFrameBody>
+      </PageContent>
     );
   }
 
   return (
     <>
-      <PageFrameBody className="pb-8">
+      <PageContent className="pb-8">
         <GroupsContent
           isStale={controls.isStale}
           rows={pagination.pageItems}
@@ -98,9 +98,9 @@ function GroupsDataLayer({ activeFilters, controls }: GroupsDataLayerProps) {
           visibleColumns={visibleColumns}
           view={controls.view}
         />
-      </PageFrameBody>
+      </PageContent>
 
-      <PageFrameFooter>
+      <PageFooter>
         <Pagination
           page={pagination.currentPage}
           pageCount={pagination.pageCount}
@@ -110,7 +110,7 @@ function GroupsDataLayer({ activeFilters, controls }: GroupsDataLayerProps) {
           onPageSizeChange={pagination.setPageSize}
           bordered={false}
         />
-      </PageFrameFooter>
+      </PageFooter>
     </>
   );
 }
