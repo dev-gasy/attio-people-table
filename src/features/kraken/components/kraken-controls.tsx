@@ -1,50 +1,51 @@
 import { ListFilter } from "lucide-react";
-import { ColumnVisibilityControl } from "@/shared/components/ui/column-visibility-control";
 import { Combobox, type ComboOption } from "@/shared/components/ui/combobox";
 import { SearchBar } from "@/shared/components/ui/search-bar";
-import {
-  ruleColumns,
-  type KrakenRulesTableState,
-} from "@/features/kraken/use-kraken-rules-table";
+import { type KrakenRulesListState } from "@/features/kraken/use-kraken-rules-table";
 
 type KrakenControlsProps = {
   disabled: boolean;
-  hasEntrypoint: boolean;
+  entrypointOptions: ComboOption[];
   ruleTypeOptions: ComboOption[];
-  table: KrakenRulesTableState;
+  list: KrakenRulesListState;
 };
 
 export function KrakenControls({
   disabled,
-  hasEntrypoint,
+  entrypointOptions,
   ruleTypeOptions,
-  table,
+  list,
 }: KrakenControlsProps) {
   return (
-    <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-muted-foreground">
+    <div className="grid w-full grid-cols-1 gap-3 text-sm text-muted-foreground sm:grid-cols-2 xl:grid-cols-[minmax(16rem,1fr)_18rem_11rem]">
       <SearchBar
-        value={table.query}
-        disabled={!hasEntrypoint || disabled}
-        onValueChange={table.setQuery}
+        value={list.query}
+        disabled={disabled}
+        onValueChange={list.setQuery}
         placeholder="Search rules..."
-        className="flex-1 sm:min-w-65"
+        className="w-full sm:col-span-2 xl:col-span-1"
+      />
+      <Combobox
+        options={entrypointOptions}
+        value={list.entrypointFilter}
+        onChange={list.setEntrypointFilter}
+        placeholder="All entrypoints"
+        searchPlaceholder="Search entrypoint names..."
+        icon={ListFilter}
+        className="min-w-0"
+        align="right"
+        disabled={disabled}
       />
       <Combobox
         options={ruleTypeOptions}
-        value={table.typeFilter}
-        onChange={table.setTypeFilter}
-        placeholder="All types"
-        searchPlaceholder="Search rule types..."
+        value={list.typeFilter}
+        onChange={list.setTypeFilter}
+        placeholder="All statuses"
+        searchPlaceholder="Search statuses..."
         icon={ListFilter}
-        className="min-w-0 flex-1 sm:w-44 sm:flex-none"
+        className="min-w-0"
         align="right"
-        disabled={!hasEntrypoint || disabled}
-      />
-      <ColumnVisibilityControl
-        columns={ruleColumns}
-        visibleColumns={table.columnVisibility.visibleColumnIds}
-        onToggle={table.handleColumnToggle}
-        onReset={table.columnVisibility.resetColumnVisibility}
+        disabled={disabled}
       />
     </div>
   );

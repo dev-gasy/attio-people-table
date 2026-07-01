@@ -1,6 +1,5 @@
-import { Suspense, useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { ListFilter } from "lucide-react";
 import {
   PageHeader,
   PageShell,
@@ -8,36 +7,43 @@ import {
   PageControls,
   PageFooter,
 } from "@/shared/components/page-shell";
-import { Combobox, type ComboOption } from "@/shared/components/ui/combobox";
+import { type ComboOption } from "@/shared/components/ui/combobox";
 import { Pagination } from "@/shared/components/ui/pagination";
 import { KrakenControls } from "@/features/kraken/components/kraken-controls";
-import { KrakenRulesTable } from "@/features/kraken/components/kraken-rules-table";
+import {
+  KrakenRulesList,
+  KrakenRulesListSkeleton,
+} from "@/features/kraken/components/kraken-rules-list";
 import { EmptyView } from "@/shared/components/empty-view";
 import { krakenRuleTypes } from "@/features/kraken/domain/rules";
-import { useKrakenRulesTable } from "@/features/kraken/use-kraken-rules-table";
+import { useKrakenRulesList } from "@/features/kraken/use-kraken-rules-table";
 import {
   useKrakenEntrypointsQuery,
-  useSuspenseKrakenEntrypointRulesQuery,
+  useKrakenEntrypointRulesQueries,
 } from "@/features/kraken/services/kraken.queries";
+import {
+  DataErrorView,
+  getErrorMessage,
+} from "@/shared/components/data-error-view";
 
-type KrakenPageProps = { entrypointName?: string };
+export type KrakenSearch = { entrypoint?: string };
 
-export function KrakenPage({ entrypointName }: KrakenPageProps) {
+type KrakenPageProps = { filters: KrakenSearch };
+
+export function KrakenPage({ filters }: KrakenPageProps) {
   const navigate = useNavigate();
-  const { data: entrypoints = [] } = useKrakenEntrypointsQuery();
+  const entrypointsQuery = useKrakenEntrypointsQuery();
+  const entrypoints = entrypointsQuery.data ?? [];
+  const ruleQueries = useKrakenEntrypointRulesQueries(entrypoints);
+  const entrypointFilter = filters.entrypoint ?? null;
   const entrypointOptions = useMemo<ComboOption[]>(
     () =>
       entrypoints.map((entrypoint) => ({
-        value: entrypoint.slug,
+        value: entrypoint.name,
         label: entrypoint.name,
+        hint: `${entrypoint.rulesCount} rules`,
       })),
     [entrypoints],
-  );
-  const selectedEntrypoint = useMemo(
-    () =>
-      entrypoints.find((entrypoint) => entrypoint.slug === entrypointName) ??
-      null,
-    [entrypointName, entrypoints],
   );
   const ruleTypeOptions = useMemo<ComboOption[]>(
     () =>
@@ -49,104 +55,81 @@ export function KrakenPage({ entrypointName }: KrakenPageProps) {
   );
 
   function handleEntrypointChange(value: string | null) {
-    if (!value || value === entrypointName) return;
+    if (value === entrypointFilter) return;
 
     void navigate({
-      to: "/kraken/$entrypointName",
-      params: { entrypointName: value },
+      to: "/kraken",
+      search: { entrypoint: value ?? undefined },
+    });
+  }
+
+  const ruleItems = ruleQueries.flatMap((query, index) => {
+    const data = query.data;
+    const fallbackEntrypoint = entrypoints[index];
+
+    if (!data || !fallbackEntrypoint) return [];
+
+    return data.rules.map((rule) => ({
+      entrypoint: data.entrypoint ?? fallbackEntrypoint,
+      rule,
+    }));
+  });
+  const list = useKrakenRulesList({
+    entrypointFilter,
+    items: ruleItems,
+    onEntrypointFilterChange: handleEntrypointChange,
+  });
+  const { pagination } = list;
+  const isLoading =
+    entrypointsQuery.isLoading || ruleQueries.some((query) => query.isLoading);
+  const error =
+    entrypointsQuery.error ??
+    ruleQueries.find((query) => query.error)?.error ??
+    null;
+  const isError = entrypointsQuery.isError || ruleQueries.some((q) => q.isError);
+  const isRetrying =
+    entrypointsQuery.isFetching || ruleQueries.some((query) => query.isFetching);
+
+  function retryAll() {
+    void entrypointsQuery.refetch();
+    ruleQueries.forEach((query) => {
+      void query.refetch();
     });
   }
 
   return (
     <PageShell>
-      <PageHeader
-        title="Kraken"
-        badge={
-          selectedEntrypoint ? (
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-              {selectedEntrypoint.name}
-            </span>
-          ) : null
-        }
-        actions={
-          <Combobox
-            options={entrypointOptions}
-            value={entrypointName ?? null}
-            onChange={handleEntrypointChange}
-            placeholder="Entrypoint name"
-            searchPlaceholder="Search entrypoint names..."
-            icon={ListFilter}
-            className="min-w-0 flex-1 sm:min-w-[320px] sm:max-w-[420px]"
-            align="right"
-            clearable={false}
-          />
-        }
-      />
-
-      {!entrypointName ? (
-        <PageContent centered>
-          <EmptyView message="Select an entrypoint name" />
-        </PageContent>
-      ) : (
-        <Suspense
-          fallback={
-            <KrakenRulesLoadingShell
-              entrypointName={entrypointName}
-              ruleTypeOptions={ruleTypeOptions}
-            />
-          }
-        >
-          <KrakenRulesDataLayer
-            entrypointName={entrypointName}
-            ruleTypeOptions={ruleTypeOptions}
-          />
-        </Suspense>
-      )}
-    </PageShell>
-  );
-}
-
-type KrakenRulesLayerProps = {
-  entrypointName: string;
-  ruleTypeOptions: ComboOption[];
-};
-
-function KrakenRulesDataLayer({
-  entrypointName,
-  ruleTypeOptions,
-}: KrakenRulesLayerProps) {
-  const { data } = useSuspenseKrakenEntrypointRulesQuery(entrypointName);
-  const rules = useMemo(() => data.rules, [data.rules]);
-  const table = useKrakenRulesTable(rules);
-  const { pagination } = table;
-
-  return (
-    <>
+      <PageHeader title="Kraken" />
       <PageControls>
         <KrakenControls
-          disabled={false}
-          hasEntrypoint
+          disabled={isLoading}
+          entrypointOptions={entrypointOptions}
+          list={list}
           ruleTypeOptions={ruleTypeOptions}
-          table={table}
         />
       </PageControls>
 
-      {table.sortedRows.length === 0 ? (
+      {isError ? (
+        <PageContent centered>
+          <DataErrorView
+            title="Could not load rules"
+            message={getErrorMessage(error)}
+            onRetry={retryAll}
+            isRetrying={isRetrying}
+          />
+        </PageContent>
+      ) : isLoading ? (
+        <PageContent className="pb-8">
+          <KrakenRulesListSkeleton />
+        </PageContent>
+      ) : list.filteredItems.length === 0 ? (
         <PageContent centered>
           <EmptyView message="No rules found" />
         </PageContent>
       ) : (
         <>
           <PageContent className="pb-8">
-            <KrakenRulesTable
-              entrypointName={entrypointName}
-              error={null}
-              isError={false}
-              isLoading={false}
-              isRetrying={false}
-              onRetry={() => {}}
-              table={table}
-            />
+            <KrakenRulesList items={list.pageItems} />
           </PageContent>
 
           {pagination.total > 0 && (
@@ -164,38 +147,6 @@ function KrakenRulesDataLayer({
           )}
         </>
       )}
-    </>
-  );
-}
-
-function KrakenRulesLoadingShell({
-  entrypointName,
-  ruleTypeOptions,
-}: KrakenRulesLayerProps) {
-  const table = useKrakenRulesTable([]);
-
-  return (
-    <>
-      <PageControls>
-        <KrakenControls
-          disabled
-          hasEntrypoint
-          ruleTypeOptions={ruleTypeOptions}
-          table={table}
-        />
-      </PageControls>
-
-      <PageContent className="pb-8">
-        <KrakenRulesTable
-          entrypointName={entrypointName}
-          error={null}
-          isError={false}
-          isLoading
-          isRetrying={false}
-          onRetry={() => {}}
-          table={table}
-        />
-      </PageContent>
-    </>
+    </PageShell>
   );
 }

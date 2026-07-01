@@ -48,22 +48,26 @@ export function LookupsPage({ lookupName }: LookupsPageProps) {
 
   return (
     <PageShell>
-      <PageHeader
-        title="Lookups"
-        actions={
-          <Combobox
-            options={lookupNameOptions}
-            value={lookupName ?? null}
-            onChange={handleLookupNameChange}
-            placeholder="Lookup name"
-            searchPlaceholder="Search lookup names..."
-            icon={ListTree}
-            className="min-w-0 flex-1 sm:min-w-[320px] sm:max-w-[420px]"
-            align="right"
-            clearable={false}
-          />
-        }
-      />
+      <PageHeader>
+        <div className="flex min-w-0 items-center gap-3">
+          <h1 className="shrink-0 text-xl font-semibold text-foreground md:text-2xl">
+            Lookups
+          </h1>
+          <div className="ml-auto min-w-0 flex-1 sm:max-w-[420px]">
+            <Combobox
+              options={lookupNameOptions}
+              value={lookupName ?? null}
+              onChange={handleLookupNameChange}
+              placeholder="Lookup name"
+              searchPlaceholder="Search lookup names..."
+              icon={ListTree}
+              className="min-w-0"
+              align="right"
+              clearable={false}
+            />
+          </div>
+        </div>
+      </PageHeader>
 
       {!lookupName ? (
         <PageContent centered>
@@ -121,9 +125,9 @@ function LookupsLoadingShell() {
   return (
     <>
       <PageControls>
-        <div className="flex flex-wrap items-center justify-end gap-3">
-          <div className="h-8 w-72 animate-pulse rounded-lg bg-muted" />
-          <div className="h-8 w-8 animate-pulse rounded-lg bg-muted" />
+        <div className="flex w-full min-w-0 items-center gap-3">
+          <div className="h-8 min-w-0 flex-1 animate-pulse rounded-lg bg-muted" />
+          <div className="h-8 w-20 shrink-0 animate-pulse rounded-lg bg-muted" />
         </div>
       </PageControls>
       <PageContent className="pb-8">

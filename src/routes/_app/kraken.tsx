@@ -1,9 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { KrakenPage } from "@/features/kraken/components/kraken-page";
+import {
+  KrakenPage,
+  type KrakenSearch,
+} from "@/features/kraken/components/kraken-page";
 import { RouteErrorFallback } from "@/shared/components/route-error-fallback";
 import { buildPageMeta } from "@/shared/utils/page-meta";
 
 export const Route = createFileRoute("/_app/kraken")({
+  validateSearch: (search): KrakenSearch => ({
+    entrypoint:
+      typeof search.entrypoint === "string" ? search.entrypoint : undefined,
+  }),
   head: () => ({
     meta: buildPageMeta({
       title: "Kraken",
@@ -11,5 +18,10 @@ export const Route = createFileRoute("/_app/kraken")({
     }),
   }),
   errorComponent: (props) => <RouteErrorFallback title="Kraken" {...props} />,
-  component: KrakenPage,
+  component: KrakenRoute,
 });
+
+function KrakenRoute() {
+  const search = Route.useSearch();
+  return <KrakenPage filters={search} />;
+}

@@ -105,16 +105,14 @@ export function createCommandTree({
         title: "Load Kraken entrypoint",
         placeholder: "Search entrypoint names...",
         subcommands: krakenEntrypoints.map((entrypoint) => ({
-          id: `kraken-entrypoint-${entrypoint.slug}`,
+          id: `kraken-entrypoint-${entrypoint.id}`,
           name: entrypoint.name,
           group: `${entrypoint.rulesCount} rules`,
-          keywords: `${entrypoint.name} ${entrypoint.slug}`,
+          keywords: entrypoint.name,
           icon: navIcons.kraken,
           type: "action",
           effect: sequence(
-            navigate("/kraken/$entrypointName", {
-              entrypointName: entrypoint.slug,
-            }),
+            navigate("/kraken", undefined, { entrypoint: entrypoint.name }),
             close(),
           ),
         })),

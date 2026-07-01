@@ -61,9 +61,9 @@ export function Combobox({
           if (disabled) return;
           setOpen((o) => !o);
         }}
-        className="flex w-full items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-muted/40"
+        className="flex w-full min-w-0 items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-sm text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-muted/40"
       >
-        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+        {Icon && <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />}
         <span
           className={`min-w-0 truncate ${
             selected ? "text-foreground" : "text-muted-foreground"
@@ -116,9 +116,9 @@ export function Combobox({
                 }}
                 className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-sm text-foreground hover:bg-muted"
               >
-                <span className="flex-1">{o.label}</span>
+                <span className="min-w-0 flex-1 truncate">{o.label}</span>
                 {o.hint && (
-                  <span className="text-xs text-muted-foreground">
+                  <span className="shrink-0 text-xs text-muted-foreground">
                     {o.hint}
                   </span>
                 )}

@@ -1,11 +1,19 @@
 import { type ReactNode } from "react";
 import { cn } from "@/shared/utils/utils";
 
-type PageShellProps = { children: ReactNode };
+type PageShellProps = {
+  children: ReactNode;
+  className?: string;
+};
 
-export function PageShell({ children }: PageShellProps) {
+export function PageShell({ children, className }: PageShellProps) {
   return (
-    <div className="relative h-full min-w-0 flex-1 overflow-auto bg-background [--page-shell-header-height:4.5rem]">
+    <div
+      className={cn(
+        "relative h-full min-w-0 flex-1 overflow-auto bg-background pb-16 [--page-shell-header-height:4rem] md:pb-0 md:[--page-shell-header-height:4.5rem]",
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -25,17 +33,17 @@ export function PageHeader({
   children,
 }: PageHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 min-h-(--page-shell-header-height) border-b border-border bg-background/70 px-6 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 min-h-(--page-shell-header-height) border-b border-border bg-background/70 px-4 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 md:px-6 md:py-4">
       {children ?? (
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
           {title && (
-            <h1 className="min-w-0 truncate text-2xl font-semibold text-foreground">
+            <h1 className="min-w-0 truncate text-xl font-semibold text-foreground md:text-2xl">
               {title}
             </h1>
           )}
           {badge}
           {actions && (
-            <div className="ml-auto flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
+            <div className="flex w-full min-w-0 flex-wrap items-center justify-start gap-2 sm:ml-auto sm:w-auto sm:flex-1 sm:justify-end">
               {actions}
             </div>
           )}
@@ -49,7 +57,7 @@ type PageControlsProps = { children: ReactNode };
 
 export function PageControls({ children }: PageControlsProps) {
   return (
-    <div className="sticky top-(--page-shell-header-height) z-40 border-b border-border bg-background/70 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+    <div className="sticky top-(--page-shell-header-height) z-40 border-b border-border bg-background/70 px-4 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 md:px-6">
       {children}
     </div>
   );
@@ -69,7 +77,7 @@ export function PageContent({
   return (
     <div
       className={cn(
-        "px-6 py-6",
+        "px-4 py-4 md:px-6 md:py-6",
         centered &&
           "flex min-h-[calc(100vh-var(--page-shell-header-height))] items-center justify-center pb-8",
         className,

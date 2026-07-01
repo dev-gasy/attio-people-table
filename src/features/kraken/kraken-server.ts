@@ -13,7 +13,7 @@ export const getKrakenEntrypointRulesServer = createServerFn({ method: "GET" })
   .validator((data: { entrypointName: string }) => data)
   .handler(async ({ data }) => {
     const entrypoint = entrypoints.find(
-      (item) => createSlug(item.name) === data.entrypointName,
+      (item) => item.name === data.entrypointName,
     );
 
     if (!entrypoint) {

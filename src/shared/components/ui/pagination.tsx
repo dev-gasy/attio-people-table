@@ -96,7 +96,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(1)}
           disabled={page === 1}
-          className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+          className="hidden h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40 sm:flex"
           aria-label="First page"
         >
           <ChevronFirst className="h-4 w-4" />
@@ -109,11 +109,14 @@ export function Pagination({
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
+        <span className="px-2 text-sm text-muted-foreground sm:hidden">
+          {page} of {pageCount}
+        </span>
         {pages.map((p, i) =>
           p === "..." ? (
             <span
               key={`gap-${i}`}
-              className="px-1 text-sm text-muted-foreground"
+              className="hidden px-1 text-sm text-muted-foreground sm:inline"
             >
               &hellip;
             </span>
@@ -121,7 +124,7 @@ export function Pagination({
             <button
               key={p}
               onClick={() => onPageChange(p)}
-              className={`flex h-7 min-w-7 items-center justify-center rounded-md px-2 text-sm ${
+              className={`hidden h-7 min-w-7 items-center justify-center rounded-md px-2 text-sm sm:flex ${
                 p === page
                   ? "bg-primary text-primary-foreground"
                   : "border border-border text-foreground hover:bg-muted"
@@ -142,7 +145,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(pageCount)}
           disabled={page === pageCount}
-          className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+          className="hidden h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40 sm:flex"
           aria-label="Last page"
         >
           <ChevronLast className="h-4 w-4" />
